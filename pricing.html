@@ -1,0 +1,418 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Pricing — Ledger</title>
+<meta name="description" content="Three ways to keep one book. One is free and stays free; the paid plans add more books, more people, and an export.">
+<meta name="author" content="Yuhan.Cai">
+<meta name="theme-color" content="#0d0d12">
+<link rel="icon" href="images/favicon-32.png" sizes="32x32">
+<link rel="apple-touch-icon" href="images/apple-touch-icon.png">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Pricing — Ledger">
+<meta property="og:description" content="Three ways to keep one book. One is free and stays free.">
+<meta property="og:image" content="images/og-image.jpg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; }
+  :root {
+    --bg: #0d0d12;
+    --canvas: #0f0f15;
+    --line: rgba(255, 255, 255, 0.05);
+    --line-soft: rgba(255, 255, 255, 0.04);
+    --purple: #a855f7;
+    --purple-deep: #9333ea;
+    --emerald: #34d399;
+    --muted: rgba(255, 255, 255, 0.4);
+    --muted-2: rgba(255, 255, 255, 0.2);
+    --heading: "Plus Jakarta Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    --sans: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "PingFang SC", "Microsoft YaHei", sans-serif;
+  }
+  html { background: var(--bg); scroll-behavior: smooth; }
+  @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
+  body { margin: 0; background: var(--bg); color: #fff; font-family: var(--sans); font-size: 16px; line-height: 1.5; overflow-x: hidden; -webkit-font-smoothing: antialiased; }
+  a { color: inherit; text-decoration: none; }
+  h1, h2, h3, h4, p, ul, dl { margin: 0; }
+  ul { list-style: none; padding: 0; }
+
+  /* ---------- top bar ---------- */
+  .top { display: flex; align-items: center; justify-content: space-between; gap: 20px; padding: 24px; border-bottom: 1px solid rgba(255, 255, 255, 0.06); }
+  .top__brand { display: flex; align-items: center; gap: 10px; font-family: var(--heading); font-weight: 700; font-size: 15px; letter-spacing: 0.02em; }
+  .top__brand span:first-child { width: 28px; height: 28px; display: grid; place-items: center; border: 1px solid rgba(255, 255, 255, 0.2); font-size: 13px; border-radius: 8px; background: rgba(168, 85, 247, 0.12); color: var(--purple); }
+  .top__links { display: flex; align-items: center; gap: 24px; }
+  .top__links a { font-size: 13px; color: rgba(255, 255, 255, 0.55); transition: color 0.2s ease; }
+  .top__links a:hover, .top__links a[aria-current="page"] { color: #fff; }
+
+  /* ---------- the section ---------- */
+  .hiw { padding: 96px 24px; overflow: hidden; }
+  .hiw__inner { max-width: 1200px; margin: 0 auto; }
+  .hiw__head { display: flex; flex-direction: column; align-items: flex-start; gap: 32px; margin-bottom: 48px; }
+  .hiw__left { flex: 1; }
+  .label-tag {
+    position: relative; display: inline-block; margin-bottom: 20px;
+    border: 1px solid rgba(168, 85, 247, 0.5); border-radius: 6px;
+    padding: 5px 12px; font-size: 11px; letter-spacing: 2px;
+    color: rgba(255, 255, 255, 0.7); font-weight: 500;
+  }
+  .hiw h1 {
+    font-family: var(--heading); font-size: 38px; font-weight: 500; line-height: 1.12;
+    letter-spacing: -1px; margin-bottom: 14px;
+  }
+  .hiw__sub { font-size: 15px; color: var(--muted); line-height: 1.65; max-width: 420px; }
+  .cta {
+    display: inline-flex; align-items: center; gap: 8px; flex-shrink: 0;
+    background: var(--purple); color: #fff; border: 0; border-radius: 999px;
+    padding: 12px 32px; font-size: 14px; font-weight: 600; cursor: pointer;
+    transition: background-color 0.2s ease;
+  }
+  .cta:hover { background: var(--purple-deep); }
+
+  .layout { display: flex; flex-direction: column; gap: 32px; align-items: stretch; }
+
+  /* ---------- left: the plan rows ---------- */
+  .steps { width: 100%; display: flex; flex-direction: column; gap: 16px; flex-shrink: 0; }
+  .row {
+    position: relative; display: flex; flex-direction: column; gap: 4px;
+    border: 1px solid var(--line); border-radius: 12px;
+    padding: 18px 20px; cursor: pointer; text-align: left;
+    background: none; color: inherit; font: inherit; width: 100%;
+    transition: border-color 0.2s ease, background-color 0.2s ease;
+  }
+  .row:hover { border-color: rgba(255, 255, 255, 0.12); }
+  .row.active { border-color: rgba(168, 85, 247, 0.3); background: rgba(255, 255, 255, 0.02); }
+  .row__top { display: flex; align-items: center; gap: 20px; }
+  .icon-box {
+    width: 40px; height: 40px; border-radius: 10px; flex-shrink: 0;
+    display: flex; align-items: center; justify-content: center;
+    background: rgba(255, 255, 255, 0.03); transition: background-color 0.2s ease;
+  }
+  .row.active .icon-box { background: rgba(168, 85, 247, 0.1); }
+  .icon-box svg { width: 20px; height: 20px; stroke: rgba(255, 255, 255, 0.2); fill: none; stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; transition: stroke 0.2s ease; }
+  .row.active .icon-box svg { stroke: var(--purple); }
+  .row__eyebrow { font-size: 10px; font-weight: 700; letter-spacing: 0.12em; margin-bottom: 2px; color: var(--muted-2); transition: color 0.2s ease; }
+  .row.active .row__eyebrow { color: var(--purple); }
+  .row__title { font-size: 16px; font-weight: 500; letter-spacing: -0.01em; color: rgba(255, 255, 255, 0.4); transition: color 0.2s ease; }
+  .row.active .row__title { color: #fff; }
+  .row__price { margin-left: auto; font-size: 14px; color: rgba(255, 255, 255, 0.3); font-variant-numeric: tabular-nums; }
+  .row.active .row__price { color: #fff; }
+  .row__desc { overflow: hidden; max-height: 0; opacity: 0; transition: max-height 0.3s ease, opacity 0.3s ease, margin 0.3s ease; }
+  .row.active .row__desc { max-height: 220px; opacity: 1; margin-top: 8px; }
+  .row__desc p { padding-left: 68px; padding-right: 16px; margin-bottom: 12px; font-size: 14px; line-height: 1.6; color: rgba(255, 255, 255, 0.45); }
+  .row__desc ul { padding-left: 68px; margin-bottom: 8px; display: flex; flex-direction: column; gap: 6px; }
+  .row__desc li { font-size: 13px; color: rgba(255, 255, 255, 0.5); display: flex; gap: 8px; }
+  .row__desc li::before { content: "→"; color: var(--purple); }
+
+  /* ---------- right: the canvas ---------- */
+  .canvas-wrap { flex: 1; width: 100%; overflow: hidden; }
+  .canvas {
+    background: var(--canvas); border: 1px solid var(--line-soft); border-radius: 16px;
+    padding: 28px; min-height: 400px; height: 100%; display: flex; flex-direction: column;
+  }
+  .canvas__head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 32px; padding-bottom: 16px; border-bottom: 1px solid var(--line); }
+  .canvas__id { display: flex; align-items: center; gap: 12px; }
+  .canvas__dotbox { width: 32px; height: 32px; border-radius: 8px; background: rgba(168, 85, 247, 0.1); display: grid; place-items: center; }
+  .canvas__dot { width: 8px; height: 8px; border-radius: 999px; background: var(--purple); animation: pulse 2s ease-in-out infinite; }
+  @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.35; } }
+  .canvas__name { font-size: 13px; font-weight: 600; color: rgba(255, 255, 255, 0.8); }
+  .canvas__dots { display: flex; gap: 8px; }
+  .canvas__dots i { width: 8px; height: 8px; border-radius: 999px; background: rgba(255, 255, 255, 0.1); display: block; }
+
+  .panel { display: none; flex: 1; flex-direction: column; justify-content: center; gap: 18px; }
+  .panel.is-live { display: flex; animation: panelIn 0.35s ease both; }
+  @keyframes panelIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+  @media (prefers-reduced-motion: reduce) { .panel.is-live, .canvas__dot { animation: none; } }
+
+  .price { display: flex; align-items: baseline; gap: 10px; }
+  .price strong { font-family: var(--heading); font-size: 44px; font-weight: 600; letter-spacing: -0.03em; }
+  .price span { font-size: 13px; color: var(--muted); }
+  .panel__note { font-size: 13px; color: rgba(255, 255, 255, 0.45); }
+
+  .meters { display: flex; flex-direction: column; gap: 14px; margin-top: 4px; }
+  .meter__row { display: flex; align-items: center; justify-content: space-between; font-size: 11px; letter-spacing: 0.06em; text-transform: uppercase; color: rgba(255, 255, 255, 0.35); }
+  .meter { height: 6px; border-radius: 999px; background: rgba(255, 255, 255, 0.06); overflow: hidden; margin-top: 6px; }
+  .meter i { display: block; height: 100%; width: 0; border-radius: 999px; background: linear-gradient(90deg, rgba(168, 85, 247, 0.9), rgba(99, 102, 241, 0.9)); transition: width 0.9s cubic-bezier(0.22, 1, 0.36, 1); }
+  .panel.is-live .meter i { width: var(--w); }
+
+  .panel__list { display: flex; flex-direction: column; gap: 10px; }
+  .panel__list li { display: flex; align-items: center; gap: 10px; font-size: 13px; color: rgba(255, 255, 255, 0.6); }
+  .panel__list li span { width: 5px; height: 5px; border-radius: 999px; background: var(--purple); flex: none; }
+
+  /* ---------- comparison ---------- */
+  .compare { margin-top: 96px; }
+  .compare h2 { font-family: var(--heading); font-size: 26px; font-weight: 500; letter-spacing: -0.5px; margin-bottom: 8px; }
+  .compare p { font-size: 14px; color: var(--muted); margin-bottom: 28px; }
+  table { width: 100%; border-collapse: collapse; }
+  thead th { text-align: left; font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase; color: rgba(255, 255, 255, 0.35); font-weight: 600; padding: 0 0 14px; border-bottom: 1px solid var(--line); }
+  thead th:not(:first-child), tbody td:not(:first-child) { text-align: center; width: 18%; }
+  tbody td { padding: 14px 0; border-bottom: 1px solid rgba(255, 255, 255, 0.04); font-size: 14px; color: rgba(255, 255, 255, 0.75); }
+  tbody tr:hover td { background: rgba(255, 255, 255, 0.02); }
+  td.yes { color: var(--purple); }
+  td.no { color: rgba(255, 255, 255, 0.2); }
+
+  /* ---------- faq ---------- */
+  .faq { margin-top: 80px; display: flex; flex-direction: column; gap: 12px; }
+  .faq h2 { font-family: var(--heading); font-size: 26px; font-weight: 500; letter-spacing: -0.5px; margin-bottom: 12px; }
+  details { border: 1px solid var(--line); border-radius: 12px; padding: 18px 20px; }
+  details[open] { border-color: rgba(168, 85, 247, 0.25); background: rgba(255, 255, 255, 0.02); }
+  summary { cursor: pointer; font-size: 15px; font-weight: 500; list-style: none; display: flex; justify-content: space-between; gap: 16px; align-items: center; }
+  summary::-webkit-details-marker { display: none; }
+  summary::after { content: "+"; color: var(--purple); font-size: 18px; line-height: 1; }
+  details[open] summary::after { content: "−"; }
+  details p { margin-top: 12px; font-size: 14px; line-height: 1.65; color: rgba(255, 255, 255, 0.5); }
+
+  footer { border-top: 1px solid rgba(255, 255, 255, 0.06); padding: 40px 24px; }
+  .foot { max-width: 1200px; margin: 0 auto; display: flex; flex-direction: column; align-items: center; gap: 14px; font-size: 13px; color: rgba(255, 255, 255, 0.4); text-align: center; }
+  .foot__links { display: flex; gap: 22px; }
+  .foot a:hover { color: #fff; }
+
+  /* ---------- responsive ---------- */
+  @media (max-width: 700px) {
+    .top { padding: 20px; }
+    .top__links { gap: 14px; flex-wrap: wrap; row-gap: 8px; }
+    .top__links a { font-size: 12px; }
+  }
+  @media (min-width: 768px) {
+    .hiw { padding-left: 60px; padding-right: 60px; }
+    .hiw__head { flex-direction: row; justify-content: space-between; align-items: flex-end; gap: 32px; }
+    .hiw h1 { font-size: 52px; }
+    .foot { flex-direction: row; justify-content: space-between; text-align: left; }
+    .foot__links { margin-left: auto; }
+  }
+  @media (min-width: 1024px) {
+    .layout { flex-direction: row; gap: 32px; }
+    .steps { width: 42%; }
+  }
+</style>
+</head>
+<body>
+
+<header class="top">
+  <a class="top__brand" href="index.html"><span aria-hidden="true">L</span><span>LEDGER</span></a>
+  <nav class="top__links" aria-label="Main">
+    <a href="index.html">Home</a>
+    <a href="pricing.html" aria-current="page">Pricing</a>
+    <a href="contact.html">Contact</a>
+    <a href="book.html">The ledger</a>
+  </nav>
+</header>
+
+<section class="hiw">
+  <div class="hiw__inner">
+
+    <div class="hiw__head">
+      <div class="hiw__left">
+        <span class="label-tag">◆ PRICING</span>
+        <h1>What it costs to<br>keep one book.</h1>
+        <p class="hiw__sub">One book is free and stays free. The paid plans add more books, more people, and an export you can hand to someone.</p>
+      </div>
+      <a class="cta" href="book.html">Open a ledger &rarr;</a>
+    </div>
+
+    <div class="layout">
+      <div class="steps" id="steps">
+
+        <button class="row active" type="button" data-plan="0" aria-expanded="true" aria-controls="panel-0">
+          <span class="row__top">
+            <span class="icon-box" aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg></span>
+            <span>
+              <span class="row__eyebrow">PLAN 01</span>
+              <span class="row__title">Starter</span>
+            </span>
+            <span class="row__price">$0</span>
+          </span>
+          <span class="row__desc">
+            <p>One book, for one household. Everything the ledger does, with nothing to pay and nothing to sign up for.</p>
+            <ul><li>One shared book</li><li>Three people on the key</li><li>Unlimited entries, kept in this browser</li></ul>
+          </span>
+        </button>
+
+        <button class="row" type="button" data-plan="1" aria-expanded="false" aria-controls="panel-1">
+          <span class="row__top">
+            <span class="icon-box" aria-hidden="true"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="8" height="16" rx="1.5"/><rect x="13" y="4" width="8" height="16" rx="1.5"/></svg></span>
+            <span>
+              <span class="row__eyebrow">PLAN 02</span>
+              <span class="row__title">Household</span>
+            </span>
+            <span class="row__price">$6</span>
+          </span>
+          <span class="row__desc">
+            <p>Four books, one balance each. For a flat where the bills and the groceries are not the same conversation.</p>
+            <ul><li>Four books, each with its own key</li><li>Eight people per book</li><li>Monthly and yearly summaries</li><li>Export to CSV</li></ul>
+          </span>
+        </button>
+
+        <button class="row" type="button" data-plan="2" aria-expanded="false" aria-controls="panel-2">
+          <span class="row__top">
+            <span class="icon-box" aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="9" cy="8" r="3"/><path d="M3 19c0-3 2.7-5 6-5s6 2 6 5"/><path d="M16 5.5a3 3 0 0 1 0 5.8M18.5 19c0-2.2-.9-4-2.4-5"/></svg></span>
+            <span>
+              <span class="row__eyebrow">PLAN 03</span>
+              <span class="row__title">Crew</span>
+            </span>
+            <span class="row__price">$14</span>
+          </span>
+          <span class="row__desc">
+            <p>For a group that splits everything. Unlimited books and keys, and a closed book keeps its history.</p>
+            <ul><li>Unlimited books and keys</li><li>Thirty people per book</li><li>Close a book and keep the history</li><li>Export to CSV or PDF</li></ul>
+          </span>
+        </button>
+
+      </div>
+
+      <div class="canvas-wrap">
+        <div class="canvas">
+          <div class="canvas__head">
+            <div class="canvas__id">
+              <span class="canvas__dotbox"><span class="canvas__dot"></span></span>
+              <span class="canvas__name">Ledger · plan preview</span>
+            </div>
+            <div class="canvas__dots"><i></i><i></i><i></i></div>
+          </div>
+
+          <div class="panel is-live" id="panel-0" role="tabpanel">
+            <div class="price"><strong>$0</strong><span>forever — the real one</span></div>
+            <p class="panel__note">One book, one key, no account. It works offline and keeps working.</p>
+            <div class="meters">
+              <div>
+                <div class="meter__row"><span>Books</span><span>1</span></div>
+                <div class="meter"><i style="--w:18%"></i></div>
+              </div>
+              <div>
+                <div class="meter__row"><span>People on the key</span><span>3</span></div>
+                <div class="meter"><i style="--w:26%"></i></div>
+              </div>
+              <div>
+                <div class="meter__row"><span>Export</span><span>—</span></div>
+                <div class="meter"><i style="--w:6%"></i></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="panel" id="panel-1" role="tabpanel">
+            <div class="price"><strong>$6</strong><span>per month</span></div>
+            <p class="panel__note">Four books, each with its own key, so the flat can separate rent from groceries.</p>
+            <div class="meters">
+              <div>
+                <div class="meter__row"><span>Books</span><span>4</span></div>
+                <div class="meter"><i style="--w:46%"></i></div>
+              </div>
+              <div>
+                <div class="meter__row"><span>People per book</span><span>8</span></div>
+                <div class="meter"><i style="--w:52%"></i></div>
+              </div>
+              <div>
+                <div class="meter__row"><span>Export</span><span>CSV</span></div>
+                <div class="meter"><i style="--w:58%"></i></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="panel" id="panel-2" role="tabpanel">
+            <div class="price"><strong>$14</strong><span>per month</span></div>
+            <p class="panel__note">Unlimited books and keys. Close a book and the history stays where it was.</p>
+            <div class="meters">
+              <div>
+                <div class="meter__row"><span>Books</span><span>Unlimited</span></div>
+                <div class="meter"><i style="--w:100%"></i></div>
+              </div>
+              <div>
+                <div class="meter__row"><span>People per book</span><span>30</span></div>
+                <div class="meter"><i style="--w:88%"></i></div>
+              </div>
+              <div>
+                <div class="meter__row"><span>Export</span><span>CSV · PDF</span></div>
+                <div class="meter"><i style="--w:100%"></i></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="compare">
+      <h2>What each plan includes.</h2>
+      <p>Every plan keeps the entries in your browser. The differences are how many books, how many people, and what you can export.</p>
+      <table>
+        <thead>
+          <tr><th>Feature</th><th>Starter</th><th>Household</th><th>Crew</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Shared books</td><td>1</td><td>4</td><td>Unlimited</td></tr>
+          <tr><td>People per book</td><td>3</td><td>8</td><td>30</td></tr>
+          <tr><td>Entries</td><td>Unlimited</td><td>Unlimited</td><td>Unlimited</td></tr>
+          <tr><td>Monthly summary</td><td class="yes">Yes</td><td class="yes">Yes</td><td class="yes">Yes</td></tr>
+          <tr><td>CSV export</td><td class="no">—</td><td class="yes">Yes</td><td class="yes">Yes</td></tr>
+          <tr><td>PDF export</td><td class="no">—</td><td class="no">—</td><td class="yes">Yes</td></tr>
+          <tr><td>Closed books kept</td><td class="no">—</td><td class="no">—</td><td class="yes">Yes</td></tr>
+          <tr><td>Stored in your browser</td><td class="yes">Yes</td><td class="yes">Yes</td><td class="yes">Yes</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="faq">
+      <h2>Questions.</h2>
+      <details open>
+        <summary>What happens to my entries if I stop paying?</summary>
+        <p>Nothing is deleted. The book keeps working on the free plan: one book, three people, unlimited entries. The paid features stop, and you can export everything first.</p>
+      </details>
+      <details>
+        <summary>Is any of this uploaded?</summary>
+        <p>No. Every entry is written to this browser's local storage. That is why there is no server to pay for — and why clearing site data clears the book.</p>
+      </details>
+      <details>
+        <summary>How do I get more people into one book?</summary>
+        <p>The key is the invitation. Read the six digits out; anyone who types them opens the same list. The plan only sets how many people can hold a key at once.</p>
+      </details>
+      <details>
+        <summary>Can two people be in the same entry?</summary>
+        <p>One entry is one date, one type, one category, one amount. If two people paid, write two lines and a note on each; the balance adds them either way.</p>
+      </details>
+      <details>
+        <summary>Can I actually buy a plan?</summary>
+        <p>No. This is a student project and the pricing page is a design exercise: there is no checkout and nothing takes a payment. The free plan is the real one.</p>
+      </details>
+    </div>
+
+  </div>
+</section>
+
+<footer>
+  <div class="foot">
+    <p>© 2026 Ledger · Yuhan.Cai · entries live in this browser only</p>
+    <div class="foot__links">
+      <a href="index.html">Home</a>
+      <a href="pricing.html">Pricing</a>
+      <a href="contact.html">Contact</a>
+      <a href="book.html">The ledger</a>
+    </div>
+  </div>
+</footer>
+
+<script>
+  /* one controller: the row the reader picks decides which panel is live */
+  (function () {
+    var rows = Array.prototype.slice.call(document.querySelectorAll(".row"));
+    var panels = Array.prototype.slice.call(document.querySelectorAll(".panel"));
+
+    function select(index) {
+      rows.forEach(function (row, i) {
+        var on = i === index;
+        row.classList.toggle("active", on);
+        row.setAttribute("aria-expanded", String(on));
+      });
+      panels.forEach(function (panel, i) {
+        panel.classList.toggle("is-live", i === index);
+      });
+    }
+
+    rows.forEach(function (row, i) {
+      row.addEventListener("click", function () { select(i); });
+    });
+
+    select(0);
+  })();
+</script>
+</body>
+</html>

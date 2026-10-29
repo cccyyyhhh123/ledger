@@ -1,0 +1,12 @@
+# Backups and merged-away pages stay local
+*.bak
+_merged-pages/
+
+# Editor / OS noise
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+
+# inspector output
+.shots*

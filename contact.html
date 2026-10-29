@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Contact — Ledger</title>
+<meta name="description" content="Say something about the book, or ask how the six-digit key works.">
+<meta name="author" content="Yuhan.Cai">
+<meta name="theme-color" content="#080706">
+<link rel="icon" href="images/favicon-32.png" sizes="32x32">
+<link rel="apple-touch-icon" href="images/apple-touch-icon.png">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Contact — Ledger">
+<meta property="og:description" content="Say something about the book, or ask how the six-digit key works.">
+<meta property="og:image" content="images/og-image.jpg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; }
+  :root {
+    --ink: #080706;
+    --line: #171717;
+    --line-hi: #404040;
+    --body: #94a3b8;
+    --link: #a3a3a3;
+    --white: #fff;
+    --heading: "Plus Jakarta Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    --sans: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "PingFang SC", "Microsoft YaHei", sans-serif;
+  }
+  html { background: var(--ink); }
+  body {
+    margin: 0; background: var(--ink); color: var(--white);
+    font-family: var(--sans); font-size: 16px; line-height: 1.5;
+    -webkit-font-smoothing: antialiased; overflow-x: hidden;
+  }
+  a { color: inherit; text-decoration: none; }
+  h1, h2, h3, h4, p, ul, form { margin: 0; }
+  ul { list-style: none; padding: 0; }
+
+  /* ---------- a slim dark header, so the page is still navigable ---------- */
+  .top { display: flex; align-items: center; justify-content: space-between; gap: 20px; padding: 28px 24px; border-bottom: 1px solid var(--line); }
+  .top__brand { display: flex; align-items: center; gap: 10px; font-family: var(--heading); font-weight: 700; font-size: 15px; letter-spacing: 0.02em; }
+  .top__brand span:first-child {
+    width: 28px; height: 28px; display: grid; place-items: center;
+    border: 1px solid var(--line-hi); font-size: 13px;
+  }
+  .top__links { display: flex; align-items: center; gap: 24px; }
+  .top__links a { font-size: 13px; color: var(--link); transition: color 0.2s ease; }
+  .top__links a:hover { color: var(--white); }
+  .top__links a[aria-current="page"] { color: var(--white); }
+
+  @media (max-width: 700px) {
+    .top { padding: 20px; }
+    .top__links { gap: 14px; flex-wrap: wrap; row-gap: 8px; }
+    .top__links a { font-size: 12px; }
+  }
+
+  /* ---------- the footer block ---------- */
+  .foot {
+    position: relative; overflow: hidden;
+    padding: 96px 24px 32px;
+    background: var(--ink); color: var(--white);
+  }
+  .foot__inner { display: flex; flex-direction: column; }
+
+  /* the staggered reveal — same timings as the Framer variants */
+  .rv { opacity: 0; transform: translateY(15px); transition: opacity 0.5s ease-out, transform 0.5s ease-out; }
+  .foot__inner.is-in .rv { opacity: 1; transform: none; }
+  .foot__inner.is-in .rv:nth-child(1) { transition-delay: 0s; }
+  .foot__inner.is-in .rv:nth-child(2) { transition-delay: 0.1s; }
+  .foot__inner.is-in .rv:nth-child(3) { transition-delay: 0.2s; }
+  .foot__inner.is-in .rv:nth-child(4) { transition-delay: 0.3s; }
+  .foot__inner.is-in .rv:nth-child(5) { transition-delay: 0.4s; }
+  @media (prefers-reduced-motion: reduce) {
+    .rv { opacity: 1; transform: none; transition: none; }
+  }
+
+  /* 1. newsletter row */
+  .news { display: flex; flex-direction: column; gap: 32px; margin-bottom: 64px; }
+  .news h2 {
+    max-width: 480px;
+    font-family: var(--heading); font-weight: 600;
+    font-size: 28px; line-height: 34px; letter-spacing: -0.5px; color: var(--white);
+  }
+  .news form { display: flex; flex-direction: column; align-items: stretch; gap: 16px; width: 100%; }
+  .field {
+    display: flex; align-items: center; height: 56px; padding: 0 16px;
+    background: transparent; border: 1px solid #262626; border-radius: 0;
+    transition: border-color 0.3s ease;
+  }
+  .field:hover { border-color: #404040; }
+  .field:focus-within { border-color: #737373; }
+  .field svg { width: 20px; height: 20px; flex: none; margin-right: 12px; color: #737373; }
+  .field input {
+    width: 100%; border: 0; outline: none; background: transparent;
+    color: var(--white); font-family: var(--sans); font-size: 15px;
+  }
+  .field input::placeholder { color: #737373; }
+  .cta {
+    display: flex; align-items: center; justify-content: center; gap: 8px;
+    height: 56px; padding: 0 32px; border: 0; border-radius: 0;
+    background: var(--white); color: var(--ink);
+    font-family: var(--sans); font-size: 15px; font-weight: 600;
+    cursor: pointer; transition: background-color 0.3s ease, transform 0.3s ease;
+  }
+  .cta:hover { background: #e5e5e5; }
+  .cta:active { transform: scale(0.98); }
+  .cta svg { width: 16px; height: 16px; }
+  .cta[data-sent="true"] svg { display: none; }
+
+  .rule { width: 100%; height: 1px; background: #171717; }
+  .rule--1 { margin-bottom: 64px; }
+  .rule--2 { margin-bottom: 32px; }
+
+  /* 3. content row */
+  .cols { display: grid; grid-template-columns: 1fr; gap: 48px; margin-bottom: 64px; }
+  .brandcol { display: flex; flex-direction: column; align-items: flex-start; gap: 16px; }
+  .brandcol__mark {
+    display: flex; align-items: center; gap: 10px;
+    font-family: var(--heading); font-weight: 700; font-size: 20px; letter-spacing: 0.04em;
+  }
+  .brandcol__mark span:first-child {
+    width: 32px; height: 32px; display: grid; place-items: center;
+    border: 1px solid var(--line-hi); font-size: 15px;
+  }
+  .brandcol p { max-width: 340px; font-size: 15px; line-height: 24px; color: var(--body); }
+
+  .links { display: grid; grid-template-columns: repeat(2, 1fr); gap: 32px; }
+  .links h4 {
+    font-family: var(--heading); font-weight: 600; font-size: 15px;
+    letter-spacing: 0.02em; color: var(--white); margin-bottom: 14px;
+  }
+  .links ul { display: flex; flex-direction: column; gap: 12px; }
+  .links a, .links li { font-size: 14px; color: var(--link); }
+  .links a { transition: color 0.2s ease; }
+  .links a:hover { color: var(--white); }
+  .links .col--wide { grid-column: span 2; }
+  .facts { display: flex; flex-direction: column; gap: 12px; }
+  .facts div { font-size: 14px; color: var(--link); }
+  .facts dt { font-size: 12px; color: #525252; margin-bottom: 2px; }
+  .facts dd { margin: 0; color: #d4d4d4; }
+
+  /* 5. bottom row */
+  .bottom { display: flex; flex-direction: column; align-items: center; gap: 16px; color: var(--link); font-size: 14px; text-align: center; }
+  .bottom__links { display: flex; align-items: center; gap: 24px; }
+  .bottom a { transition: color 0.2s ease; }
+  .bottom a:hover { color: var(--white); }
+
+  /* ---------- responsive ---------- */
+  @media (min-width: 640px) {
+    .foot { padding-left: 48px; padding-right: 48px; }
+    .news h2 { font-size: 36px; line-height: 44px; }
+    .news form { flex-direction: row; }
+    .field { min-width: 320px; }
+    .links { grid-template-columns: repeat(3, 1fr); }
+    .links .col--wide { grid-column: span 1; }
+  }
+  @media (min-width: 768px) {
+    .field { min-width: 380px; }
+    .bottom { flex-direction: row; justify-content: space-between; text-align: left; }
+  }
+  @media (min-width: 1024px) {
+    .foot { padding-left: 64px; padding-right: 64px; }
+    .news { flex-direction: row; justify-content: space-between; align-items: center; gap: 32px; }
+    .news form { width: auto; }
+    .cols { grid-template-columns: repeat(12, 1fr); gap: 32px; }
+    .brandcol { grid-column: span 5; }
+    .links { grid-column: span 7; }
+  }
+</style>
+</head>
+<body>
+
+<header class="top">
+  <a class="top__brand" href="index.html"><span aria-hidden="true">L</span><span>LEDGER</span></a>
+  <nav class="top__links" aria-label="Main">
+    <a href="index.html">Home</a>
+    <a href="pricing.html">Pricing</a>
+    <a href="contact.html" aria-current="page">Contact</a>
+    <a href="book.html">The ledger</a>
+  </nav>
+</header>
+
+<footer class="foot" id="footer-section">
+  <div class="foot__inner" id="footInner">
+
+    <div class="news rv">
+      <h2>Say something about the book — or just say hello.</h2>
+      <form id="contactForm" novalidate>
+        <label class="field">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><rect x="2.6" y="4.6" width="18.8" height="14.8" rx="2"/><path d="m3.4 6 8.6 6.2L20.6 6"/></svg>
+          <input type="email" name="email" id="email" placeholder="Enter your email" required autocomplete="email">
+        </label>
+        <button class="cta" type="submit" id="sendBtn">
+          <span id="sendLabel">Send</span>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 12h15"/><path d="m13 6 6 6-6 6"/></svg>
+        </button>
+      </form>
+    </div>
+
+    <div class="rule rule--1 rv" aria-hidden="true"></div>
+
+    <div class="cols rv">
+      <div class="brandcol">
+        <div class="brandcol__mark"><span aria-hidden="true">L</span><span>LEDGER</span></div>
+        <p>A shared book for money a group puts in and spends. One six-digit key, one balance, kept in this browser — no account, no server.</p>
+      </div>
+
+      <div class="links">
+        <div class="col">
+          <h4>Pages</h4>
+          <ul>
+            <li><a href="index.html">Home</a></li>
+            <li><a href="pricing.html">Pricing</a></li>
+            <li><a href="book.html">The ledger</a></li>
+            <li><a href="#footer-section">Contact</a></li>
+          </ul>
+        </div>
+        <div class="col">
+          <h4>Elsewhere</h4>
+          <ul>
+            <li><a href="https://github.com/cccyyyhhh123/c-y-h-h-h">GitHub</a></li>
+            <li><a href="contact.html">Email</a></li>
+            <li><a href="pricing.html#faq">Questions</a></li>
+            <li><a href="index.html#how">How it works</a></li>
+          </ul>
+        </div>
+        <div class="col col--wide">
+          <h4>The book</h4>
+          <dl class="facts">
+            <div><dt>Made by</dt><dd>Yuhan.Cai</dd></div>
+            <div><dt>Built with</dt><dd>Hand-written HTML, CSS, one script</dd></div>
+            <div><dt>Where it lives</dt><dd>localStorage in this browser only</dd></div>
+            <div><dt>To open a book</dt><dd>Type the six digits someone sent you</dd></div>
+          </dl>
+        </div>
+      </div>
+    </div>
+
+    <div class="rule rule--2 rv" aria-hidden="true"></div>
+
+    <div class="bottom rv">
+      <p>© 2026 Ledger · Yuhan.Cai · entries live in this browser only</p>
+      <div class="bottom__links">
+        <a href="index.html">Home</a>
+        <a href="pricing.html">Pricing</a>
+        <a href="book.html">The ledger</a>
+      </div>
+    </div>
+
+  </div>
+</footer>
+
+<script>
+  /* the staggered reveal, once, when the block is 10% in view */
+  (function () {
+    var inner = document.getElementById("footInner");
+    if (!inner) return;
+    if (!("IntersectionObserver" in window)) { inner.classList.add("is-in"); return; }
+    var io = new IntersectionObserver(function (entries) {
+      if (!entries[0].isIntersecting) return;
+      inner.classList.add("is-in");
+      io.disconnect();
+    }, { threshold: 0.1 });
+    io.observe(inner);
+  })();
+
+  /* the form has no server: it acknowledges, then resets after 3 seconds */
+  (function () {
+    var form = document.getElementById("contactForm");
+    var button = document.getElementById("sendBtn");
+    var label = document.getElementById("sendLabel");
+    var email = document.getElementById("email");
+    if (!form) return;
+    form.addEventListener("submit", function (event) {
+      event.preventDefault();
+      if (!email.value || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.value)) {
+        email.focus();
+        email.setAttribute("aria-invalid", "true");
+        return;
+      }
+      email.removeAttribute("aria-invalid");
+      button.dataset.sent = "true";
+      label.textContent = "Sent!";
+      button.disabled = true;
+      setTimeout(function () {
+        button.dataset.sent = "false";
+        label.textContent = "Send";
+        button.disabled = false;
+        email.value = "";
+      }, 3000);
+    });
+  })();
+</script>
+</body>
+</html>

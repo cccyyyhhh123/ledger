@@ -1,0 +1,678 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#0d0d12">
+<meta name="author" content="Yuhan.Cai">
+<title>The ledger — Ledger</title>
+<meta name="description" content="The working ledger: add a line, filter by month or type, delete a mistake. Everything is kept in this browser.">
+<meta name="author" content="Yuhan.Cai">
+<link rel="icon" href="images/favicon-32.png" sizes="32x32">
+<link rel="apple-touch-icon" href="images/apple-touch-icon.png">
+<meta property="og:title" content="The ledger — Ledger">
+<meta property="og:description" content="Add a line, filter by month, delete a mistake — the working screen of a shared expense book.">
+<meta property="og:image" content="https://cccyyyhhh123.github.io/c-y-h-h-h/images/og-image.jpg">
+<meta property="og:url" content="https://cccyyyhhh123.github.io/c-y-h-h-h/book.html">
+<meta property="og:type" content="website">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  /* ---------------------------------------------------------------
+     The working ledger, in the dark system the rest of the site now
+     uses: near-black surfaces, hairlines, one purple accent. Only the
+     theme changed — every control and every line of logic is the same.
+     --------------------------------------------------------------- */
+  :root {
+    --bg: #0d0d12;
+    --panel: #0f0f15;
+    --soft: rgba(255, 255, 255, 0.03);
+    --ink: #ffffff;
+    --ink-2: rgba(255, 255, 255, 0.72);
+    --muted: rgba(255, 255, 255, 0.45);
+    --line: rgba(255, 255, 255, 0.07);
+    --field: #131319;
+    --accent: #a855f7;
+    --accent-deep: #9333ea;
+    --neg: #f87171;
+    --r-panel: 16px;
+    --r-control: 10px;
+    --r-chip: 6px;
+    --shell: 1180px;
+    --gutter: 20px;
+
+    --s1: 0.8125rem;
+    --s2: 0.9375rem;
+    --s3: 1.0625rem;
+    --mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--ink);
+    font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "PingFang SC", "Microsoft YaHei", sans-serif;
+    font-size: var(--s3);
+    line-height: 1.45;
+    -webkit-font-smoothing: antialiased;
+    color-scheme: dark;
+  }
+
+  h1, h2, p, dl, dd { margin: 0; }
+  a { color: inherit; }
+  :focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+  .shell { width: 100%; max-width: var(--shell); margin: 0 auto; padding: 0 24px; }
+
+  /* ---------- the bar ---------- */
+
+  .bar { background: rgba(13, 13, 18, 0.9); border-bottom: 1px solid var(--line); }
+  .bar__inner { display: flex; align-items: center; gap: 26px; height: 64px; }
+  .brand { display: flex; align-items: center; gap: 10px; text-decoration: none; font-weight: 700; font-size: 1.0625rem; letter-spacing: -0.01em; }
+  .brand__mark { position: relative; width: 18px; height: 18px; background: var(--accent); flex: none; border-radius: 5px; }
+  .brand__mark::after {
+    content: "";
+    position: absolute;
+    left: -5px;
+    top: -5px;
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: var(--bg);
+  }
+
+  .bar__links { display: flex; gap: 18px; margin-left: 8px; font-size: var(--s1); }
+  .bar__links a { text-decoration: none; color: var(--muted); transition: color 0.2s ease; }
+  .bar__links a:hover { color: var(--ink); }
+  .bar__key { display: flex; align-items: center; gap: 10px; margin-left: auto; }
+  .bar__key > span { font-size: var(--s1); color: var(--muted); }
+  .keys { display: flex; gap: 3px; }
+  .keys span {
+    width: 22px; height: 28px;
+    display: grid; place-items: center;
+    border: 1px solid var(--line);
+    border-radius: 6px;
+    background: var(--field);
+    font-size: 0.875rem;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .quiet {
+    font: inherit; font-size: var(--s2);
+    border: 1px solid var(--line); background: transparent; color: var(--muted);
+    padding: 7px 12px; border-radius: 999px; cursor: pointer;
+    transition: color 0.2s ease, border-color 0.2s ease;
+  }
+  .quiet:hover { color: var(--ink); border-color: rgba(255, 255, 255, 0.2); }
+
+  /* ---------- page ---------- */
+
+  main { padding: 40px 0 72px; }
+
+  h1 { font-size: 1.75rem; font-weight: 500; letter-spacing: -0.02em; line-height: 1.15; }
+  .finding { margin-top: 8px; font-size: var(--s2); color: var(--muted); max-width: 68ch; }
+
+  .panel {
+    background: var(--panel);
+    border: 1px solid var(--line);
+    border-radius: var(--r-panel);
+    padding: 24px;
+    margin-top: var(--gutter);
+  }
+  .panel h2 { font-size: var(--s2); font-weight: 600; }
+
+  /* ---------- summary ---------- */
+
+  .summary { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 2fr); align-items: center; }
+  .summary__lead { padding-right: 32px; }
+  .label { font-size: var(--s1); color: var(--muted); display: block; letter-spacing: 0.06em; text-transform: uppercase; }
+  .balance { display: flex; align-items: baseline; gap: 2px; margin-top: 6px; font-size: 2.5rem; font-weight: 600; letter-spacing: -0.03em; line-height: 1; font-variant-numeric: tabular-nums; }
+  .balance small { font-size: 1.25rem; font-weight: 500; color: var(--muted); }
+  .balance.is-negative { color: var(--neg); }
+  .meta { margin-top: 10px; font-size: var(--s1); color: var(--muted); font-variant-numeric: tabular-nums; }
+
+  .summary__grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
+  .figure { background: rgba(255, 255, 255, 0.02); border: 1px solid var(--line); border-radius: var(--r-control); padding: 14px 16px; }
+  .figure dt { font-size: var(--s1); color: var(--muted); }
+  .figure dd { margin: 4px 0 0; font-size: 1.3125rem; font-weight: 500; font-variant-numeric: tabular-nums; }
+
+  /* ---------- add an entry ---------- */
+
+  .entry { display: grid; grid-template-columns: 168px 128px minmax(0, 1fr) 136px minmax(150px, 1.2fr) auto; gap: 12px; align-items: end; margin-top: 16px; }
+  .field { display: grid; gap: 6px; min-width: 0; }
+  .field > span { font-size: var(--s1); color: var(--muted); }
+  .input {
+    font: inherit; font-size: var(--s2); color: var(--ink);
+    background: var(--field);
+    border: 1px solid var(--line);
+    border-radius: var(--r-control);
+    padding: 10px 12px;
+    width: 100%; min-width: 0; max-width: 100%;
+    overflow: hidden; text-overflow: ellipsis;
+    transition: border-color 0.2s ease;
+  }
+  .input::placeholder { color: rgba(255, 255, 255, 0.3); }
+  .input:hover { border-color: rgba(255, 255, 255, 0.16); }
+  .input:focus-visible { outline: none; border-color: rgba(168, 85, 247, 0.6); box-shadow: 0 0 0 3px rgba(168, 85, 247, 0.15); }
+  .input--num { font-variant-numeric: tabular-nums; }
+  .input--date { font-variant-numeric: tabular-nums; letter-spacing: 0.01em; }
+  /* the real picker sits on top, invisible: tap opens the calendar, the field
+     itself always reads in ISO so the page stays in one language */
+  .datefield { position: relative; display: block; min-width: 0; }
+  .datefield .input--calendar {
+    position: absolute; inset: 0; width: 100%; height: 100%; min-width: 0;
+    opacity: 0; border: 0; padding: 0; cursor: pointer;
+  }
+
+  /* the interactive hover button, now the page's one accent */
+  .hbtn {
+    --hbtn-flood: #c084fc;
+    --hbtn-on: #140a1f;
+    position: relative;
+    display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+    height: 42px; padding: 0 24px;
+    border: 1px solid transparent;
+    border-radius: 999px;
+    background: var(--accent); color: #fff;
+    font: inherit; font-size: var(--s2); font-weight: 600; line-height: 1;
+    text-decoration: none; cursor: pointer; overflow: hidden;
+    transition: background-color 0.2s ease;
+  }
+  .hbtn:hover { background: var(--accent-deep); }
+  .hbtn__dot { width: 8px; height: 8px; border-radius: 50%; flex: none; background: var(--hbtn-flood); transition: transform 0.3s ease; }
+  .hbtn__label { display: inline-block; white-space: nowrap; transition: transform 0.3s ease, opacity 0.3s ease; }
+  .hbtn__ghost {
+    position: absolute; inset: 0;
+    display: flex; align-items: center; justify-content: center; gap: 8px;
+    color: var(--hbtn-on); opacity: 0; transform: translateX(48px);
+    transition: transform 0.3s ease, opacity 0.3s ease;
+  }
+  .hbtn__ghost svg { width: 1.05em; height: 1.05em; }
+  .hbtn:hover .hbtn__dot, .hbtn:focus-visible .hbtn__dot { transform: scale(100.8); }
+  .hbtn:hover .hbtn__label, .hbtn:focus-visible .hbtn__label { transform: translateX(48px); opacity: 0; }
+  .hbtn:hover .hbtn__ghost, .hbtn:focus-visible .hbtn__ghost { transform: translateX(-16px); opacity: 1; }
+
+  .formnote { margin-top: 12px; font-size: var(--s1); color: var(--neg); min-height: 1.2em; }
+  .formnote:empty { min-height: 0; margin-top: 0; }
+
+  /* ---------- entries ---------- */
+
+  .panel__head { display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap; }
+  .filters { display: flex; gap: 8px; }
+  .filters .input { width: auto; min-width: 132px; font-size: var(--s1); padding: 7px 10px; }
+
+  table { width: 100%; border-collapse: collapse; margin-top: 14px; }
+  thead th { text-align: left; font-size: 0.7rem; font-weight: 600; letter-spacing: 0.14em; text-transform: uppercase; color: rgba(255, 255, 255, 0.35); padding: 0 10px 10px; }
+  thead th.num { text-align: right; }
+  tbody td { padding: 14px 10px; border-top: 1px solid var(--line); font-size: var(--s2); vertical-align: middle; color: var(--ink-2); }
+  tbody td.num { text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
+  tbody td.date { color: var(--muted); font-variant-numeric: tabular-nums; white-space: nowrap; }
+  tbody td.note { color: var(--muted); }
+  tbody td.actions { text-align: right; }
+  tbody tr { transition: background-color 0.2s ease; }
+  tbody tr:hover { background: rgba(255, 255, 255, 0.02); }
+
+  .chip {
+    display: inline-block; font-size: 0.75rem; font-weight: 600; padding: 3px 9px;
+    border: 1px solid var(--line);
+    border-radius: var(--r-chip); color: var(--muted);
+  }
+  .chip--in { background: rgba(168, 85, 247, 0.16); border-color: rgba(168, 85, 247, 0.4); color: #d8b4fe; }
+
+  .amt-in { color: #fff; font-weight: 500; }
+  .amt-out { color: var(--muted); }
+
+  .del { font: inherit; font-size: 0.8125rem; color: var(--muted); background: transparent; border: 0; padding: 4px 2px; cursor: pointer; text-decoration: underline; text-underline-offset: 3px; border-radius: 4px; transition: color 0.2s ease; }
+  .del:hover { color: var(--neg); }
+
+  .empty { margin-top: 18px; font-size: var(--s2); color: var(--muted); max-width: 60ch; }
+
+  /* ---------- phone ---------- */
+
+  @media (max-width: 980px) {
+    .entry { grid-template-columns: 1fr 1fr; }
+    .entry .field--wide { grid-column: 1 / -1; }
+    .entry .hbtn { grid-column: 1 / -1; width: 100%; height: 44px; }
+    .summary { grid-template-columns: minmax(0, 1fr); gap: 20px; }
+    .summary__lead { padding-right: 0; }
+  }
+
+  @media (max-width: 720px) {
+    .shell { padding: 0 16px; }
+    main { padding: 24px 0 56px; }
+    h1 { font-size: 1.375rem; }
+    .bar__inner { height: 56px; gap: 14px; }
+    .bar__key > span { display: none; }
+    .bar__links { display: none; }
+    .keys span { width: 19px; height: 25px; font-size: 0.8125rem; }
+    .quiet { padding: 6px 10px; }
+    .panel { padding: 18px; border-radius: 14px; }
+    .balance { font-size: 1.875rem; }
+    .summary__grid { grid-template-columns: 1fr 1fr; }
+    .filters { width: 100%; }
+    .filters .input { flex: 1; }
+    thead { display: none; }
+    tbody tr { display: grid; grid-template-columns: 1fr auto; gap: 3px 12px; padding: 12px 0; border-top: 1px solid var(--line); }
+    tbody td { border: 0; padding: 0; }
+    tbody td.date { grid-column: 1; font-size: var(--s1); }
+    tbody td.num { grid-column: 2; grid-row: 1; font-size: 1rem; }
+    tbody td.type { grid-column: 1; }
+    tbody td.cat { grid-column: 1; }
+    tbody td.note { grid-column: 1; font-size: var(--s1); }
+    tbody td.actions { grid-column: 2; grid-row: 3; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    * { transition: none !important; animation: none !important; }
+  }
+</style>
+<script src="vendor/anime.min.js"></script>
+</head>
+<body>
+
+<header class="bar">
+  <div class="shell bar__inner">
+    <a class="brand" href="index.html"><span class="brand__mark" aria-hidden="true"></span>Ledger</a>
+    <div class="bar__links">
+      <a href="index.html">Home</a>
+      <a href="pricing.html">Pricing</a>
+      <a href="contact.html">Contact</a>
+    </div>
+    <div class="bar__key">
+      <span>Shared key</span>
+      <div class="keys" id="currentKey" aria-label="Shared key"></div>
+    </div>
+    <button class="quiet" type="button" id="leaveBtn">Leave ledger</button>
+  </div>
+</header>
+
+<main class="shell">
+  <h1>Shared ledger</h1>
+  <p class="finding" id="finding">Every entry below is visible to everyone holding this key.</p>
+
+  <section class="panel summary" aria-label="Balance and totals">
+    <div class="summary__lead">
+      <span class="label">Balance</span>
+      <p class="balance" id="balance"><span>0</span><small>.00</small></p>
+      <p class="meta" id="meta">No entries yet.</p>
+    </div>
+    <dl class="summary__grid">
+      <div class="figure figure--in">
+        <dt>In this month</dt>
+        <dd id="monthIn">0.00</dd>
+      </div>
+      <div class="figure figure--out">
+        <dt>Out this month</dt>
+        <dd id="monthOut">0.00</dd>
+      </div>
+      <div class="figure figure--plain">
+        <dt>Out, all time</dt>
+        <dd id="allOut">0.00</dd>
+      </div>
+    </dl>
+  </section>
+
+  <section class="panel">
+    <h2>Add an entry</h2>
+    <form class="entry" id="entryForm">
+      <label class="field">
+        <span>Date</span>
+        <span class="datefield">
+          <input class="input input--date" type="text" id="billDate" placeholder="YYYY-MM-DD"
+                 inputmode="numeric" maxlength="10" autocomplete="off" required>
+          <input class="input--calendar" type="date" id="billDatePicker" tabindex="-1" aria-hidden="true">
+        </span>
+      </label>
+      <label class="field">
+        <span>Type</span>
+        <select class="input" id="billType">
+          <option value="deposit">Deposit</option>
+          <option value="spend">Spend</option>
+        </select>
+      </label>
+      <label class="field">
+        <span>Category</span>
+        <select class="input" id="billClass">
+          <option value="screen-share">Screen share</option>
+          <option value="deposit">Deposit</option>
+          <option value="valorant">Valorant</option>
+          <option value="gifting">Gifting</option>
+          <option value="steam">Steam</option>
+          <option value="voice-chat">Voice chat</option>
+          <option value="friend-slot">Friend slot</option>
+        </select>
+      </label>
+      <label class="field">
+        <span>Amount</span>
+        <input class="input input--num" type="number" step="0.01" min="0" placeholder="0.00" id="billMoney" required>
+      </label>
+      <label class="field field--wide">
+        <span>Note</span>
+        <input class="input" type="text" placeholder="Optional" id="billNote">
+      </label>
+      <button class="hbtn" type="submit"><span class="hbtn__dot"></span><span class="hbtn__label">Save entry</span><span class="hbtn__ghost" aria-hidden="true">Save entry <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg></span></button>
+    </form>
+    <p class="formnote" id="entryNote" role="status" aria-live="polite"></p>
+  </section>
+
+  <section class="panel">
+    <div class="panel__head">
+      <h2>Entries</h2>
+      <div class="filters">
+        <select class="input" id="filterMonth" aria-label="Filter by month">
+          <option value="">All months</option>
+        </select>
+        <select class="input" id="filterType" aria-label="Filter by type">
+          <option value="">All types</option>
+          <option value="deposit">Deposits only</option>
+          <option value="spend">Spending only</option>
+        </select>
+      </div>
+    </div>
+
+    <table>
+      <thead>
+        <tr>
+          <th scope="col">Date</th>
+          <th scope="col">Type</th>
+          <th scope="col">Category</th>
+          <th scope="col" class="num">Amount</th>
+          <th scope="col">Note</th>
+          <th scope="col"><span class="visually-hidden" hidden>Actions</span></th>
+        </tr>
+      </thead>
+      <tbody id="billList"></tbody>
+    </table>
+    <p class="empty" id="emptyState" hidden></p>
+  </section>
+</main>
+
+<script>
+  const STORE = "shareBillStorage";
+
+  const TYPE_LABELS = { deposit: "Deposit", spend: "Spend" };
+  const CATEGORY_LABELS = {
+    "screen-share": "Screen share",
+    deposit: "Deposit",
+    valorant: "Valorant",
+    gifting: "Gifting",
+    steam: "Steam",
+    "voice-chat": "Voice chat",
+    "friend-slot": "Friend slot"
+  };
+
+  // Books saved by an earlier build hold these values in Chinese characters. Map
+  // them on read so nothing already written in this browser is lost; the keys stay
+  // escaped so the file itself is plain ASCII.
+  const TYPE_MIGRATION = { "\u5b58": "deposit", "\u6263": "spend" };
+  const CATEGORY_MIGRATION = {
+    "\u5c4f\u4eab": "screen-share",
+    "\u5b58": "deposit",
+    "\u74e6": "valorant",
+    "\u9001\u793c": "gifting",
+    steam: "steam",
+    "\u8bed\u804a": "voice-chat",
+    "\u597d\u53cb\u4f4d": "friend-slot"
+  };
+
+  const money = (value) =>
+    Number(value).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+
+  let globalShareKey = sessionStorage.getItem("activeBookKey");
+  let shareBooks = JSON.parse(localStorage.getItem(STORE)) || {};
+
+  // This page always opens a book: the key you arrived with, else the last book
+  // already saved in this browser, else a fresh one made on the spot. Nothing
+  // bounces you back to the landing page.
+  if (!globalShareKey || !shareBooks[globalShareKey]) {
+    const known = Object.keys(shareBooks);
+    globalShareKey = known.length ? known[known.length - 1] : String(Math.floor(100000 + Math.random() * 900000));
+    if (!shareBooks[globalShareKey]) shareBooks[globalShareKey] = [];
+    localStorage.setItem(STORE, JSON.stringify(shareBooks));
+    sessionStorage.setItem("activeBookKey", globalShareKey);
+  }
+
+  migrate(shareBooks);
+  document.getElementById("currentKey").replaceChildren(
+    ...[...globalShareKey].map((digit) => {
+      const cell = document.createElement("span");
+      cell.textContent = digit;
+      return cell;
+    })
+  );
+
+  const dateInput = document.getElementById("billDate");
+  const datePicker = document.getElementById("billDatePicker");
+  const today = new Date().toISOString().slice(0, 10);
+  dateInput.value = today;
+  if (datePicker) {
+    datePicker.value = today;
+    /* picking a day in the native calendar writes ISO into the visible field */
+    datePicker.addEventListener("change", () => {
+      if (datePicker.value) dateInput.value = datePicker.value;
+    });
+  }
+  /* typed input is normalised, so 2026/10/7 becomes 2026-10-07 */
+  dateInput.addEventListener("blur", () => {
+    const match = dateInput.value.trim().replace(/[./]/g, "-").match(/^(\d{4})-(\d{1,2})-(\d{1,2})$/);
+    if (!match) return;
+    dateInput.value = match[1] + "-" + match[2].padStart(2, "0") + "-" + match[3].padStart(2, "0");
+    if (datePicker) datePicker.value = dateInput.value;
+  });
+
+  function migrate(books) {
+    let changed = false;
+    Object.values(books).forEach((list) => {
+      (list || []).forEach((bill) => {
+        if (TYPE_MIGRATION[bill.type]) { bill.type = TYPE_MIGRATION[bill.type]; changed = true; }
+        if (CATEGORY_MIGRATION[bill.class]) { bill.class = CATEGORY_MIGRATION[bill.class]; changed = true; }
+      });
+    });
+    if (changed) localStorage.setItem(STORE, JSON.stringify(books));
+  }
+
+  function saveAllBooks() {
+    localStorage.setItem(STORE, JSON.stringify(shareBooks));
+  }
+
+  function currentList() {
+    return shareBooks[globalShareKey] || [];
+  }
+
+  function stats(list) {
+    const month = new Date().toISOString().slice(0, 7);
+    let monthIn = 0;
+    let monthOut = 0;
+    let totalIn = 0;
+    let totalOut = 0;
+    list.forEach((bill) => {
+      const amount = Number(bill.money) || 0;
+      if (bill.type === "deposit") {
+        totalIn += amount;
+        if (bill.date.startsWith(month)) monthIn += amount;
+      } else {
+        totalOut += amount;
+        if (bill.date.startsWith(month)) monthOut += amount;
+      }
+    });
+    return { monthIn, monthOut, totalIn, totalOut, balance: totalIn - totalOut };
+  }
+
+  function syncMonthFilter() {
+    const select = document.getElementById("filterMonth");
+    const previous = select.value;
+    const months = [...new Set(currentList().map((bill) => bill.date.slice(0, 7)))].sort().reverse();
+
+    select.replaceChildren(new Option("All months", ""));
+    months.forEach((month) => select.add(new Option(month, month)));
+    select.value = months.includes(previous) ? previous : "";
+  }
+
+  let shownBalance = 0;
+  let balanceTween = null;
+
+  function paintBalance(value) {
+    const el = document.getElementById("balance");
+    const parts = money(value).split(".");
+    el.replaceChildren();
+    const whole = document.createElement("span");
+    whole.textContent = parts[0];
+    const cents = document.createElement("small");
+    cents.textContent = "." + parts[1];
+    el.append(whole, cents);
+    el.classList.toggle("is-negative", value < 0);
+  }
+
+  /* the figure counts to its new value instead of jumping */
+  function setBalance(value) {
+    const from = shownBalance;
+    shownBalance = value;
+    const reduced = matchMedia("(prefers-reduced-motion: reduce)").matches;
+    if (balanceTween && balanceTween.pause) balanceTween.pause();
+    if (typeof anime === "undefined" || from === value) { paintBalance(value); return; }
+    const proxy = { v: from };
+    balanceTween = anime({
+      targets: proxy, v: value, duration: reduced ? 240 : 900, easing: "easeOutExpo",
+      update: () => paintBalance(proxy.v),
+      complete: () => paintBalance(value),
+    });
+  }
+  function render() {
+    syncMonthFilter();
+
+    const month = document.getElementById("filterMonth").value;
+    const type = document.getElementById("filterType").value;
+    let rows = [...currentList()];
+    if (month) rows = rows.filter((bill) => bill.date.startsWith(month));
+    if (type) rows = rows.filter((bill) => bill.type === type);
+    rows.sort((a, b) => (a.date < b.date ? 1 : a.date > b.date ? -1 : b.id - a.id));
+
+    const body = document.getElementById("billList");
+    body.replaceChildren();
+
+    rows.forEach((bill) => {
+      const tr = document.createElement("tr");
+      const isIn = bill.type === "deposit";
+
+      const dateCell = document.createElement("td");
+      dateCell.className = "date";
+      dateCell.textContent = bill.date;
+
+      const typeCell = document.createElement("td");
+      typeCell.className = "type";
+      const chip = document.createElement("span");
+      chip.className = isIn ? "chip chip--in" : "chip chip--out";
+      chip.textContent = TYPE_LABELS[bill.type] || bill.type;
+      typeCell.appendChild(chip);
+
+      const catCell = document.createElement("td");
+      catCell.className = "cat";
+      catCell.textContent = CATEGORY_LABELS[bill.class] || bill.class;
+
+      const amountCell = document.createElement("td");
+      amountCell.className = "num";
+      const amount = document.createElement("span");
+      amount.className = isIn ? "amt-in" : "amt-out";
+      amount.textContent = (isIn ? "+" : "−") + money(bill.money);
+      amountCell.appendChild(amount);
+
+      const noteCell = document.createElement("td");
+      noteCell.className = "note";
+      noteCell.textContent = bill.note || "—";
+
+      const actionCell = document.createElement("td");
+      actionCell.className = "actions";
+      const remove = document.createElement("button");
+      remove.type = "button";
+      remove.className = "del";
+      remove.textContent = "Delete";
+      remove.setAttribute("aria-label", "Delete the entry from " + bill.date);
+      remove.addEventListener("click", () => deleteEntry(bill.id));
+      actionCell.appendChild(remove);
+
+      tr.append(dateCell, typeCell, catCell, amountCell, noteCell, actionCell);
+      body.appendChild(tr);
+    });
+
+    const empty = document.getElementById("emptyState");
+    const total = currentList().length;
+    if (rows.length === 0) {
+      empty.hidden = false;
+      empty.textContent = total === 0
+        ? "No entries yet. The first deposit or spend lands here, and everyone holding the key sees it."
+        : "Nothing matches these filters. Clear them to see the whole book.";
+    } else {
+      empty.hidden = true;
+    }
+
+    const summary = stats(currentList());
+    setBalance(summary.balance);
+
+    const meta = document.getElementById("meta");
+    meta.textContent = total === 0
+      ? "No entries yet."
+      : total + (total === 1 ? " entry" : " entries") + " · in " + money(summary.totalIn) + ", out " + money(summary.totalOut);
+
+    document.getElementById("monthIn").textContent = money(summary.monthIn);
+    document.getElementById("monthOut").textContent = money(summary.monthOut);
+    document.getElementById("allOut").textContent = money(summary.totalOut);
+
+    const finding = document.getElementById("finding");
+    finding.classList.toggle("is-warn", summary.balance < 0);
+    finding.textContent = findingText(summary, total);
+  }
+
+  function findingText(summary, total) {
+    if (total === 0) return "An empty book. Add the first entry and the balance starts moving.";
+    const monthName = new Date().toLocaleString("en-US", { month: "long" });
+    const gap = summary.monthIn - summary.monthOut;
+    if (gap === 0) return "Deposits and spending are level in " + monthName + ".";
+    if (gap > 0) return "Deposits are " + money(gap) + " ahead of spending in " + monthName + ".";
+    return "Spending is " + money(-gap) + " ahead of deposits in " + monthName + "." + (summary.balance < 0 ? " The balance is below zero." : " The balance is dropping.");
+  }
+
+  function addEntry(event) {
+    event.preventDefault();
+    const date = dateInput.value;
+    const type = document.getElementById("billType").value;
+    const category = document.getElementById("billClass").value;
+    const amount = Number(document.getElementById("billMoney").value);
+    const note = document.getElementById("billNote").value.trim();
+    const noteEl = document.getElementById("entryNote");
+
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(date) || !(amount > 0)) {
+      noteEl.textContent = "A date (YYYY-MM-DD) and an amount above zero are required.";
+      return;
+    }
+
+    shareBooks[globalShareKey].push({ id: Date.now(), date, type, class: category, money: amount, note });
+    saveAllBooks();
+    noteEl.textContent = "";
+    document.getElementById("billMoney").value = "";
+    document.getElementById("billNote").value = "";
+    render();
+    document.getElementById("billMoney").focus();
+  }
+
+  function deleteEntry(id) {
+    shareBooks[globalShareKey] = currentList().filter((bill) => bill.id !== id);
+    saveAllBooks();
+    render();
+  }
+
+  document.getElementById("entryForm").addEventListener("submit", addEntry);
+  document.getElementById("leaveBtn").addEventListener("click", () => {
+    sessionStorage.removeItem("activeBookKey");
+    window.location.href = "index.html";
+  });
+  document.getElementById("filterMonth").addEventListener("change", render);
+  document.getElementById("filterType").addEventListener("change", render);
+
+  render();
+</script>
+</body>
+</html>
