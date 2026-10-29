@@ -10,3 +10,6 @@ Thumbs.db
 
 # inspector output
 .shots*
+
+# automation log
+_tools/auto-commit.log
