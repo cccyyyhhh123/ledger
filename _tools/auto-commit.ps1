@@ -1,10 +1,11 @@
 ﻿# auto-commit.ps1  -  daily commit + push for the Ledger project
 # Commits whatever you changed today. Does nothing if there is nothing new.
+# Network note: github.com is slow/throttled on this connection, so push retries.
 
 $ErrorActionPreference = "Continue"
-$repo  = "D:\projects\homework"
-$git   = "C:\Program Files\Git\cmd\git.exe"
-$log   = Join-Path $repo "_tools\auto-commit.log"
+$repo   = "D:\projects\homework"
+$git    = "C:\Program Files\Git\cmd\git.exe"
+$log    = Join-Path $repo "_tools\auto-commit.log"
 
 function Log($msg) {
     $line = "{0}  {1}" -f (Get-Date -Format "yyyy-MM-dd HH:mm:ss"), $msg
@@ -21,26 +22,29 @@ if (-not $branch) { Log "ERROR: not a git repo"; exit 1 }
 $pending = (& $git diff --cached --name-only 2>$null)
 if (-not $pending) {
     Log "nothing to commit on $branch"
-    exit 0
+} else {
+    $msg = "Daily work: " + (Get-Date -Format "yyyy-MM-dd")
+    & $git commit -m $msg 2>&1 | Out-Null
+    if ($LASTEXITCODE -ne 0) { Log "ERROR: commit failed"; exit 1 }
+    Log ("committed " + ($pending -join ", "))
 }
-
-$msg = "Daily work: " + (Get-Date -Format "yyyy-MM-dd")
-& $git commit -m $msg 2>&1 | Out-Null
-if ($LASTEXITCODE -ne 0) { Log "ERROR: commit failed"; exit 1 }
-Log ("committed " + ($pending -join ", "))
 
 $remote = (& $git remote 2>$null)
-if (-not $remote) {
-    Log "no remote configured - commit kept locally"
-    exit 0
-}
+if (-not $remote) { Log "no remote configured - commit kept locally"; exit 0 }
 
-$upstream = (& $git rev-parse --abbrev-ref --symbolic-full-name '@{u}' 2>$null)
-if (-not $upstream) {
-    & $git push -u origin $branch 2>&1 | Out-Null
-} else {
-    & $git push 2>&1 | Out-Null
+# push with generous timeouts + retries (connection is throttled)
+$pushArgs = @(
+    "-C", $repo,
+    "-c", "http.postBuffer=52428800",
+    "-c", "http.lowSpeedLimit=0",
+    "-c", "http.lowSpeedTime=600",
+    "push", "-u", "origin", $branch
+)
+$pushed = $false
+for ($i = 1; $i -le 3; $i++) {
+    $out = (& $git @pushArgs 2>&1 | Out-String)
+    if ($LASTEXITCODE -eq 0) { Log "pushed to origin/$branch (attempt $i)"; $pushed = $true; break }
+    Log ("push attempt $i failed: " + ($out.Trim() -replace "\s+", " ").Substring(0, [Math]::Min(160, ($out.Trim() -replace "\s+", " ").Length)))
+    Start-Sleep -Seconds 20
 }
-
-if ($LASTEXITCODE -eq 0) { Log "pushed to origin/$branch" }
-else { Log "ERROR: push failed (check credentials / network)" }
+if (-not $pushed) { Log "ERROR: push failed after 3 attempts - commit is safe locally, will retry next run" }
