@@ -269,6 +269,22 @@
   @media (prefers-reduced-motion: reduce) {
     * { transition: none !important; animation: none !important; }
   }
+  /* ---------- the sliding highlight behind the menu ---------- */
+  .pill__links, .top__links, .bar__links { position: relative; }
+  .nav-ink {
+    position: absolute; left: 0; top: 0; z-index: 0; pointer-events: none;
+    border-radius: 999px; background: rgba(255, 255, 255, 0.1); opacity: 0;
+    transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1),
+                width 0.4s cubic-bezier(0.34, 1.56, 0.64, 1),
+                height 0.24s ease, opacity 0.25s ease;
+  }
+  .pill__links a, .top__links a, .bar__links a {
+    position: relative; z-index: 1;
+    padding: 8px 13px; border-radius: 999px;
+  }
+  .pill__links, .top__links { gap: 4px; }
+  .bar__links { gap: 2px; }
+  @media (prefers-reduced-motion: reduce) { .nav-ink { transition: none; } }
 </style>
 <script src="vendor/anime.min.js"></script>
 </head>
@@ -278,6 +294,7 @@
   <div class="shell bar__inner">
     <a class="brand" href="index.html"><span class="brand__mark" aria-hidden="true"></span>Ledger</a>
     <div class="bar__links">
+      <span class="nav-ink" aria-hidden="true"></span>
       <a href="index.html">Home</a>
       <a href="pricing.html">Pricing</a>
       <a href="contact.html">Contact</a>
@@ -674,5 +691,48 @@
 
   render();
 </script>
+<script>
+  /* the menu's highlight is one element that moves and resizes to the item
+     you picked, then the page changes — a small spring on the way over */
+  (function () {
+    var bar = document.querySelector('.bar__links');
+    if (!bar) return;
+    var links = Array.prototype.slice.call(bar.querySelectorAll('a'));
+    if (!links.length) return;
+
+    var ink = document.createElement('span');
+    ink.className = 'nav-ink';
+    ink.setAttribute('aria-hidden', 'true');
+    bar.insertBefore(ink, bar.firstChild);
+
+    var calm = matchMedia('(prefers-reduced-motion: reduce)');
+
+    function place(target) {
+      if (!target) return;
+      ink.style.width = target.offsetWidth + 'px';
+      ink.style.height = target.offsetHeight + 'px';
+      ink.style.transform = 'translate(' + target.offsetLeft + 'px,' + target.offsetTop + 'px)';
+      ink.style.opacity = '1';
+    }
+
+    var current = bar.querySelector('a[aria-current="page"]');
+    if (current) place(current);
+
+    links.forEach(function (link) {
+      link.addEventListener('click', function (event) {
+        if (event.metaKey || event.ctrlKey || event.shiftKey || event.altKey || event.button !== 0) return;
+        var href = link.getAttribute('href');
+        if (!href || href.charAt(0) === '#') return;
+        event.preventDefault();
+        place(link);
+        if (calm.matches) { location.href = href; return; }
+        setTimeout(function () { location.href = href; }, 340);
+      });
+    });
+
+    addEventListener('resize', function () {
+      place(bar.querySelector('a[aria-current="page"]') || current);
+    });
+  })();</script>
 </body>
 </html>
