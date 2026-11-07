@@ -366,15 +366,18 @@
       </label>
       <label class="field">
         <span>Category</span>
-        <select class="input" id="billClass">
-          <option value="screen-share">Screen share</option>
-          <option value="deposit">Deposit</option>
-          <option value="valorant">Valorant</option>
-          <option value="gifting">Gifting</option>
-          <option value="steam">Steam</option>
-          <option value="voice-chat">Voice chat</option>
-          <option value="friend-slot">Friend slot</option>
-        </select>
+        <input class="input" type="text" id="billClass" list="categoryOptions"
+               placeholder="Pick one, or type your own" autocomplete="off"
+               maxlength="40" required>
+        <datalist id="categoryOptions">
+          <option value="Screen share"></option>
+          <option value="Deposit"></option>
+          <option value="Valorant"></option>
+          <option value="Gifting"></option>
+          <option value="Steam"></option>
+          <option value="Voice chat"></option>
+          <option value="Friend slot"></option>
+        </datalist>
       </label>
       <label class="field">
         <span>Amount</span>
@@ -435,6 +438,63 @@
     "friend-slot": "Friend slot"
   };
 
+  /* The category field accepts any name. A typed name that matches one of the
+     seven built-ins is stored as its id, so the existing books keep their
+     labels; anything else is stored as typed. */
+  const CATEGORY_BY_LABEL = {};
+  Object.keys(CATEGORY_LABELS).forEach((id) => {
+    CATEGORY_BY_LABEL[CATEGORY_LABELS[id].toLowerCase()] = id;
+  });
+
+  function normaliseCategory(raw) {
+    const text = String(raw || "").trim().replace(/\s+/g, " ");
+    if (!text) return "";
+    const known = CATEGORY_BY_LABEL[text.toLowerCase()];
+    return known || text.slice(0, 40);
+  }
+
+  /* Categories typed by hand are remembered in this browser and offered again
+     next time, so a name only has to be written once. */
+  const CUSTOM_STORE = "shareBillCustomCategories";
+
+  function customCategories() {
+    try {
+      const list = JSON.parse(localStorage.getItem(CUSTOM_STORE));
+      return Array.isArray(list) ? list.filter((name) => typeof name === "string") : [];
+    } catch (error) {
+      return [];
+    }
+  }
+
+  function rememberCategory(name) {
+    if (!name || CATEGORY_LABELS[name]) return;
+    const list = customCategories();
+    if (list.some((item) => item.toLowerCase() === name.toLowerCase())) return;
+    list.unshift(name);
+    try {
+      localStorage.setItem(CUSTOM_STORE, JSON.stringify(list.slice(0, 20)));
+    } catch (error) {
+      /* storage full or blocked: the entry is still saved, only the shortcut is lost */
+    }
+  }
+
+  function fillCategoryOptions() {
+    const list = document.getElementById("categoryOptions");
+    if (!list) return;
+    /* drop the ones added last time, so repeated calls cannot stack duplicates */
+    Array.prototype.slice.call(list.querySelectorAll("option[data-custom]")).forEach((option) => option.remove());
+    const seen = new Set(Object.keys(CATEGORY_LABELS).map((id) => CATEGORY_LABELS[id].toLowerCase()));
+    customCategories().forEach((name) => {
+      const key = name.toLowerCase();
+      if (seen.has(key)) return;
+      seen.add(key);
+      const option = document.createElement("option");
+      option.value = name;
+      option.setAttribute("data-custom", "true");
+      list.appendChild(option);
+    });
+  }
+
   // Books saved by an earlier build hold these values in Chinese characters. Map
   // them on read so nothing already written in this browser is lost; the keys stay
   // escaped so the file itself is plain ASCII.
@@ -479,6 +539,7 @@
   const datePicker = document.getElementById("billDatePicker");
   const today = new Date().toISOString().slice(0, 10);
   dateInput.value = today;
+  fillCategoryOptions();
   if (datePicker) {
     datePicker.value = today;
     /* picking a day in the native calendar writes ISO into the visible field */
@@ -669,18 +730,20 @@
     event.preventDefault();
     const date = dateInput.value;
     const type = document.getElementById("billType").value;
-    const category = document.getElementById("billClass").value;
+    const category = normaliseCategory(document.getElementById("billClass").value);
     const amount = Number(document.getElementById("billMoney").value);
     const note = document.getElementById("billNote").value.trim();
     const noteEl = document.getElementById("entryNote");
 
-    if (!/^\d{4}-\d{2}-\d{2}$/.test(date) || !(amount > 0)) {
-      noteEl.textContent = "A date (YYYY-MM-DD) and an amount above zero are required.";
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(date) || !(amount > 0) || !category) {
+      noteEl.textContent = "A date (YYYY-MM-DD), a category and an amount above zero are required.";
       return;
     }
 
     shareBooks[globalShareKey].push({ id: Date.now(), date, type, class: category, money: amount, note });
     saveAllBooks();
+    rememberCategory(category);
+    fillCategoryOptions();
     noteEl.textContent = "";
     document.getElementById("billMoney").value = "";
     document.getElementById("billNote").value = "";
