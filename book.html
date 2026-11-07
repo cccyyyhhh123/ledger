@@ -638,10 +638,41 @@
   // This page always opens a book: the key you arrived with, else the last book
   // already saved in this browser, else a fresh one made on the spot. Nothing
   // bounces you back to the landing page.
+  /* A brand-new book starts with three weeks of entries, so the screen shows
+     what the book does before anyone types anything. Deleting them is one
+     click each; a book made from the landing page starts empty. */
+  const SAMPLE_ENTRIES = [
+    { id: 1,  dateOffset: -1,  type: "spend",   class: "Grocery run", money: 32.4,   note: "market" },
+    { id: 2,  dateOffset: -2,  type: "deposit", class: "Deposit",     money: 180.0,  note: "" },
+    { id: 3,  dateOffset: -4,  type: "spend",   class: "Steam",       money: 14.99,  note: "" },
+    { id: 4,  dateOffset: -6,  type: "spend",   class: "Voice chat",  money: 8.5,    note: "monthly" },
+    { id: 5,  dateOffset: -8,  type: "spend",   class: "Gifting",     money: 26.0,   note: "birthday" },
+    { id: 6,  dateOffset: -11, type: "deposit", class: "Deposit",     money: 124.39, note: "" },
+    { id: 7,  dateOffset: -14, type: "spend",   class: "Tram fare",   money: 6.0,    note: "" },
+    { id: 8,  dateOffset: -17, type: "spend",   class: "Valorant",    money: 19.9,   note: "" },
+    { id: 9,  dateOffset: -21, type: "deposit", class: "Deposit",     money: 90.0,   note: "top-up" }
+  ];
+
+  function sampleBook() {
+    const now = Date.now();
+    return SAMPLE_ENTRIES.map((entry) => ({
+      id: now + entry.id,
+      date: new Date(now + entry.dateOffset * 86400000).toISOString().slice(0, 10),
+      type: entry.type,
+      class: entry.class,
+      money: entry.money,
+      note: entry.note
+    }));
+  }
+
   if (!globalShareKey || !shareBooks[globalShareKey]) {
     const known = Object.keys(shareBooks);
-    globalShareKey = known.length ? known[known.length - 1] : String(Math.floor(100000 + Math.random() * 900000));
-    if (!shareBooks[globalShareKey]) shareBooks[globalShareKey] = [];
+    if (!known.length) {
+      globalShareKey = String(Math.floor(100000 + Math.random() * 900000));
+      shareBooks[globalShareKey] = sampleBook();
+    } else {
+      globalShareKey = known[known.length - 1];
+    }
     localStorage.setItem(STORE, JSON.stringify(shareBooks));
     sessionStorage.setItem("activeBookKey", globalShareKey);
   }
