@@ -159,6 +159,30 @@
   .input:hover { border-color: rgba(255, 255, 255, 0.16); }
   .input:focus-visible { outline: none; border-color: rgba(168, 85, 247, 0.6); box-shadow: 0 0 0 3px rgba(168, 85, 247, 0.15); }
   .input--num { font-variant-numeric: tabular-nums; }
+  /* ---------- the category field: our own list, in the site's colours ---------- */
+  .combo { position: relative; display: block; min-width: 0; }
+  .combo__list {
+    position: absolute; z-index: 30; left: 0; right: 0; top: calc(100% + 6px);
+    margin: 0; padding: 4px; list-style: none;
+    max-height: 13rem; overflow-y: auto;
+    background: #14141a;
+    border: 1px solid rgba(255, 255, 255, 0.14);
+    border-radius: 10px;
+    box-shadow: 0 18px 40px rgba(0, 0, 0, 0.6);
+  }
+  .combo__list[hidden] { display: none; }
+  .combo__option {
+    padding: 8px 10px; border-radius: 7px;
+    font-size: 0.9375rem; color: rgba(255, 255, 255, 0.78);
+    cursor: pointer;
+  }
+  .combo__option:hover { background: rgba(255, 255, 255, 0.06); color: #fff; }
+  .combo__option[aria-selected="true"] {
+    background: rgba(168, 85, 247, 0.22); color: #fff;
+  }
+  .combo__empty {
+    padding: 8px 10px; font-size: 0.9375rem; color: rgba(255, 255, 255, 0.4);
+  }
   .input--date { font-variant-numeric: tabular-nums; letter-spacing: 0.01em; }
   /* the real picker sits on top, invisible: tap opens the calendar, the field
      itself always reads in ISO so the page stays in one language */
@@ -366,18 +390,14 @@
       </label>
       <label class="field">
         <span>Category</span>
-        <input class="input" type="text" id="billClass" list="categoryOptions"
-               placeholder="Pick one, or type your own" autocomplete="off"
-               maxlength="40" required>
-        <datalist id="categoryOptions">
-          <option value="Screen share"></option>
-          <option value="Deposit"></option>
-          <option value="Valorant"></option>
-          <option value="Gifting"></option>
-          <option value="Steam"></option>
-          <option value="Voice chat"></option>
-          <option value="Friend slot"></option>
-        </datalist>
+        <span class="combo">
+          <input class="input" type="text" id="billClass"
+                 role="combobox" aria-expanded="false" aria-controls="categoryList"
+                 aria-autocomplete="list" aria-label="Category"
+                 placeholder="Pick one, or type your own" autocomplete="off"
+                 maxlength="40" required>
+          <ul class="combo__list" id="categoryList" role="listbox" aria-label="Categories" hidden></ul>
+        </span>
       </label>
       <label class="field">
         <span>Amount</span>
@@ -478,20 +498,120 @@
     }
   }
 
-  function fillCategoryOptions() {
-    const list = document.getElementById("categoryOptions");
-    if (!list) return;
-    /* drop the ones added last time, so repeated calls cannot stack duplicates */
-    Array.prototype.slice.call(list.querySelectorAll("option[data-custom]")).forEach((option) => option.remove());
-    const seen = new Set(Object.keys(CATEGORY_LABELS).map((id) => CATEGORY_LABELS[id].toLowerCase()));
-    customCategories().forEach((name) => {
-      const key = name.toLowerCase();
-      if (seen.has(key)) return;
-      seen.add(key);
-      const option = document.createElement("option");
-      option.value = name;
-      option.setAttribute("data-custom", "true");
-      list.appendChild(option);
+  /* ---------- the category list ----------
+     A <datalist> is drawn by the browser and cannot be given the site's colours,
+     so the list is ours: an input plus a listbox that we fill and filter. */
+
+  const categoryInput = document.getElementById("billClass");
+  const categoryList = document.getElementById("categoryList");
+  let activeIndex = -1;
+
+  function allCategories() {
+    const builtins = Object.keys(CATEGORY_LABELS).map((id) => CATEGORY_LABELS[id]);
+    const seen = new Set(builtins.map((name) => name.toLowerCase()));
+    return builtins.concat(customCategories().filter((name) => !seen.has(name.toLowerCase())));
+  }
+
+  function optionsFor(query) {
+    const q = String(query || "").trim().toLowerCase();
+    return allCategories().filter((name) => !q || name.toLowerCase().indexOf(q) !== -1);
+  }
+
+  function renderCategoryOptions(query) {
+    if (!categoryList) return;
+    categoryList.replaceChildren();
+    activeIndex = -1;
+    categoryInput.removeAttribute("aria-activedescendant");
+
+    const items = optionsFor(query);
+    if (!items.length) {
+      const empty = document.createElement("li");
+      empty.className = "combo__empty";
+      empty.textContent = "No match — keep typing to make a new one";
+      categoryList.appendChild(empty);
+      return;
+    }
+    items.forEach((name, index) => {
+      const option = document.createElement("li");
+      option.id = "category-option-" + index;
+      option.className = "combo__option";
+      option.setAttribute("role", "option");
+      option.setAttribute("aria-selected", "false");
+      option.textContent = name;
+      /* mousedown, not click: it fires before the field loses focus */
+      option.addEventListener("mousedown", (event) => {
+        event.preventDefault();
+        chooseCategory(name);
+      });
+      categoryList.appendChild(option);
+    });
+  }
+
+  function openCategoryList() {
+    if (!categoryList) return;
+    renderCategoryOptions(categoryInput.value);
+    categoryList.hidden = false;
+    categoryInput.setAttribute("aria-expanded", "true");
+  }
+
+  function closeCategoryList() {
+    if (!categoryList) return;
+    categoryList.hidden = true;
+    categoryInput.setAttribute("aria-expanded", "false");
+    activeIndex = -1;
+    categoryInput.removeAttribute("aria-activedescendant");
+  }
+
+  function chooseCategory(name) {
+    categoryInput.value = name;
+    closeCategoryList();
+    categoryInput.focus();
+  }
+
+  function moveActive(step) {
+    const options = Array.prototype.slice.call(categoryList.querySelectorAll(".combo__option"));
+    if (!options.length) return;
+    activeIndex = (activeIndex + step + options.length) % options.length;
+    options.forEach((option, index) => option.setAttribute("aria-selected", String(index === activeIndex)));
+    const active = options[activeIndex];
+    categoryInput.setAttribute("aria-activedescendant", active.id);
+    active.scrollIntoView({ block: "nearest" });
+  }
+
+  if (categoryInput && categoryList) {
+    categoryInput.addEventListener("focus", openCategoryList);
+    categoryInput.addEventListener("click", openCategoryList);
+    categoryInput.addEventListener("input", openCategoryList);
+
+    categoryInput.addEventListener("keydown", (event) => {
+      const open = !categoryList.hidden;
+      if (event.key === "ArrowDown" || event.key === "ArrowUp") {
+        event.preventDefault();
+        if (!open) { openCategoryList(); return; }
+        moveActive(event.key === "ArrowDown" ? 1 : -1);
+        return;
+      }
+      if (event.key === "Enter" && open && activeIndex >= 0) {
+        const options = categoryList.querySelectorAll(".combo__option");
+        if (options[activeIndex]) {
+          event.preventDefault();
+          chooseCategory(options[activeIndex].textContent);
+        }
+        return;
+      }
+      if (event.key === "Escape" && open) {
+        event.preventDefault();
+        closeCategoryList();
+      }
+    });
+
+    categoryInput.addEventListener("blur", () => {
+      /* a tick late, so a click on an option lands first */
+      setTimeout(closeCategoryList, 120);
+    });
+
+    document.addEventListener("click", (event) => {
+      if (!event.target.closest(".combo")) closeCategoryList();
     });
   }
 
@@ -539,7 +659,6 @@
   const datePicker = document.getElementById("billDatePicker");
   const today = new Date().toISOString().slice(0, 10);
   dateInput.value = today;
-  fillCategoryOptions();
   if (datePicker) {
     datePicker.value = today;
     /* picking a day in the native calendar writes ISO into the visible field */
@@ -743,7 +862,6 @@
     shareBooks[globalShareKey].push({ id: Date.now(), date, type, class: category, money: amount, note });
     saveAllBooks();
     rememberCategory(category);
-    fillCategoryOptions();
     noteEl.textContent = "";
     document.getElementById("billMoney").value = "";
     document.getElementById("billNote").value = "";
