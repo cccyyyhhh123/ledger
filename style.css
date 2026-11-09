@@ -982,9 +982,16 @@ body, .nav, .panel, .card, .metric, .rail__block, .watch, .stat,
      at full strength a saturated accent is louder than the time deserves */
   color: var(--accent);
   color: color-mix(in srgb, var(--accent) 58%, var(--bg));
-  /* a lock-screen clock lets the picture show through its own letters */
-  opacity: 0.82;
-  transition: color 260ms var(--ease-out-soft, ease), opacity 260ms var(--ease-out-soft, ease);
+  /* frosted glass: a soft edge, a rim of light where a pane would catch it, and
+     a shallow drop below — the letters are painted, not clipped, because the
+     rolling strips are transformed children and background-clip skips them */
+  filter: blur(0.3px);
+  opacity: 0.9;
+  -webkit-text-stroke: 0.5px color-mix(in srgb, #ffffff 26%, transparent);
+  text-shadow:
+    0 -1px 0 rgba(255, 255, 255, 0.16),
+    0 2px 8px rgba(0, 0, 0, 0.22);
+  transition: opacity 260ms var(--ease-out-soft, ease);
 }
 .anchor__value .ct__col { width: 0.58em; height: 1.14em; }
 /* the colon is two dots of our own: a font glyph sits on the baseline and
