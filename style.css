@@ -1478,14 +1478,25 @@ html[data-wallpaper-live="ready"][data-wallpaper] body {
 }
 html[data-wallpaper-live] .shell { position: relative; z-index: 1; }
 html[data-wallpaper-live] .nav { position: relative; z-index: 3; }
-html[data-wallpaper-live] .desk__greet,
-html[data-wallpaper-live] .anchor__value,
-html[data-wallpaper-live] .anchor__meta,
-html[data-wallpaper-live] .affirm__line,
-html[data-wallpaper-live] .affirm__cn,
-html[data-wallpaper-live] .nextup { color: #f2f2f7; }
-html[data-wallpaper-live] .anchor__meta,
-html[data-wallpaper-live] .affirm__cn { color: rgba(242, 242, 247, 0.78); }
+/* over a moving picture the theme decides the ink, not the wallpaper: light
+   theme keeps dark words with a pale halo, dark theme keeps pale words */
+html[data-theme="dark"][data-wallpaper-live] .desk__greet,
+html[data-theme="dark"][data-wallpaper-live] .anchor__meta,
+html[data-theme="dark"][data-wallpaper-live] .affirm__line,
+html[data-theme="dark"][data-wallpaper-live] .affirm__cn,
+html[data-theme="dark"][data-wallpaper-live] .nextup {
+  color: rgba(242, 242, 247, 0.9);
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.45), 0 0 14px rgba(0, 0, 0, 0.3);
+}
+html[data-theme="light"][data-wallpaper-live] .desk__greet,
+html[data-theme="light"][data-wallpaper-live] .anchor__meta,
+html[data-theme="light"][data-wallpaper-live] .affirm__line,
+html[data-theme="light"][data-wallpaper-live] .affirm__cn,
+html[data-theme="light"][data-wallpaper-live] .nextup {
+  color: rgba(16, 16, 22, 0.86);
+  text-shadow: 0 1px 2px rgba(255, 255, 255, 0.85), 0 0 12px rgba(255, 255, 255, 0.6);
+}
+html[data-wallpaper-live] .anchor__meta b { color: inherit; }
 html[data-wallpaper-live] .nav__brand,
 html[data-wallpaper-live] .nav__links a { color: #f2f2f7; }
 /* ---------- the wallpaper menu ---------- */
@@ -1547,6 +1558,21 @@ html[data-wallpaper-live] .nav__links a { color: #f2f2f7; }
   .contact { grid-template-columns: minmax(0, 1fr); }
   .contact__form { position: static; }
 }
+
+/* a still picture gets the same rule: the theme chooses the ink, the picture
+   only decides how strong the halo has to be */
+html[data-theme="light"][data-wallpaper] .anchor__meta,
+html[data-theme="light"][data-wallpaper] .desk__greet,
+html[data-theme="light"][data-wallpaper] .nextup,
+html[data-theme="light"][data-wallpaper] .affirm__cn {
+  color: rgba(16, 16, 22, 0.84);
+}
+html[data-theme="dark"][data-wallpaper] .anchor__meta,
+html[data-theme="dark"][data-wallpaper] .desk__greet,
+html[data-theme="dark"][data-wallpaper] .nextup {
+  color: rgba(242, 242, 247, 0.88);
+}
+html[data-wallpaper] .anchor__meta b { color: inherit; }
 
 /* ---------- a video wallpaper is expensive to composite ----------
    backdrop-filter has to be recomputed for every video frame and is by far the
