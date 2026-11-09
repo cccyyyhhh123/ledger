@@ -299,6 +299,8 @@ img, svg, canvas { display: block; max-width: 100%; }
 
 
 /* ---------- what the desktop is playing ---------- */
+/* .bridge sets its own display, which would beat the hidden attribute */
+.bridge[hidden], .bridge-help[hidden] { display: none !important; }
 .bridge { display: grid; gap: 12px; }
 .bridge__head { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; }
 .bridge__state {
