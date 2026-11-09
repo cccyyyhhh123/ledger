@@ -39,7 +39,7 @@
 
   /* a phone gets a smaller creature: at 150px it sits on top of half the page */
   function narrow() { return window.innerWidth < 640; }
-  var size = narrow() ? 96 : 150;
+  var size = narrow() ? 96 : 120;
   function maxSize() { return narrow() ? 150 : 300; }
   var pos = { x: 0, y: 0 };
   var target = { x: 0, y: 0 };

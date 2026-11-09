@@ -1298,13 +1298,17 @@ body, .nav, .panel, .card, .metric, .rail__block, .watch, .stat,
   transition: border-color 0.18s ease, background-color 0.18s ease, transform 0.18s ease;
 }
 .wxcard:hover { border-color: var(--line-2); background: var(--panel-2); }
-.wxcard:hover .wxcard__top { display: flex; align-items: center; gap: 14px; }
-.wxcard__icon { display: flex; color: var(--accent); }
+.wxcard__top {
+  display: flex; align-items: center; gap: 14px;
+  flex-wrap: nowrap; flex: none;
+}
+.wxcard__icon { display: flex; flex: none; color: var(--accent); }
 .wxcard__temp {
   font-size: clamp(2rem, 3.4vw, 2.6rem); font-weight: 700; line-height: 1;
   letter-spacing: -0.04em; font-variant-numeric: tabular-nums;
+  white-space: nowrap;
 }
-.wxcard__line { font-size: 0.84rem; color: var(--muted); }
+.wxcard__line { font-size: 0.84rem; color: var(--muted); white-space: nowrap; }
 .wxcard__facts {
   display: grid; grid-template-columns: repeat(3, auto); gap: 6px 22px;
   margin: 0 0 0 auto; padding: 2px 0 2px 20px; border-left: 1px solid var(--line);
