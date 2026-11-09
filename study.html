@@ -11,8 +11,8 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="style.css?v=44">
-<script src="theme.js?v=44"></script>
+<link rel="stylesheet" href="style.css?v=45">
+<script src="theme.js?v=45"></script>
 </head>
 <body>
 
@@ -130,7 +130,7 @@
   </section>
 </main>
 
-<script src="nav.js?v=44"></script>
+<script src="nav.js?v=45"></script>
 <script>
   const SUBJECTS = {
     cpp: {
@@ -431,8 +431,26 @@
     const keys = Object.keys(SUBJECTS);
     const totals = keys.map(function (key) { return knownIn(key, period); });
     const peak = Math.max(1, Math.max.apply(null, totals));
+    const sum = totals.reduce(function (a, b) { return a + b; }, 0);
 
     el.chart.replaceChildren();
+
+    /* nothing marked yet: four empty bars are just grey slabs, so say it in one line */
+    if (!sum) {
+      el.chart.classList.add('is-empty');
+      const empty = document.createElement('div');
+      empty.className = 'chart__empty';
+      const line = document.createElement('p');
+      line.textContent = 'No cards marked yet' + (period === 'all' ? '' : ' in this period') + '.';
+      const hint = document.createElement('p');
+      hint.className = 'chart__hint';
+      hint.textContent = 'Open the deck below and press “I know this” — the bars fill in by course.';
+      empty.append(line, hint);
+      el.chart.appendChild(empty);
+      el.chartNote.textContent = 'Cards you mark appear here, split by course.';
+      return;
+    }
+    el.chart.classList.remove('is-empty');
     keys.forEach(function (key, index) {
       const value = totals[index];
       const subject = SUBJECTS[key];
@@ -470,10 +488,8 @@
       el.chart.appendChild(column);
     });
 
-    const sum = totals.reduce(function (a, b) { return a + b; }, 0);
-    el.chartNote.textContent = sum
-      ? sum + ' card' + (sum === 1 ? '' : 's') + ' marked known · ' + PERIOD_LABEL[period]
-      : 'Nothing marked ' + PERIOD_LABEL[period] + ' yet.';
+    el.chartNote.textContent = sum + ' card' + (sum === 1 ? '' : 's') +
+      ' marked known · ' + PERIOD_LABEL[period];
   }
 
   /* ---------- exams ---------- */

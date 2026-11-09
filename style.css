@@ -1158,6 +1158,7 @@ body, .nav, .panel, .card, .metric, .rail__block, .watch, .stat,
 }
 .scard {
   grid-column: span 12;
+  align-self: start;   /* a short card should stay short, not stretch to its neighbour */
   background: var(--panel); border: 1px solid var(--line); border-radius: 18px;
   padding: 20px; box-shadow: var(--elevation);
   display: grid; gap: 12px; align-content: start; min-width: 0;
@@ -1185,6 +1186,12 @@ body, .nav, .panel, .card, .metric, .rail__block, .watch, .stat,
 }
 .period button:hover { color: var(--ink); }
 .period button[aria-pressed="true"] { background: var(--panel); color: var(--ink); box-shadow: 0 1px 4px rgba(0, 0, 0, 0.18); }
+
+/* with nothing marked the card says so in one line instead of drawing four grey slabs */
+.chart.is-empty { grid-template-columns: minmax(0, 1fr); min-height: 0; align-items: start; }
+.chart__empty { display: grid; gap: 4px; padding: 18px 0 6px; }
+.chart__empty p { font-size: 0.88rem; color: var(--ink-2); }
+.chart__empty .chart__hint { font-size: 0.78rem; color: var(--muted); max-width: 34ch; }
 
 /* the chart: four columns, the selected course picked out */
 .chart {
