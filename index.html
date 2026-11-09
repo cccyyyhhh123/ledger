@@ -11,8 +11,8 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="style.css?v=49">
-<script src="theme.js?v=49"></script>
+<link rel="stylesheet" href="style.css?v=50">
+<script src="theme.js?v=50"></script>
 </head>
 <body>
 
@@ -108,8 +108,8 @@
   </aside>
 </main>
 
-<script src="counter.js?v=49"></script>
-<script src="nav.js?v=49"></script>
+<script src="counter.js?v=50"></script>
+<script src="nav.js?v=50"></script>
 <script>
   (function () {
     var hour = new Date().getHours();
@@ -471,7 +471,7 @@
           var cell = document.createElement('i');
           var value = entry[item.id] || 0;
           cell.className = 'mood__cell' + (value ? ' has' : '');
-          cell.style.setProperty('--fill', value ? (0.25 + value / 5 * 0.75).toFixed(2) : '0');
+          if (value) cell.dataset.level = String(value);
           column.appendChild(cell);
         });
 

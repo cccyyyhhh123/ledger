@@ -31,6 +31,12 @@
   --shell: 74rem;
   --r: 16px;
   --elevation: 0 10px 28px rgba(0, 0, 0, 0.35);
+  /* a mood is a colour as well as a face */
+  --mood-1: #e5605c;
+  --mood-2: #e8874a;
+  --mood-3: #d9b23c;
+  --mood-4: #7cc46a;
+  --mood-5: #4cc38a;
   --r-sm: 10px;
   --sans: "Inter", system-ui, -apple-system, "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
   --mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
@@ -795,6 +801,11 @@ td.num.neg { color: var(--muted); }
   --nav-c: rgba(247, 246, 243, 0.46);
   --nav-d: rgba(247, 246, 243, 0);
   --elevation: 0 8px 22px rgba(16, 18, 27, 0.07);
+  --mood-1: #c53a36;
+  --mood-2: #bf5f22;
+  --mood-3: #9c7a12;
+  --mood-4: #4b8f38;
+  --mood-5: #2c8a5a;
 }
 
 [data-theme="light"] .nav__ink {
@@ -1108,14 +1119,16 @@ body, .nav, .panel, .card, .metric, .rail__block, .watch, .stat,
 .mood__btn {
   width: 38px; height: 38px; display: grid; place-items: center;
   border-radius: 12px; border: 1px solid var(--line); background: transparent;
-  color: var(--muted); cursor: pointer;
-  transition: color 0.16s ease, border-color 0.16s ease, background-color 0.16s ease;
+  color: var(--mood); opacity: 0.6; cursor: pointer;
+  transition: opacity 0.16s ease, border-color 0.16s ease, background-color 0.16s ease;
 }
-.mood__btn:hover { color: var(--ink); background: var(--hover); }
-.mood__btn.is-picked {
-  color: var(--accent); border-color: var(--accent);
-  background: var(--hover-2);
-}
+.mood__btn:hover { opacity: 1; background: var(--hover); }
+.mood__btn.is-picked { opacity: 1; border-color: var(--mood); }
+.mood__btn[data-level="1"] { --mood: var(--mood-1); }
+.mood__btn[data-level="2"] { --mood: var(--mood-2); }
+.mood__btn[data-level="3"] { --mood: var(--mood-3); }
+.mood__btn[data-level="4"] { --mood: var(--mood-4); }
+.mood__btn[data-level="5"] { --mood: var(--mood-5); }
 /* three cells a day: evening on top, morning at the bottom */
 .mood__week { display: flex; align-items: stretch; gap: 5px; height: 30px; margin-top: 12px; }
 .mood__day {
@@ -1127,10 +1140,13 @@ body, .nav, .panel, .card, .metric, .rail__block, .watch, .stat,
   border-radius: 2px; background: var(--line);
   position: relative; overflow: hidden;
 }
+.mood__cell[data-level="1"].has::after { background: var(--mood-1); }
+.mood__cell[data-level="2"].has::after { background: var(--mood-2); }
+.mood__cell[data-level="3"].has::after { background: var(--mood-3); }
+.mood__cell[data-level="4"].has::after { background: var(--mood-4); }
+.mood__cell[data-level="5"].has::after { background: var(--mood-5); }
 .mood__cell.has::after {
   content: ""; position: absolute; inset: 0;
-  background: linear-gradient(180deg, var(--accent), var(--accent-2));
-  opacity: var(--fill);
   border-radius: 2px;
 }
 .mood__note { font-size: 0.72rem; color: var(--muted); margin-top: 8px; }
