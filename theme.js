@@ -173,6 +173,8 @@
       root.style.setProperty('--accent-2', accent2);
       root.style.setProperty('--glow-a', glowOf(accent, 0.10));
       root.style.setProperty('--glow-b', glowOf(accent2, 0.07));
+      root.style.setProperty('--panel-a', veilOf('#ffffff', 0.80));
+      root.style.setProperty('--panel-2-a', veilOf(hslToHex(bgHsl.h, Math.min(0.20, bgHsl.s), 0.945), 0.78));
       root.style.setProperty('--nav-a', veilOf(paper, 0.96));
       root.style.setProperty('--nav-b', veilOf(paper, 0.86));
       root.style.setProperty('--nav-c', veilOf(paper, 0.46));
@@ -186,6 +188,8 @@
       root.style.setProperty('--accent-2', accent2);
       root.style.setProperty('--glow-a', theme.glowA || glowOf(accent, 0.16));
       root.style.setProperty('--glow-b', theme.glowB || glowOf(accent2, 0.10));
+      root.style.setProperty('--panel-a', veilOf(theme.panel, 0.66));
+      root.style.setProperty('--panel-2-a', veilOf(theme.panel2, 0.72));
       if (theme.nav) {
         root.style.setProperty('--nav-a', theme.nav[0]);
         root.style.setProperty('--nav-b', theme.nav[1]);

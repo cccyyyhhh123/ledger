@@ -37,6 +37,9 @@
   --mood-3: #d9b23c;
   --mood-4: #7cc46a;
   --mood-5: #4cc38a;
+  /* used only when a wallpaper is behind the page */
+  --panel-a: rgba(23, 23, 31, 0.66);
+  --panel-2-a: rgba(32, 32, 42, 0.72);
   --r-sm: 10px;
   --sans: "Inter", system-ui, -apple-system, "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
   --mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
@@ -46,6 +49,26 @@
 
 /* 2 · base */
 /* a chosen wallpaper joins the body background: scrim, photo, glows, colour */
+/* with a photo behind the page the panels turn into glass, so the picture
+   reads through them instead of being hidden by a wall of cards */
+html[data-wallpaper] .panel,
+html[data-wallpaper] .rail__block,
+html[data-wallpaper] .scard,
+html[data-wallpaper] .metric,
+html[data-wallpaper] .exam,
+html[data-wallpaper] .subject,
+html[data-wallpaper] .project,
+html[data-wallpaper] .sync,
+html[data-wallpaper] .cw,
+html[data-wallpaper] .desk__rail > * {
+  background: var(--panel-a);
+  -webkit-backdrop-filter: blur(16px) saturate(1.2);
+  backdrop-filter: blur(16px) saturate(1.2);
+}
+html[data-wallpaper] .metric--primary { background: var(--panel-a); }
+html[data-wallpaper] .metric__track,
+html[data-wallpaper] .chart__bar { background: var(--panel-2-a); }
+
 html[data-wallpaper] body {
   background:
     linear-gradient(180deg, rgba(0, 0, 0, 0.38), rgba(0, 0, 0, 0.62)),
@@ -823,6 +846,8 @@ td.num.neg { color: var(--muted); }
   --mood-3: #9c7a12;
   --mood-4: #4b8f38;
   --mood-5: #2c8a5a;
+  --panel-a: rgba(255, 255, 255, 0.80);
+  --panel-2-a: rgba(244, 243, 240, 0.78);
 }
 
 [data-theme="light"] .nav__ink {
@@ -892,7 +917,7 @@ body, .nav, .panel, .card, .metric, .rail__block, .watch, .stat,
    same baseline as the small digits without any hand-tuning */
 .ct__sep--text {
   font-size: 0.56em; color: var(--muted-2);
-  margin: 0 0.06em 0 0.1em; padding: 0;
+  margin: 0 0.02em 0 0.04em; padding: 0;
   align-self: center; line-height: 1;
   transform: translateY(0.02em);
 }
