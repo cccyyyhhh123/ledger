@@ -11,7 +11,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Bricolage+Grotesque:wght@700;800&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="style.css?v=125">
+<link rel="stylesheet" href="style.css?v=126">
 <!-- clock ink: kept here as well, so a cached style.css cannot leave the
      seconds a different colour from the hours -->
 <style>.anchor__sec { color: inherit !important; }</style>
@@ -40,10 +40,6 @@
       </p>
       <p class="anchor__meta">
         <b id="stripDate">—</b>
-        <span class="dot">·</span>
-        <span id="stripTemp">—</span>
-        <span class="dot">·</span>
-        <span>Danzhou</span>
         <span class="anchor__go" aria-hidden="true">clock →</span>
       </p>
     </a>
@@ -367,7 +363,7 @@
     })();
 
     /* ---------- weather ---------- */
-    var tempEl = document.getElementById('stripTemp');
+    var tempEl = null;   /* the strip below carries the weather now */
     var wx = {
       temp: document.getElementById('wxTemp'),
       cond: document.getElementById('wxCond'),
@@ -454,7 +450,6 @@
 
           night = isNight(day.sunrise && day.sunrise[0], day.sunset && day.sunset[0]);
 
-          if (tempEl) tempEl.textContent = condition(now.weather_code);
 
           if (wx.temp) wx.temp.textContent = degrees + '°';
           if (wx.cond) wx.cond.textContent = condition(now.weather_code) + ' · Danzhou';
