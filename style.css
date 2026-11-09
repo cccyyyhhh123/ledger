@@ -1488,6 +1488,47 @@ html[data-wallpaper-live] .nav__links a { color: #f2f2f7; }
 .wpmenu__item:hover { background: var(--hover); }
 .wpmenu__item b { font-size: 0.82rem; font-weight: 600; }
 .wpmenu__item span { font-size: 0.72rem; color: var(--muted); line-height: 1.35; }
+/* ---------- contact ---------- */
+.contact {
+  display: grid; grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr);
+  gap: 16px; align-items: start; padding-bottom: 8px;
+}
+.contact__direct { display: grid; gap: 12px; }
+.contact__card { display: grid; gap: 8px; padding: 20px; }
+.contact__card h2, .contact__form h2 {
+  font-size: 1rem; font-weight: 600; color: var(--ink); letter-spacing: -0.01em;
+}
+.contact__value {
+  font-size: 0.86rem; color: var(--ink-2); word-break: break-word;
+}
+.contact__note { font-size: 0.78rem; color: var(--muted); line-height: 1.5; max-width: 46ch; }
+
+.contact__form { display: grid; gap: 10px; padding: 20px; position: sticky; top: 84px; }
+.field { display: grid; gap: 4px; }
+.field > span {
+  font-size: 0.64rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted-2);
+}
+.field input, .field textarea {
+  width: 100%; padding: 9px 11px; border-radius: 10px;
+  background: var(--panel-2); border: 1px solid var(--line);
+  color: var(--ink); font: inherit; font-size: 0.86rem; resize: vertical;
+}
+.field input:focus, .field textarea:focus {
+  outline: none; border-color: var(--accent);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 22%, transparent);
+}
+.field textarea { min-height: 8.5rem; line-height: 1.5; }
+
+.sign {
+  margin: 26px 0 40px; font-size: 0.78rem; letter-spacing: 0.16em;
+  text-transform: uppercase; color: var(--muted-2);
+}
+
+@media (max-width: 900px) {
+  .contact { grid-template-columns: minmax(0, 1fr); }
+  .contact__form { position: static; }
+}
+
 /* ---------- a video wallpaper is expensive to composite ----------
    backdrop-filter has to be recomputed for every video frame and is by far the
    biggest cost on this page: with a moving picture behind them the panels go

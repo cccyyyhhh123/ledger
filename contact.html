@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Contact — Yuhan's Desk</title>
+<meta name="description" content="How to reach Yuhan: email, GitHub, the project tracker, and a message form that prepares the mail for you.">
+<link rel="icon" href="Images/favicon-32.png?v=105" sizes="32x32" type="image/png">
+<meta name="theme-color" content="#0b0b10">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css?v=105">
+<script src="theme.js?v=105"></script>
+</head>
+<body>
+
+<nav class="nav">
+  <a class="nav__brand" href="index.html">Yuhan<span>.</span>Desk</a>
+  <div class="nav__links">
+    <a href="index.html">Home</a>
+    <a href="study.html">Study</a>
+    <a href="music.html">Music</a>
+    <a href="ledger.html">Ledger</a>
+    <a href="contact.html" aria-current="page">Contact</a>
+  </div>
+</nav>
+
+<main class="shell tool">
+  <header class="tool__head">
+    <h1>Contact</h1>
+    <p>Three ways that reach me, and a form that writes the email for you. There is no server behind
+       this page — nothing you type is stored or sent until your own mail app takes over.</p>
+  </header>
+
+  <section class="contact">
+    <div class="contact__direct">
+      <article class="panel contact__card">
+        <h2>Email</h2>
+        <p class="contact__value mono" id="mailAddress">x20250051@stu.hibiuh.edu.cn</p>
+        <div class="row" style="gap:8px; flex-wrap:wrap">
+          <a class="btn btn--primary" href="mailto:x20250051@stu.hibiuh.edu.cn">Write to me</a>
+          <button class="btn btn--ghost" id="copyMail" type="button">Copy address</button>
+        </div>
+        <p class="contact__note">The address the university gave me. It reaches me on weekdays.</p>
+      </article>
+
+      <article class="panel contact__card">
+        <h2>GitHub</h2>
+        <p class="contact__value mono">cccyyyhhh123</p>
+        <div class="row" style="gap:8px; flex-wrap:wrap">
+          <a class="btn btn--primary" href="https://github.com/cccyyyhhh123" target="_blank" rel="noopener">Open profile</a>
+          <a class="btn btn--ghost" href="https://cccyyyhhh123.github.io/ledger/" target="_blank" rel="noopener">The live site</a>
+        </div>
+        <p class="contact__note">Every page here is hand-written; the commit history is the honest record of it.</p>
+      </article>
+
+      <article class="panel contact__card">
+        <h2>Course work</h2>
+        <p class="contact__value mono">webtech.landrock.io</p>
+        <div class="row" style="gap:8px; flex-wrap:wrap">
+          <a class="btn btn--primary" href="https://webtech.landrock.io/students/55" target="_blank" rel="noopener">Project page</a>
+        </div>
+        <p class="contact__note">Where the coursework lives, if you are marking rather than reading.</p>
+      </article>
+    </div>
+
+    <aside class="panel contact__form">
+      <h2>Write first, send second</h2>
+      <p class="contact__note">
+        Fill this in and the button opens your mail app with everything filled out. Nothing leaves this
+        page until you press send there.
+      </p>
+
+      <label class="field">
+        <span>Your name</span>
+        <input id="fromName" type="text" autocomplete="name" placeholder="who is asking">
+      </label>
+
+      <label class="field">
+        <span>Your email</span>
+        <input id="fromMail" type="email" autocomplete="email" placeholder="you@example.com">
+      </label>
+
+      <label class="field">
+        <span>Subject</span>
+        <input id="subject" type="text" placeholder="what this is about">
+      </label>
+
+      <label class="field">
+        <span>Message</span>
+        <textarea id="message" rows="6" placeholder="Say it plainly — I answer what is asked."></textarea>
+      </label>
+
+      <div class="row" style="gap:8px; flex-wrap:wrap">
+        <a class="btn btn--primary" id="sendMail" href="mailto:x20250051@stu.hibiuh.edu.cn">Open in mail app</a>
+        <button class="btn btn--ghost" id="resetForm" type="button">Clear</button>
+      </div>
+
+      <p class="contact__note" id="formHint" role="status" aria-live="polite">
+        The link is built as you type — check it says what you mean before sending.
+      </p>
+    </aside>
+  </section>
+
+  <p class="sign">Yuhan.Cai</p>
+</main>
+
+<script>window.__DESK_BUILD__ = 'v105';</script>
+<script src="nav.js?v=105"></script>
+<script>
+  (function () {
+    var name = document.getElementById('fromName');
+    var mail = document.getElementById('fromMail');
+    var subject = document.getElementById('subject');
+    var message = document.getElementById('message');
+    var send = document.getElementById('sendMail');
+    var reset = document.getElementById('resetForm');
+    var copy = document.getElementById('copyMail');
+    var hint = document.getElementById('formHint');
+    var TO = 'x20250051@stu.hibiuh.edu.cn';
+
+    function build() {
+      var lines = [];
+      if (name.value.trim()) lines.push('From: ' + name.value.trim());
+      if (mail.value.trim()) lines.push('Reply to: ' + mail.value.trim());
+      if (lines.length) lines.push('');
+      lines.push(message.value.trim());
+
+      var subjectText = subject.value.trim() || 'Hello from the desk';
+      var body = lines.join('\n');
+      send.href = 'mailto:' + TO +
+        '?subject=' + encodeURIComponent(subjectText) +
+        '&body=' + encodeURIComponent(body);
+
+      var filled = !!(name.value.trim() || message.value.trim());
+      hint.textContent = filled
+        ? 'Ready — the mail app will open with this text.'
+        : 'The link is built as you type — check it says what you mean before sending.';
+    }
+
+    [name, mail, subject, message].forEach(function (field) {
+      field.addEventListener('input', build);
+    });
+
+    reset.addEventListener('click', function () {
+      name.value = ''; mail.value = ''; subject.value = ''; message.value = '';
+      build();
+      name.focus();
+    });
+
+    copy.addEventListener('click', function () {
+      var text = document.getElementById('mailAddress').textContent.trim();
+      navigator.clipboard.writeText(text).then(function () {
+        copy.textContent = 'Copied';
+        setTimeout(function () { copy.textContent = 'Copy address'; }, 1600);
+      }).catch(function () {
+        copy.textContent = 'Select it above';
+      });
+    });
+
+    build();
+  })();
+</script>
+<script src="pet.js?v=105"></script>
+</body>
+</html>
