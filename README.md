@@ -11,7 +11,6 @@ everything runs from GitHub Pages and keeps its state in the browser.
 | `clock.html` | A clock whose hands are hanging ropes, a countdown with presets, five other cities |
 | `weather.html` | Live weather for Danzhou from Open-Meteo |
 | `ledger.html` | The shared expense book — one six-digit key, entries kept locally |
-| `tarot.html` | A three-card spread, and a breathing timer |
 
 Shared files: `style.css` (one stylesheet), `theme.js` (light/dark plus wall-paper palettes),
 `nav.js` (the sliding menu highlight and the theme switch), `counter.js` (the rolling digits),

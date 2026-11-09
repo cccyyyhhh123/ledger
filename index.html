@@ -4,15 +4,15 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Yuhan's Desk</title>
-<meta name="description" content="One desk: music, revision cards, a clock, live weather, a shared ledger and a tarot spread.">
+<meta name="description" content="One desk: music, revision cards, a clock, live weather and a shared ledger.">
 <link rel="icon" href="Images/favicon-32.png" sizes="32x32" type="image/png">
 <link rel="apple-touch-icon" href="Images/icon-180.png">
 <meta name="theme-color" content="#0b0b10">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="style.css?v=47">
-<script src="theme.js?v=47"></script>
+<link rel="stylesheet" href="style.css?v=48">
+<script src="theme.js?v=48"></script>
 </head>
 <body>
 
@@ -25,7 +25,6 @@
     <a href="study.html">Study</a>
     <a href="ledger.html">Ledger</a>
     <a href="music.html">Music</a>
-    <a href="tarot.html">Tarot</a>
   </div>
 </nav>
 
@@ -64,10 +63,10 @@
         <span class="metric__value" id="metricPlan">—</span>
         <span class="metric__note" id="metricPlanNote">no projects yet</span>
       </a>
-      <a class="metric" href="tarot.html">
-        <span class="metric__label">Mindful today</span>
-        <span class="metric__value" id="metricMindful">—</span>
-        <span class="metric__note">breathing rounds</span>
+      <a class="metric" href="study.html">
+        <span class="metric__label">Mood today</span>
+        <span class="metric__value" id="metricMood">—</span>
+        <span class="metric__note">picked in the rail</span>
       </a>
     </div>
 
@@ -83,7 +82,6 @@
         <li><a href="clock.html">Clock <span>countdown</span></a></li>
         <li><a href="weather.html">Weather <span id="railTemp">—</span></a></li>
         <li><a href="ledger.html">Ledger <span>shared</span></a></li>
-        <li><a href="tarot.html">Tarot <span>3 cards</span></a></li>
       </ul>
     </div>
 
@@ -109,8 +107,8 @@
   </aside>
 </main>
 
-<script src="counter.js?v=47"></script>
-<script src="nav.js?v=47"></script>
+<script src="counter.js?v=48"></script>
+<script src="nav.js?v=48"></script>
 <script>
   (function () {
     var hour = new Date().getHours();
@@ -209,12 +207,15 @@
     }
 
     try {
-      var mindful = JSON.parse(localStorage.getItem('deskMindful')) || null;
-      var today = new Date().toISOString().slice(0, 10);
-      var rounds = mindful && mindful.date === today ? Number(mindful.rounds) || 0 : 0;
-      document.getElementById('metricMindful').textContent = rounds ? String(rounds) : '0';
+      var moods = JSON.parse(localStorage.getItem('deskMood')) || {};
+      var d = new Date();
+      var key = d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' +
+        String(d.getDate()).padStart(2, '0');
+      var WORDS = { 1: 'rough', 2: 'low', 3: 'okay', 4: 'good', 5: 'great' };
+      var value = moods[key];
+      document.getElementById('metricMood').textContent = value ? WORDS[value] : '—';
     } catch (e) {
-      document.getElementById('metricMindful').textContent = '0';
+      document.getElementById('metricMood').textContent = '—';
     }
 
 
@@ -424,6 +425,9 @@
       note.textContent = data[key]
         ? 'Today: ' + LABELS[data[key] - 1] + ' — tap another face to change it.'
         : 'Tap a face — one entry a day, kept in this browser.';
+
+      var metric = document.getElementById('metricMood');
+      if (metric) metric.textContent = data[key] ? LABELS[data[key] - 1] : '—';
     }
 
     host.addEventListener('click', function (event) {
