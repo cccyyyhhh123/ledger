@@ -1611,6 +1611,62 @@ html[data-wallpaper-live] .nav__links a { color: #f2f2f7; }
 @media (max-width: 560px) {
   .fit__table tbody td:first-child { width: auto; }
 }
+/* ---------- the personal plan ---------- */
+.fit__form {
+  display: grid; grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 12px 14px; margin: 14px 0 6px;
+}
+.fit__form .field > span em { font-style: normal; color: var(--muted-2); font-size: 0.7rem; }
+.fit__form select,
+.fit__form input[type="number"] {
+  width: 100%; padding: 9px 11px; border-radius: 10px;
+  background: var(--panel-2); border: 1px solid var(--line); color: var(--ink);
+  font: inherit; font-size: 0.88rem;
+}
+.fit__form select:focus, .fit__form input:focus {
+  outline: none; border-color: color-mix(in srgb, var(--accent) 60%, transparent);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 14%, transparent);
+}
+.fit__wish { grid-column: 1 / -1; }
+.fit__actions { gap: 8px; margin-top: 4px; }
+
+.plan {
+  margin-top: 18px; padding-top: 16px;
+  border-top: 1px solid var(--line);
+  display: grid; gap: 12px;
+}
+.plan[hidden] { display: none !important; }
+.plan__head { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; }
+.plan__stat {
+  display: grid; gap: 2px; padding: 12px 14px; border-radius: 12px;
+  background: var(--panel-2); border: 1px solid var(--line);
+}
+.plan__stat span { font-size: 0.64rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted-2); }
+.plan__stat b { font-size: 1.35rem; color: var(--ink); letter-spacing: -0.02em; }
+.plan__stat i { font-style: normal; font-size: 0.68rem; color: var(--muted); }
+.plan__stat.is-key { border-color: color-mix(in srgb, var(--accent) 55%, var(--line)); }
+.plan__stat.is-key b { color: var(--accent); }
+.plan__stat.is-low b { color: var(--bad); }
+.plan__stat.is-ok b { color: var(--good); }
+.plan__stat.is-high b, .plan__stat.is-very-high b { color: var(--warn); }
+
+.plan__line { font-size: 0.9rem; color: var(--ink-2); line-height: 1.6; }
+.plan__line b { color: var(--ink); }
+.plan__macros { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 8px; }
+.plan__macros > div {
+  display: grid; gap: 2px; padding: 10px 12px; border-radius: 10px;
+  background: color-mix(in srgb, var(--accent) 7%, transparent);
+  border: 1px solid color-mix(in srgb, var(--accent) 18%, transparent);
+}
+.plan__macros span { font-size: 0.64rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted-2); }
+.plan__macros b { font-size: 0.98rem; color: var(--ink); }
+.plan__week { margin-top: 4px; }
+
+@media (max-width: 900px) {
+  .fit__form { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .plan__head { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .plan__macros { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
 /* ---------- contact ---------- */
 .contact {
   display: grid; grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr);

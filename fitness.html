@@ -10,8 +10,8 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Bricolage+Grotesque:wght@700;800&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="style.css?v=129">
-<script src="theme.js?v=129"></script>
+<link rel="stylesheet" href="style.css?v=130">
+<script src="theme.js?v=130"></script>
 </head>
 <body>
 
@@ -56,6 +56,88 @@
       <span class="metric__meta">a day — the cheapest deficit there is</span>
     </article>
   </section>
+
+  <article class="panel fit__panel" id="fitFormPanel">
+    <h2>Your own numbers <span class="fit__cn">个人数据</span></h2>
+    <p class="hint">Fill this in once and the plan below is built around you — energy, macros, steps and a week
+       that fits the days you actually have. Nothing leaves this page; the numbers stay in this browser.</p>
+
+    <form class="fit__form" id="fitForm" autocomplete="off">
+      <label class="field">
+        <span>Sex</span>
+        <select name="sex">
+          <option value="female">Female</option>
+          <option value="male">Male</option>
+        </select>
+      </label>
+
+      <label class="field">
+        <span>Age</span>
+        <input name="age" type="number" min="14" max="90" step="1" value="20" inputmode="numeric">
+      </label>
+
+      <label class="field">
+        <span>Height (cm)</span>
+        <input name="height" type="number" min="120" max="220" step="1" value="170" inputmode="numeric">
+      </label>
+
+      <label class="field">
+        <span>Weight (kg)</span>
+        <input name="weight" type="number" min="30" max="200" step="0.1" value="65" inputmode="decimal">
+      </label>
+
+      <label class="field">
+        <span>Activity</span>
+        <select name="activity">
+          <option value="sedentary">Desk-bound</option>
+          <option value="light" selected>Light — some walking</option>
+          <option value="moderate">Moderate — 3–4 sessions</option>
+          <option value="high">High — 5+ sessions</option>
+        </select>
+      </label>
+
+      <label class="field">
+        <span>Goal</span>
+        <select name="goal">
+          <option value="lose" selected>Lose fat</option>
+          <option value="keep">Hold where I am</option>
+          <option value="gain">Add muscle</option>
+        </select>
+      </label>
+
+      <label class="field">
+        <span>Rate (kg / week)</span>
+        <select name="rate">
+          <option value="0.25">0.25 — slow and quiet</option>
+          <option value="0.5" selected>0.5 — the usual</option>
+          <option value="0.75">0.75 — only if you are heavier</option>
+        </select>
+      </label>
+
+      <label class="field">
+        <span>Training days</span>
+        <select name="days">
+          <option value="2">2</option>
+          <option value="3" selected>3</option>
+          <option value="4">4</option>
+          <option value="5">5</option>
+          <option value="6">6</option>
+        </select>
+      </label>
+
+      <label class="field fit__wish">
+        <span>Anything else <em>(food you eat, injuries, time, canteen, night shifts…)</em></span>
+        <input name="wish" type="text" placeholder="e.g. canteen lunches, bad knees, 3 short sessions">
+      </label>
+
+      <div class="row fit__actions">
+        <button class="btn btn--primary" type="submit">Build the plan</button>
+        <button class="btn btn--ghost" type="button" id="fitReset">Clear</button>
+      </div>
+    </form>
+
+    <div class="plan" id="fitPlan" hidden aria-live="polite"></div>
+  </article>
 
   <article class="panel fit__panel">
     <h2>Training <span class="fit__cn">运动指南</span></h2>
@@ -157,8 +239,9 @@
   <p class="sign">uY^Yu.</p>
 </main>
 
-<script>window.__DESK_BUILD__ = 'v129';</script>
-<script src="nav.js?v=129"></script>
-<script src="pet.js?v=129"></script>
+<script>window.__DESK_BUILD__ = 'v130';</script>
+<script src="fitness-plan.js?v=130"></script>
+<script src="nav.js?v=130"></script>
+<script src="pet.js?v=130"></script>
 </body>
 </html>
