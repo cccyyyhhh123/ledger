@@ -41,7 +41,7 @@
   function draw(theme, source, width, height, title, done) {
     if (!width || !height || width < 8 || height < 8) { done(null); return; }
 
-    var scale = Math.min(1, 1600 / Math.max(width, height));
+    var scale = Math.min(1, 2200 / Math.max(width, height));
     var canvas = document.createElement('canvas');
     canvas.width = Math.max(8, Math.round(width * scale));
     canvas.height = Math.max(8, Math.round(height * scale));
