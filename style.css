@@ -40,8 +40,8 @@
   /* used only when a wallpaper is behind the page */
   --nav-glass: rgba(11, 11, 16, 0.78);
   --nav-glass-fade: rgba(11, 11, 16, 0.30);
-  --panel-a: rgba(23, 23, 31, 0.66);
-  --panel-2-a: rgba(32, 32, 42, 0.72);
+  --panel-a: rgba(23, 23, 31, 0.55);
+  --panel-2-a: rgba(32, 32, 42, 0.62);
   --r-sm: 10px;
   --sans: "Inter", system-ui, -apple-system, "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
   --mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
@@ -51,6 +51,28 @@
 
 /* 2 · base */
 /* a chosen wallpaper joins the body background: scrim, photo, glows, colour */
+/* text that sits straight on the picture gets a soft halo, so the veil can stay
+   light enough to keep the colours */
+html[data-wallpaper] .desk__greet,
+html[data-wallpaper] .anchor__value,
+html[data-wallpaper] .anchor__meta,
+html[data-wallpaper] .affirm__line,
+html[data-wallpaper] .affirm__cn,
+html[data-wallpaper] .tool__head h1,
+html[data-wallpaper] .tool__head p,
+html[data-wallpaper] .nextup {
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.28), 0 0 14px rgba(0, 0, 0, 0.18);
+}
+html[data-theme="light"][data-wallpaper] .desk__greet,
+html[data-theme="light"][data-wallpaper] .anchor__value,
+html[data-theme="light"][data-wallpaper] .anchor__meta,
+html[data-theme="light"][data-wallpaper] .affirm__line,
+html[data-theme="light"][data-wallpaper] .tool__head h1,
+html[data-theme="light"][data-wallpaper] .tool__head p,
+html[data-theme="light"][data-wallpaper] .nextup {
+  text-shadow: 0 1px 2px rgba(255, 255, 255, 0.75), 0 0 12px rgba(255, 255, 255, 0.55);
+}
+
 /* with a photo behind the page the panels turn into glass, so the picture
    reads through them instead of being hidden by a wall of cards */
 /* the nav goes to glass as well: a solid band over a photo reads as a black bar */
@@ -84,8 +106,8 @@ html[data-wallpaper] .chart__bar { background: var(--panel-2-a); }
 html[data-wallpaper] body {
   background:
     linear-gradient(180deg,
-      rgba(0, 0, 0, calc(var(--wp-dim, 0.55) * 0.82)),
-      rgba(0, 0, 0, var(--wp-dim, 0.55))),
+      rgba(0, 0, 0, calc(var(--wp-dim, 0.55) * 0.48)),
+      rgba(0, 0, 0, calc(var(--wp-dim, 0.55) * 0.66))),
     var(--wallpaper-url) center / cover no-repeat fixed,
     radial-gradient(60rem 30rem at 15% -10%, var(--glow-a), transparent 60%),
     radial-gradient(50rem 26rem at 90% 0%, var(--glow-b), transparent 55%),
@@ -97,8 +119,8 @@ html[data-theme="light"][data-wallpaper] body {
     /* a bright picture behind a bright page has to lose most of its punch, or
        the whole screen reads as overexposed */
     linear-gradient(180deg,
-      rgba(255, 255, 255, calc(0.62 + var(--wp-dim, 0.55) * 0.36)),
-      rgba(255, 255, 255, calc(0.42 + var(--wp-dim, 0.55) * 0.44))),
+      rgba(255, 255, 255, calc(0.30 + var(--wp-dim, 0.55) * 0.26)),
+      rgba(255, 255, 255, calc(0.18 + var(--wp-dim, 0.55) * 0.30))),
     var(--wallpaper-url) center / cover no-repeat fixed,
     radial-gradient(60rem 30rem at 15% -10%, var(--glow-a), transparent 60%),
     radial-gradient(50rem 26rem at 90% 0%, var(--glow-b), transparent 55%),
@@ -106,8 +128,8 @@ html[data-theme="light"][data-wallpaper] body {
 }
 html[data-theme="light"][data-wallpaper] .nav {
   background: linear-gradient(180deg,
-    rgba(255, 255, 255, calc(var(--wp-dim, 0.55) * 0.95)) 0%,
-    rgba(255, 255, 255, calc(var(--wp-dim, 0.55) * 0.5)) 62%,
+    rgba(255, 255, 255, calc(var(--wp-dim, 0.55) * 0.80)) 0%,
+    rgba(255, 255, 255, calc(var(--wp-dim, 0.55) * 0.28)) 62%,
     transparent 100%);
 }
 
@@ -903,8 +925,8 @@ td.num.neg { color: var(--muted); }
   --mood-5: #2c8a5a;
   --nav-glass: rgba(247, 246, 243, 0.86);
   --nav-glass-fade: rgba(247, 246, 243, 0.42);
-  --panel-a: rgba(255, 255, 255, 0.93);
-  --panel-2-a: rgba(246, 245, 242, 0.92);
+  --panel-a: rgba(255, 255, 255, 0.80);
+  --panel-2-a: rgba(246, 245, 242, 0.80);
 }
 
 [data-theme="light"] .nav__ink {
