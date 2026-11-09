@@ -1020,8 +1020,8 @@ body, .nav, .panel, .card, .metric, .rail__block, .watch, .stat,
     /* a fog layer over the picture: the shapes stay, the detail does not — this
        is what makes it read as frosted rather than as a window */
     linear-gradient(180deg,
-      color-mix(in srgb, var(--bg) 58%, transparent) 0%,
-      color-mix(in srgb, var(--bg) 66%, transparent) 100%),
+      color-mix(in srgb, var(--bg) 40%, transparent) 0%,
+      color-mix(in srgb, var(--bg) 48%, transparent) 100%),
     var(--wallpaper-url, none),
     linear-gradient(180deg,
       color-mix(in srgb, var(--digit, var(--accent)) 26%, transparent) 0%,
