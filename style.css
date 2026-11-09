@@ -248,6 +248,17 @@ img, svg, canvas { display: block; max-width: 100%; }
   background: rgba(255, 255, 255, 0.05);
 }
 .tool__head { margin-bottom: 26px; }
+/* the clock and the world clock share one grid: header, card and panel then
+   line up on the same left edge instead of each centring itself */
+.clock-layout {
+  display: grid; gap: clamp(16px, 2vw, 26px);
+  grid-template-columns: minmax(0, 24rem) minmax(0, 1fr);
+  align-items: start;
+}
+@media (max-width: 1024px) {
+  .clock-layout { grid-template-columns: minmax(0, 1fr); }
+  .cw { margin: 0 auto; }
+}
 .tool__head h1 { font-size: clamp(1.7rem, 3vw, 2.4rem); letter-spacing: -0.03em; }
 .tool__head p { margin-top: 8px; color: var(--muted); max-width: 46rem; }
 
@@ -545,7 +556,7 @@ img, svg, canvas { display: block; max-width: 100%; }
 /* ---- clock ---- */
 /* the widget: a light frosted pane on the dark page, like a float from a phone */
 .cw {
-  position: relative; max-width: 24rem; margin: 0 auto; padding: 14px 16px 62px;
+  position: relative; max-width: 24rem; padding: 14px 16px 62px;
   border-radius: 30px;
   /* The card is a surface of the page, not a separate object: the panel
      colours come straight from the theme, and the accent wash is a separate
