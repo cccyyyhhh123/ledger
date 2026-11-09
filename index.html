@@ -5,17 +5,17 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>uY^Yu.</title>
 <meta name="description" content="One desk: music, revision cards, a clock, live weather and a shared ledger.">
-<link rel="icon" href="Images/favicon-32.png?v=87" sizes="32x32" type="image/png">
-<link rel="apple-touch-icon" href="Images/icon-180.png?v=87">
+<link rel="icon" href="Images/favicon-32.png?v=132" sizes="32x32" type="image/png">
+<link rel="apple-touch-icon" href="Images/icon-180.png?v=132">
 <meta name="theme-color" content="#0b0b10">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Bricolage+Grotesque:wght@700;800&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="style.css?v=131">
+<link rel="stylesheet" href="style.css?v=132">
 <!-- clock ink: kept here as well, so a cached style.css cannot leave the
      seconds a different colour from the hours -->
 <style>.anchor__sec { color: inherit !important; }</style>
-<script src="theme.js?v=118"></script>
+<script src="theme.js?v=132"></script>
 </head>
 <body>
 
@@ -107,6 +107,14 @@
       <p class="mood__note" id="moodNote">Tap a face — one entry a day, kept in this browser.</p>
     </div>
 
+    <div class="rail__block fitmini" id="fitMini">
+      <h2>Fitness</h2>
+      <div class="fitmini__body" id="fitMiniBody">
+        <p class="fitmini__empty" id="fitMiniEmpty">
+          No numbers yet — <a href="fitness.html">set them once</a> and this block will follow.
+        </p>
+      </div>
+    </div>
     <div class="rail__block">
       <h2>Appearance</h2>
       <div class="swatches" id="swatches"></div>
@@ -167,8 +175,8 @@
   </div>
 </div>
 
-<script src="counter.js?v=100"></script>
-<script src="nav.js?v=100"></script>
+<script src="counter.js?v=132"></script>
+<script src="nav.js?v=132"></script>
 <script>
   (function () {
     var hour = new Date().getHours();
@@ -234,6 +242,52 @@
          each lane gets the wallpaper's cover placement written out in pixels,
          offset by where the lane sits on screen */
     }
+
+/* ---------- the fitness block ----------
+       The same planner that builds the full page also lives here, quietly: a
+       few of its numbers, and a way in. */
+    function paintFitnessBlock() {
+      var body = document.getElementById('fitMiniBody');
+      var empty = document.getElementById('fitMiniEmpty');
+      if (!body) return;
+
+      var profile = null;
+      try { profile = JSON.parse(localStorage.getItem('deskFitnessProfile')); } catch (e) { profile = null; }
+
+      if (!profile || !profile.weight || !window.DeskFitness) return;
+
+      var plan = window.DeskFitness.build(profile);
+      empty.hidden = true;
+
+      var rows = [
+        ['Eat about', plan.target + ' kcal'],
+        ['Protein', plan.protein + ' g'],
+        ['Steps', String(plan.steps)],
+        ['Training', plan.days + ' days a week']
+      ];
+
+      var list = document.createElement('dl');
+      list.className = 'fitmini__list';
+      rows.forEach(function (row) {
+        var dt = document.createElement('dt');
+        dt.textContent = row[0];
+        var dd = document.createElement('dd');
+        dd.textContent = row[1];
+        list.append(dt, dd);
+      });
+      body.appendChild(list);
+
+      var link = document.createElement('a');
+      link.className = 'fitmini__link';
+      link.href = 'fitness.html';
+      link.textContent = 'Full plan →';
+      body.appendChild(link);
+    }
+
+    /* the planner is a script further down the page, so wait for it */
+    if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', paintFitnessBlock);
+    else paintFitnessBlock();
+    window.addEventListener('deskfitness:update', paintFitnessBlock);
 
     /* ---------- the affirmation of the day ---------- */
     var AFFIRMATIONS = [
@@ -1196,8 +1250,9 @@
     window.DeskCrop = { open: open };
   })();
 </script>
-<script src="wallpaper-pick.js?v=102"></script>
-<script src="wallpaper-live.js?v=102"></script>
-<script src="pet.js?v=103"></script>
+<script src="wallpaper-pick.js?v=132"></script>
+<script src="wallpaper-live.js?v=132"></script>
+<script src="fitness-plan.js?v=132"></script>
+<script src="pet.js?v=132"></script>
 </body>
 </html>

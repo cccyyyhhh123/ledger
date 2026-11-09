@@ -1667,6 +1667,26 @@ html[data-wallpaper-live] .nav__links a { color: #f2f2f7; }
   .plan__head { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .plan__macros { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 }
+/* ---------- the fitness block in the rail ---------- */
+.fitmini__body { display: grid; gap: 8px; margin-top: 6px; }
+.fitmini__empty { font-size: 0.8rem; color: var(--muted); line-height: 1.5; }
+.fitmini__empty a { color: var(--accent); }
+.fitmini__list {
+  display: grid; grid-template-columns: auto 1fr; gap: 6px 10px; margin: 0;
+}
+.fitmini__list dt {
+  font-size: 0.62rem; letter-spacing: 0.12em; text-transform: uppercase;
+  color: var(--muted-2); align-self: center;
+}
+.fitmini__list dd {
+  margin: 0; text-align: right; font-size: 0.86rem; color: var(--ink);
+  font-variant-numeric: tabular-nums;
+}
+.fitmini__link {
+  justify-self: start; margin-top: 2px; font-size: 0.76rem; color: var(--accent);
+  text-decoration: none; border-bottom: 1px solid color-mix(in srgb, var(--accent) 40%, transparent);
+}
+.fitmini__link:hover { border-bottom-color: var(--accent); }
 /* ---------- contact ---------- */
 .contact {
   display: grid; grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr);
