@@ -11,8 +11,8 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="style.css?v=50">
-<script src="theme.js?v=50"></script>
+<link rel="stylesheet" href="style.css?v=51">
+<script src="theme.js?v=51"></script>
 </head>
 <body>
 
@@ -96,6 +96,11 @@
     <div class="rail__block">
       <h2>Appearance</h2>
       <div class="swatches" id="swatches"></div>
+      <button class="swatch swatch--custom" id="customSwatch" type="button" aria-label="Pick your own colour">
+        <span class="swatch__chip swatch__chip--custom" id="customChip" aria-hidden="true"></span>
+        <span class="swatch__name">Custom</span>
+        <input type="color" id="customColor" value="#a78bfa" aria-label="Your own accent colour">
+      </button>
       <div class="row" style="gap:8px; margin-top:12px; flex-wrap:wrap">
         <label class="btn btn--primary" for="wallpaper" style="padding:7px 12px; font-size:0.8rem">Match wallpaper</label>
         <input id="wallpaper" type="file" accept="image/*" hidden>
@@ -108,8 +113,8 @@
   </aside>
 </main>
 
-<script src="counter.js?v=50"></script>
-<script src="nav.js?v=50"></script>
+<script src="counter.js?v=51"></script>
+<script src="nav.js?v=51"></script>
 <script>
   (function () {
     var hour = new Date().getHours();
@@ -291,6 +296,26 @@
       var status = document.getElementById('themeStatus');
       var input = document.getElementById('wallpaper');
 
+      /* ---------- pick any colour ---------- */
+      var customSwatch = document.getElementById('customSwatch');
+      var customChip = document.getElementById('customChip');
+      var customColor = document.getElementById('customColor');
+
+      if (customSwatch && customColor) {
+        customSwatch.addEventListener('click', function (event) {
+          if (event.target !== customColor) customColor.click();
+        });
+
+        customColor.addEventListener('input', function () {
+          var theme = DeskTheme.fromAccent(customColor.value);
+          DeskTheme.save(theme);
+          customChip.style.background = 'linear-gradient(135deg, ' + theme.accent + ', ' + theme.accent2 + ')';
+          paintSwatches('custom');
+          customSwatch.classList.add('is-active');
+          status.textContent = 'Custom colour ' + customColor.value + ' applied to every page.';
+        });
+      }
+
       function paintSwatches(activeKey) {
         swatches.replaceChildren();
         Object.keys(DeskTheme.PRESETS).forEach(function (key) {
@@ -317,6 +342,9 @@
           });
           swatches.appendChild(button);
         });
+
+        /* the custom tile rides at the end of the same grid */
+        if (customSwatch) swatches.appendChild(customSwatch);
       }
       paintSwatches(null);
 

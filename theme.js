@@ -121,6 +121,21 @@
     };
   }
 
+  /* one colour in, a whole palette out: the background is a very dark wash of
+     the same hue, and the second accent is that hue nudged round the wheel. */
+  function fromAccent(hex) {
+    var hsl = rgbToHsl(hexToRgb(hex));
+    var bg = hslToHex(hsl.h, Math.max(0.10, Math.min(0.32, hsl.s * 0.45)), 0.055);
+    var accent2 = hslToHex((hsl.h + 34) % 360,
+      Math.max(0.55, Math.min(0.9, hsl.s)),
+      Math.max(0.62, Math.min(0.84, hsl.l + 0.12)));
+    var theme = fromColors(bg, hex, accent2);
+    theme.name = 'Custom';
+    theme.key = 'custom';
+    theme.custom = true;
+    return theme;
+  }
+
   function preset(name) {
     var source = PRESETS[name] || PRESETS.violet;
     var theme = fromColors(source.bg, source.accent, source.accent2);
@@ -330,6 +345,7 @@
     clear: clear,
     extract: extract,
     preset: preset,
+    fromAccent: fromAccent,
     PRESETS: PRESETS
   };
 })(window);
