@@ -943,6 +943,9 @@ body, .nav, .panel, .card, .metric, .rail__block, .watch, .stat,
   color: var(--ink-2); font-size: 0.9rem;
 }
 .rail__list a:hover { background: var(--hover); color: var(--ink); }
+.rail__list a span#railMusic {
+  max-width: 11rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
 .rail__list a span { margin-left: auto; font-size: 0.72rem; color: var(--muted-2); }
 
 .modeswitch { display: grid; grid-template-columns: 1fr 1fr; gap: 4px; padding: 4px; border-radius: 999px; background: var(--panel-2); border: 1px solid var(--line); }
