@@ -349,10 +349,14 @@ img, svg, canvas { display: block; max-width: 100%; }
 
 /* the QQ player is a single bar, not a page: a 320px frame leaves a white void */
 .embed--player {
-  height: 74px; min-height: 0;
+  /* a little slack: at exactly the content height any zoom made the frame
+     grow a scrollbar, which showed as a dark strip with two arrows */
+  height: 86px; min-height: 0;
   border-radius: 12px;
   background: #ffffff;
   color-scheme: light;
+  overflow: hidden;
+  scrollbar-width: none;
 }
 .embed-note { font-size: 0.85rem; color: var(--muted); margin-top: 10px; }
 
