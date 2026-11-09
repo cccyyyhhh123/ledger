@@ -38,6 +38,7 @@
   --mood-4: #7cc46a;
   --mood-5: #4cc38a;
   /* used only when a wallpaper is behind the page */
+  --nav-glass: rgba(11, 11, 16, 0.38);
   --panel-a: rgba(23, 23, 31, 0.66);
   --panel-2-a: rgba(32, 32, 42, 0.72);
   --r-sm: 10px;
@@ -51,6 +52,14 @@
 /* a chosen wallpaper joins the body background: scrim, photo, glows, colour */
 /* with a photo behind the page the panels turn into glass, so the picture
    reads through them instead of being hidden by a wall of cards */
+/* the nav goes to glass as well: a solid band over a photo reads as a black bar */
+html[data-wallpaper] .nav {
+  background: var(--nav-glass);
+  -webkit-backdrop-filter: blur(20px) saturate(1.35);
+  backdrop-filter: blur(20px) saturate(1.35);
+  box-shadow: 0 1px 0 var(--line);
+}
+
 html[data-wallpaper] .panel,
 html[data-wallpaper] .rail__block,
 html[data-wallpaper] .scard,
@@ -130,6 +139,15 @@ img, svg, canvas { display: block; max-width: 100%; }
 }
 .nav__mode:hover { color: var(--ink); border-color: var(--line-2); background: var(--hover); }
 .nav__mode svg { width: 16px; height: 16px; }
+
+.nav__back {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 5px 11px; border-radius: 999px;
+  border: 1px solid var(--line); color: var(--muted);
+  font-size: 0.78rem; text-decoration: none; white-space: nowrap;
+  transition: color 0.18s ease, border-color 0.18s ease, background-color 0.18s ease;
+}
+.nav__back:hover { color: var(--ink); border-color: var(--line-2); background: var(--hover); }
 
 .nav__brand { font-weight: 700; letter-spacing: 0.01em; color: var(--ink); white-space: nowrap; }
 .nav__brand span { color: var(--accent); }
@@ -846,6 +864,7 @@ td.num.neg { color: var(--muted); }
   --mood-3: #9c7a12;
   --mood-4: #4b8f38;
   --mood-5: #2c8a5a;
+  --nav-glass: rgba(247, 246, 243, 0.55);
   --panel-a: rgba(255, 255, 255, 0.80);
   --panel-2-a: rgba(244, 243, 240, 0.78);
 }
