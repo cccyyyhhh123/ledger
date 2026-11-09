@@ -61,14 +61,39 @@
   try { previousHref = sessionStorage.getItem(LAST); } catch (e) {}
   var previous = linkFor(previousHref);
 
-  /* the page we came from is different from this one: start there, travel here */
-  if (previous && previous !== current && !calm.matches) {
-    place(previous, true);
-    requestAnimationFrame(function () {
-      requestAnimationFrame(function () { place(current); });
-    });
-  } else {
-    place(current, true);
+  /* Park the highlight on this page's item, then play the travel explicitly.
+     A CSS transition across a document swap depends on the starting position
+     being committed in an earlier frame, which a busy or background tab does
+     not guarantee — and a `prefers-reduced-motion` rule that silences
+     transitions would hide it entirely. Animating from an explicit keyframe
+     avoids both. */
+  function offset(el) {
+    var outer = bar.getBoundingClientRect();
+    var rect = el.getBoundingClientRect();
+    return {
+      x: rect.left - outer.left,
+      y: rect.top - outer.top,
+      w: rect.width,
+      h: rect.height
+    };
+  }
+
+  place(current, true);
+
+  if (previous && previous !== current && ink.animate) {
+    var from = offset(previous);
+    var to = offset(current);
+    var reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    ink.animate(
+      [
+        { transform: 'translate(' + from.x + 'px,' + from.y + 'px)', width: from.w + 'px', height: from.h + 'px' },
+        { transform: 'translate(' + to.x + 'px,' + to.y + 'px)', width: to.w + 'px', height: to.h + 'px' }
+      ],
+      {
+        duration: reduced ? 200 : 460,
+        easing: reduced ? 'ease-out' : 'cubic-bezier(0.34, 1.4, 0.64, 1)'
+      }
+    );
   }
 
   var currentHref = current.getAttribute('href');

@@ -193,9 +193,7 @@ img, svg, canvas { display: block; max-width: 100%; }
 @supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
   .nav__ink { background: rgba(255, 255, 255, 0.16); }
 }
-@media (prefers-reduced-motion: reduce) {
-  .nav__ink { transition: none; }
-}
+
 
 /* 4 · home */
 .hero { padding: 56px 0 8px; }
@@ -1614,4 +1612,12 @@ body, .nav, .panel, .card, .metric, .rail__block, .watch, .stat,
 
 @media (prefers-reduced-motion: reduce) {
   * { transition: none !important; animation: none !important; }
+
+  /* One exception, and only one: the menu highlight. A reduced-motion setting
+     should stop decorative motion, not the feedback that says which page you
+     are on — so it still travels, once, short and without overshoot. */
+  .nav__ink {
+    transition: transform 0.2s ease-out, width 0.2s ease-out,
+                height 0.16s ease-out, opacity 0.16s ease-out !important;
+  }
 }
