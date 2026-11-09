@@ -11,7 +11,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Bricolage+Grotesque:wght@700;800&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="style.css?v=137">
+<link rel="stylesheet" href="style.css?v=138">
 <!-- clock ink: kept here as well, so a cached style.css cannot leave the
      seconds a different colour from the hours -->
 <style>.anchor__sec { color: inherit !important; }</style>
@@ -915,10 +915,36 @@
 
     function paintUndo() {
       if (!undoButton) return;
-      undoButton.hidden = history.length === 0;
-      undoButton.textContent = history.length === 1
-        ? 'Undo last entry'
-        : 'Undo last entry (' + history.length + ')';
+
+      var todayEntry = data[iso(new Date())] || {};
+      var hasHere = todayEntry[slot] != null;
+
+      if (history.length) {
+        undoButton.hidden = false;
+        undoButton.textContent = history.length === 1
+          ? 'Undo last entry'
+          : 'Undo last entry (' + history.length + ')';
+        return;
+      }
+
+      /* nothing to step back to, but there may be an entry from before this
+         button existed: offer to clear exactly that */
+      undoButton.hidden = !hasHere;
+      undoButton.textContent = 'Clear this entry';
+    }
+
+    function clearHere() {
+      var key = iso(new Date());
+      var entry = data[key];
+      if (!entry || entry[slot] == null) return;
+      remember(key, slot, entry[slot]);
+      delete entry[slot];
+      if (!Object.keys(entry).length) delete data[key];
+      save(data);
+      history.pop();                       /* clearing is not an undo step */
+      try { localStorage.setItem(UNDO_KEY, JSON.stringify(history)); } catch (e) {}
+      paint();
+      say('Cleared — the slot is empty again.');
     }
 
     function remember(key, slotId, previous) {
@@ -1046,7 +1072,7 @@
     function paintNote() {
       var entry = data[iso(new Date())] || {};
       var parts = SLOTS.filter(function (item) { return entry[item.id]; })
-        .map(function (item) { return item.label.toLowerCase() + ' ' + LABELS[entry[item.id] - 1]; });
+        .map(function (item) { return item.label + ' ' + LABELS[entry[item.id] - 1]; });
       note.textContent = parts.length
         ? 'Today: ' + parts.join(' · ')
         : 'Tap a face for this part of the day — kept in this browser.';
@@ -1090,7 +1116,12 @@
       paint();
     });
 
-    if (undoButton) undoButton.addEventListener('click', undo);
+    if (undoButton) {
+      undoButton.addEventListener('click', function () {
+        if (history.length) undo();
+        else clearHere();
+      });
+    }
 
     paint();
     paintUndo();
