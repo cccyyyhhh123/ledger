@@ -11,8 +11,8 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="style.css?v=48">
-<script src="theme.js?v=48"></script>
+<link rel="stylesheet" href="style.css?v=49">
+<script src="theme.js?v=49"></script>
 </head>
 <body>
 
@@ -87,7 +87,8 @@
 
     <div class="rail__block">
       <h2>Today&rsquo;s mood</h2>
-      <div class="mood" id="mood" role="group" aria-label="How is today going"></div>
+      <div class="mood__slots" id="moodSlots" role="tablist" aria-label="Part of the day"></div>
+      <div class="mood" id="mood" role="group" aria-label="How is this part of the day going"></div>
       <div class="mood__week" id="moodWeek" aria-hidden="true"></div>
       <p class="mood__note" id="moodNote">Tap a face — one entry a day, kept in this browser.</p>
     </div>
@@ -107,8 +108,8 @@
   </aside>
 </main>
 
-<script src="counter.js?v=48"></script>
-<script src="nav.js?v=48"></script>
+<script src="counter.js?v=49"></script>
+<script src="nav.js?v=49"></script>
 <script>
   (function () {
     var hour = new Date().getHours();
@@ -346,103 +347,184 @@
     }
   })();
 
-  /* ---------- today's mood ----------
-     Five drawn faces rather than emoji, so they take the theme's ink colour.
-     One entry per day; the row under them is the last seven days. */
+  /* ---------- today's mood, three times a day ----------
+     Morning, afternoon and evening each get their own entry, so a bad morning
+     and a good evening can both be true. The strip below shows the last seven
+     days as three stacked cells per day. */
   (function () {
     var KEY = 'deskMood';
+    var slotsHost = document.getElementById('moodSlots');
     var host = document.getElementById('mood');
     var week = document.getElementById('moodWeek');
     var note = document.getElementById('moodNote');
-    if (!host || !week) return;
+    if (!host || !week || !slotsHost) return;
 
+    var SLOTS = [
+      { id: 'morning', label: 'Morning', short: 'M' },
+      { id: 'afternoon', label: 'Afternoon', short: 'A' },
+      { id: 'evening', label: 'Evening', short: 'E' }
+    ];
     var MOUTHS = [
-      'M15 22 Q20 17 25 22',      /* 1 — down */
-      'M15 21 Q20 19.5 25 21',    /* 2 */
-      'M15 21 H25',               /* 3 — flat */
-      'M15 19.5 Q20 23 25 19.5',  /* 4 */
-      'M14.5 18.5 Q20 24.5 25.5 18.5' /* 5 — up */
+      'M15 22 Q20 17 25 22',
+      'M15 21 Q20 19.5 25 21',
+      'M15 21 H25',
+      'M15 19.5 Q20 23 25 19.5',
+      'M14.5 18.5 Q20 24.5 25.5 18.5'
     ];
     var LABELS = ['rough', 'low', 'okay', 'good', 'great'];
 
-    function today() {
-      var d = new Date();
-      return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' +
-        String(d.getDate()).padStart(2, '0');
+    function iso(day) {
+      return day.getFullYear() + '-' + String(day.getMonth() + 1).padStart(2, '0') + '-' +
+        String(day.getDate()).padStart(2, '0');
     }
 
     function load() {
-      try { return JSON.parse(localStorage.getItem(KEY)) || {}; } catch (e) { return {}; }
+      var raw = {};
+      try { raw = JSON.parse(localStorage.getItem(KEY)) || {}; } catch (e) { raw = {}; }
+      var out = {};
+      Object.keys(raw).forEach(function (key) {
+        var value = raw[key];
+        /* older entries were one number for the whole day: keep it at midday */
+        if (typeof value === 'number') out[key] = { afternoon: value };
+        else if (value && typeof value === 'object') out[key] = value;
+      });
+      return out;
     }
+
     function save(data) {
       var keys = Object.keys(data).sort();
       while (keys.length > 60) { delete data[keys.shift()]; }
       try { localStorage.setItem(KEY, JSON.stringify(data)); } catch (e) {}
     }
 
+    function currentSlot() {
+      var hour = new Date().getHours();
+      if (hour < 12) return 'morning';
+      if (hour < 18) return 'afternoon';
+      return 'evening';
+    }
+
     var data = load();
+    var slot = currentSlot();
 
     function face(level) {
-      return '<svg viewBox="0 0 40 40" width="26" height="26" aria-hidden="true">' +
+      return '<svg viewBox="0 0 40 40" width="24" height="24" aria-hidden="true">' +
         '<circle cx="20" cy="20" r="16.5" fill="none" stroke="currentColor" stroke-width="1.6" opacity="0.55"/>' +
         '<circle cx="14.5" cy="16" r="1.7" fill="currentColor"/>' +
         '<circle cx="25.5" cy="16" r="1.7" fill="currentColor"/>' +
         '<path d="' + MOUTHS[level - 1] + '" fill="none" stroke="currentColor" stroke-width="1.6" ' +
-        'stroke-linecap="round"/>' +
-        '</svg>';
+        'stroke-linecap="round"/></svg>';
     }
 
-    function paint() {
-      var key = today();
+    function labelOf(slotId) {
+      for (var i = 0; i < SLOTS.length; i++) if (SLOTS[i].id === slotId) return SLOTS[i].label;
+      return slotId;
+    }
+
+    function paintSlots() {
+      slotsHost.replaceChildren();
+      SLOTS.forEach(function (item) {
+        var button = document.createElement('button');
+        button.type = 'button';
+        button.className = 'mood__slot' + (item.id === slot ? ' is-on' : '');
+        button.setAttribute('role', 'tab');
+        button.setAttribute('aria-selected', String(item.id === slot));
+        button.textContent = item.label;
+        button.dataset.slot = item.id;
+        slotsHost.appendChild(button);
+      });
+    }
+
+    function paintFaces() {
+      var key = iso(new Date());
+      var todayEntry = data[key] || {};
       host.replaceChildren();
       for (var level = 1; level <= 5; level++) {
         var button = document.createElement('button');
         button.type = 'button';
-        button.className = 'mood__btn' + (data[key] === level ? ' is-picked' : '');
+        button.className = 'mood__btn' + (todayEntry[slot] === level ? ' is-picked' : '');
         button.innerHTML = face(level);
-        button.setAttribute('aria-pressed', String(data[key] === level));
-        button.setAttribute('aria-label', LABELS[level - 1]);
+        button.setAttribute('aria-pressed', String(todayEntry[slot] === level));
+        button.setAttribute('aria-label', labelOf(slot) + ': ' + LABELS[level - 1]);
         button.title = LABELS[level - 1];
         button.dataset.level = String(level);
         host.appendChild(button);
       }
+    }
 
-      /* last seven days, oldest first */
+    function paintWeek() {
+      var today = iso(new Date());
       week.replaceChildren();
       for (var back = 6; back >= 0; back--) {
         var day = new Date();
         day.setDate(day.getDate() - back);
-        var iso = day.getFullYear() + '-' + String(day.getMonth() + 1).padStart(2, '0') + '-' +
-          String(day.getDate()).padStart(2, '0');
-        var value = data[iso] || 0;
-        var bar = document.createElement('i');
-        bar.className = 'mood__day' + (value ? ' has' : '') + (iso === key ? ' is-today' : '');
-        bar.style.setProperty('--fill', value ? (value / 5 * 100) + '%' : '0%');
-        bar.title = iso + (value ? ' · ' + LABELS[value - 1] : ' · no entry');
-        week.appendChild(bar);
-      }
+        var key = iso(day);
+        var entry = data[key] || {};
 
-      note.textContent = data[key]
-        ? 'Today: ' + LABELS[data[key] - 1] + ' — tap another face to change it.'
-        : 'Tap a face — one entry a day, kept in this browser.';
+        var column = document.createElement('div');
+        column.className = 'mood__day' + (key === today ? ' is-today' : '');
+        column.title = key + ' — ' + SLOTS.map(function (item) {
+          return item.label + ': ' + (entry[item.id] ? LABELS[entry[item.id] - 1] : '—');
+        }).join(', ');
+
+        SLOTS.forEach(function (item) {
+          var cell = document.createElement('i');
+          var value = entry[item.id] || 0;
+          cell.className = 'mood__cell' + (value ? ' has' : '');
+          cell.style.setProperty('--fill', value ? (0.25 + value / 5 * 0.75).toFixed(2) : '0');
+          column.appendChild(cell);
+        });
+
+        week.appendChild(column);
+      }
+    }
+
+    function paintNote() {
+      var entry = data[iso(new Date())] || {};
+      var parts = SLOTS.filter(function (item) { return entry[item.id]; })
+        .map(function (item) { return item.label.toLowerCase() + ' ' + LABELS[entry[item.id] - 1]; });
+      note.textContent = parts.length
+        ? 'Today: ' + parts.join(' · ')
+        : 'Tap a face for this part of the day — kept in this browser.';
 
       var metric = document.getElementById('metricMood');
-      if (metric) metric.textContent = data[key] ? LABELS[data[key] - 1] : '—';
+      if (metric) {
+        var latest = '';
+        for (var i = SLOTS.length - 1; i >= 0; i--) {
+          if (entry[SLOTS[i].id]) { latest = LABELS[entry[SLOTS[i].id] - 1]; break; }
+        }
+        metric.textContent = latest || '—';
+      }
     }
+
+    function paint() {
+      paintSlots();
+      paintFaces();
+      paintWeek();
+      paintNote();
+    }
+
+    slotsHost.addEventListener('click', function (event) {
+      var button = event.target.closest('.mood__slot');
+      if (!button) return;
+      slot = button.dataset.slot;
+      paint();
+    });
 
     host.addEventListener('click', function (event) {
       var button = event.target.closest('.mood__btn');
       if (!button) return;
-      var key = today();
+      var key = iso(new Date());
       var level = Number(button.dataset.level);
-      if (data[key] === level) delete data[key];
-      else data[key] = level;
+      var entry = data[key] || (data[key] = {});
+      if (entry[slot] === level) delete entry[slot];
+      else entry[slot] = level;
+      if (!Object.keys(entry).length) delete data[key];
       save(data);
       paint();
     });
 
     paint();
-  })();
-</script>
+  })();</script>
 </body>
 </html>

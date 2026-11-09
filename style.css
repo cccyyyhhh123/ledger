@@ -1094,6 +1094,16 @@ body, .nav, .panel, .card, .metric, .rail__block, .watch, .stat,
 .swatch.is-active .swatch__name { color: var(--ink); }
 
 /* ---------- today's mood ---------- */
+.mood__slots { display: flex; gap: 4px; margin-top: 10px; }
+.mood__slot {
+  flex: 1; border: 1px solid var(--line); background: transparent;
+  color: var(--muted); border-radius: 8px; padding: 5px 0;
+  font-size: 0.7rem; letter-spacing: 0.04em; cursor: pointer;
+  transition: color 0.16s ease, border-color 0.16s ease, background-color 0.16s ease;
+}
+.mood__slot:hover { color: var(--ink); background: var(--hover); }
+.mood__slot.is-on { color: var(--accent); border-color: var(--accent); background: var(--hover-2); }
+
 .mood { display: flex; gap: 6px; margin-top: 10px; }
 .mood__btn {
   width: 38px; height: 38px; display: grid; place-items: center;
@@ -1106,16 +1116,22 @@ body, .nav, .panel, .card, .metric, .rail__block, .watch, .stat,
   color: var(--accent); border-color: var(--accent);
   background: var(--hover-2);
 }
-.mood__week { display: flex; align-items: flex-end; gap: 4px; height: 20px; margin-top: 12px; }
+/* three cells a day: evening on top, morning at the bottom */
+.mood__week { display: flex; align-items: stretch; gap: 5px; height: 30px; margin-top: 12px; }
 .mood__day {
-  position: relative; flex: 1; height: 20px; border-radius: 3px;
-  background: var(--line); overflow: hidden;
+  flex: 1; display: grid; grid-template-rows: repeat(3, 1fr); gap: 2px;
+  border-radius: 4px; padding: 2px;
 }
-.mood__day.is-today { outline: 1px solid var(--line-2); outline-offset: 1px; }
-.mood__day.has::after {
-  content: ""; position: absolute; left: 0; right: 0; bottom: 0;
-  height: var(--fill); background: linear-gradient(180deg, var(--accent), var(--accent-2));
-  opacity: 0.75; border-radius: 3px;
+.mood__day.is-today { background: var(--hover); outline: 1px solid var(--line-2); outline-offset: 1px; }
+.mood__cell {
+  border-radius: 2px; background: var(--line);
+  position: relative; overflow: hidden;
+}
+.mood__cell.has::after {
+  content: ""; position: absolute; inset: 0;
+  background: linear-gradient(180deg, var(--accent), var(--accent-2));
+  opacity: var(--fill);
+  border-radius: 2px;
 }
 .mood__note { font-size: 0.72rem; color: var(--muted); margin-top: 8px; }
 
