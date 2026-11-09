@@ -1021,14 +1021,17 @@ body, .nav, .panel, .card, .metric, .rail__block, .watch, .stat,
     linear-gradient(180deg,
       color-mix(in srgb, var(--digit, var(--accent)) 24%, transparent) 0%,
       color-mix(in srgb, var(--digit, var(--accent)) 8%, transparent) 100%);
+  /* fixed keeps every lane showing the part of the picture that is really
+     behind it; it only survives while nothing on the way down has a filter,
+     which is why the saturate() that used to sit here is gone */
   background-attachment: fixed, fixed, fixed, fixed;
   background-size: cover, cover, cover, cover;
   background-position: center, center, center, center;
+  background-repeat: no-repeat, no-repeat, no-repeat, no-repeat;
   -webkit-background-clip: text;
   background-clip: text;
   -webkit-text-fill-color: transparent;
   color: transparent;
-  filter: saturate(1.15) contrast(1.02);
 }
 /* ---------- the numbers borrow the wallpaper's own colours ----------
    Each column carries one stop of a gradient taken from the picture, and the
