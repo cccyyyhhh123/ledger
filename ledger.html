@@ -11,8 +11,8 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-<script src="theme.js?v=76"></script>
-<link rel="stylesheet" href="style.css?v=76">
+<script src="theme.js?v=77"></script>
+<link rel="stylesheet" href="style.css?v=77">
 </head>
 <body>
 
@@ -39,8 +39,16 @@
         <p class="small muted">Shared key</p>
         <p class="mono" id="key" style="font-size:1.2rem; letter-spacing:0.35em">------</p>
       </div>
-      <div class="row">
-        <button class="btn btn--ghost" id="newBook" type="button">Start another book</button>
+      <div class="keyopen">
+        <label class="keyopen__label" for="openKey">Open a book by key</label>
+        <div class="row" style="gap:8px">
+          <input class="input keyopen__input" id="openKey" type="text" inputmode="numeric"
+                 maxlength="6" placeholder="6 digits" aria-label="Six digit key">
+          <button class="btn btn--primary" id="openBook" type="button">Open</button>
+          <button class="btn btn--ghost" id="newBook" type="button">New book</button>
+        </div>
+        <p class="small" id="keyStatus" role="status" aria-live="polite"
+           style="color:var(--bad); min-height:1.1em; margin:6px 0 0"></p>
       </div>
     </div>
 
@@ -104,8 +112,8 @@
   </section>
 </main>
 
-<script>window.__DESK_BUILD__ = 'v76';</script>
-<script src="nav.js?v=76"></script>
+<script>window.__DESK_BUILD__ = 'v77';</script>
+<script src="nav.js?v=77"></script>
 <script>
   /* The same storage key and the same entry shape as the standalone ledger,
      so both pages read one book instead of two. */
@@ -127,10 +135,23 @@
   let books = {};
   try { books = JSON.parse(localStorage.getItem(STORE)) || {}; } catch (e) { books = {}; }
 
-  let key = sessionStorage.getItem(ACTIVE);
+  /* the active book used to live in sessionStorage, so it was forgotten as soon
+     as the tab closed; it is a property of this browser, so localStorage */
+  let key = null;
+  try {
+    key = localStorage.getItem(ACTIVE) || sessionStorage.getItem(ACTIVE);
+  } catch (e) { key = null; }
 
   function save() {
     try { localStorage.setItem(STORE, JSON.stringify(books)); } catch (e) {}
+  }
+
+  /* one place that decides which book is open, so opening by key and creating a
+     new one cannot drift apart */
+  function remember(value) {
+    key = value;
+    try { localStorage.setItem(ACTIVE, value); } catch (e) {}
+    try { sessionStorage.setItem(ACTIVE, value); } catch (e) {}
   }
 
   if (!key || !books[key]) {
@@ -152,7 +173,7 @@
       });
       save();
     }
-    sessionStorage.setItem(ACTIVE, key);
+    remember(key);
   }
 
   const el = {
@@ -171,7 +192,10 @@
     empty: document.getElementById('empty'),
     filterMonth: document.getElementById('filterMonth'),
     filterType: document.getElementById('filterType'),
-    newBook: document.getElementById('newBook')
+    newBook: document.getElementById('newBook'),
+    openBook: document.getElementById('openBook'),
+    openKey: document.getElementById('openKey'),
+    keyStatus: document.getElementById('keyStatus')
   };
 
   const money = function (value) {
@@ -304,16 +328,40 @@
   el.filterType.addEventListener('change', render);
 
   el.newBook.addEventListener('click', function () {
-    key = String(Math.floor(100000 + Math.random() * 900000));
-    books[key] = [];
+    let fresh = String(Math.floor(100000 + Math.random() * 900000));
+    while (books[fresh]) fresh = String(Math.floor(100000 + Math.random() * 900000));
+    books[fresh] = [];
     save();
-    sessionStorage.setItem(ACTIVE, key);
+    remember(fresh);
+    if (el.keyStatus) el.keyStatus.textContent = 'Started a new book · ' + fresh;
+    if (el.openKey) el.openKey.value = '';
     render();
+  });
+
+  el.openBook.addEventListener('click', function () {
+    const wanted = (el.openKey.value || '').trim();
+    if (!/^\d{6}$/.test(wanted)) {
+      el.keyStatus.textContent = 'A key is six digits.';
+      return;
+    }
+    const existed = !!books[wanted];
+    if (!existed) books[wanted] = [];
+    save();
+    remember(wanted);
+    el.openKey.value = '';
+    el.keyStatus.textContent = existed
+      ? 'Opened book ' + wanted + '.'
+      : 'No book had that key, so this browser starts one with it.';
+    render();
+  });
+
+  el.openKey.addEventListener('keydown', function (event) {
+    if (event.key === 'Enter') { event.preventDefault(); el.openBook.click(); }
   });
 
   el.date.value = new Date().toISOString().slice(0, 10);
   render();
 </script>
-<script src="pet.js?v=76"></script>
+<script src="pet.js?v=77"></script>
 </body>
 </html>

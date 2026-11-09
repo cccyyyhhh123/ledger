@@ -1226,6 +1226,16 @@ body, .nav, .panel, .card, .metric, .rail__block, .watch, .stat,
 .swatch__name { font-size: 0.72rem; color: var(--muted); }
 .swatch.is-active .swatch__name { color: var(--ink); }
 
+/* ---------- opening a book by key ---------- */
+.keyopen { display: grid; gap: 6px; min-width: 15rem; }
+.keyopen__label {
+  font-size: 0.62rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted-2);
+}
+.keyopen__input {
+  width: 7.5rem; letter-spacing: 0.28em; text-align: center;
+  font-variant-numeric: tabular-nums; font-size: 0.95rem;
+}
+
 /* ---------- practice questions ---------- */
 /* these blocks set their own display, which would beat the hidden attribute */
 .scard--quiz [hidden] { display: none !important; }
