@@ -94,9 +94,11 @@ html[data-wallpaper] body {
 /* in light mode the same photo is dimmed with paper, not with black */
 html[data-theme="light"][data-wallpaper] body {
   background:
+    /* a bright picture behind a bright page has to lose most of its punch, or
+       the whole screen reads as overexposed */
     linear-gradient(180deg,
-      rgba(255, 255, 255, calc(var(--wp-dim, 0.55) * 0.86)),
-      rgba(255, 255, 255, calc(var(--wp-dim, 0.55) * 0.62))),
+      rgba(255, 255, 255, calc(0.62 + var(--wp-dim, 0.55) * 0.36)),
+      rgba(255, 255, 255, calc(0.42 + var(--wp-dim, 0.55) * 0.44))),
     var(--wallpaper-url) center / cover no-repeat fixed,
     radial-gradient(60rem 30rem at 15% -10%, var(--glow-a), transparent 60%),
     radial-gradient(50rem 26rem at 90% 0%, var(--glow-b), transparent 55%),
@@ -901,8 +903,8 @@ td.num.neg { color: var(--muted); }
   --mood-5: #2c8a5a;
   --nav-glass: rgba(247, 246, 243, 0.86);
   --nav-glass-fade: rgba(247, 246, 243, 0.42);
-  --panel-a: rgba(255, 255, 255, 0.80);
-  --panel-2-a: rgba(244, 243, 240, 0.78);
+  --panel-a: rgba(255, 255, 255, 0.93);
+  --panel-2-a: rgba(246, 245, 242, 0.92);
 }
 
 [data-theme="light"] .nav__ink {
