@@ -10,8 +10,8 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="style.css?v=90">
-<script src="theme.js?v=90"></script>
+<link rel="stylesheet" href="style.css?v=91">
+<script src="theme.js?v=91"></script>
 </head>
 <body class="wp-body">
 
@@ -106,8 +106,8 @@
   </section>
 </main>
 
-<script>window.__DESK_BUILD__ = 'v90';</script>
-<script src="nav.js?v=90"></script>
+<script>window.__DESK_BUILD__ = 'v91';</script>
+<script src="nav.js?v=91"></script>
 <script>
   /* ---------- the wallpaper library ----------
      Everything comes from the local service: /api/wallpapers lists what is
@@ -165,6 +165,7 @@
         nowTitle.textContent = 'Nothing applied yet';
         nowMeta.textContent = '—';
         settings.current = null;
+        if (window.DeskTheme) window.DeskTheme.clearWallpaper();
         if (!quiet) saveSettings();
         return;
       }
@@ -188,9 +189,88 @@
         nowMeta.textContent = 'scene · preview frame';
       }
       paintLibrary();
+      publishStill(item);
       if (!quiet) saveSettings();
     }
 
+    /* ---------- carry the choice to the rest of the site ----------
+       A video cannot be a CSS background on every page (4 MB per tab), so the
+       frame that gets published is a still: the video's first seconds, or the
+       scene's preview. The site then shows the same picture on Home, Study and
+       the rest, and this page keeps playing the motion. */
+    function publishStill(item, done) {
+      if (!window.DeskTheme) { if (done) done(null); return; }
+
+      var settled = false;
+      function finish(url) {
+        if (settled) return;
+        settled = true;
+        if (done) done(url);
+      }
+
+      function draw(source, width, height) {
+        if (!width || !height || width < 8 || height < 8) { finish(null); return; }
+        var scale = Math.min(1, 1600 / Math.max(width, height));
+        var canvas = document.createElement('canvas');
+        canvas.width = Math.max(8, Math.round(width * scale));
+        canvas.height = Math.max(8, Math.round(height * scale));
+        canvas.getContext('2d').drawImage(source, 0, 0, canvas.width, canvas.height);
+
+        var probe = document.createElement('canvas');
+        probe.width = 24; probe.height = 24;
+        var pctx = probe.getContext('2d', { willReadFrequently: true });
+        pctx.drawImage(canvas, 0, 0, 24, 24);
+        var data = pctx.getImageData(0, 0, 24, 24).data;
+        var sum = 0;
+        for (var i = 0; i < data.length; i += 4) {
+          sum += (0.2126 * data[i] + 0.7152 * data[i + 1] + 0.0722 * data[i + 2]) / 255;
+        }
+        var lum = sum / (data.length / 4);
+        var url = canvas.toDataURL('image/jpeg', 0.72);
+
+        /* a black frame means we grabbed the wrong moment (several previews
+           open on a black frame); publishing it would hide the page */
+        if (url.length < 2000 || lum < 0.02) { finish(null); return; }
+
+        window.DeskTheme.setWallpaper(url, item.title, lum);
+        finish(url);
+      }
+
+      function fromVideo() {
+        var poster = document.createElement('video');
+        poster.muted = true;
+        poster.playsInline = true;
+        poster.preload = 'auto';
+        poster.src = '/video?id=' + encodeURIComponent(item.id);
+        var guard = setTimeout(function () { finish(null); }, 8000);
+
+        poster.addEventListener('loadedmetadata', function () {
+          var at = Math.min(3, Math.max(0.5, (poster.duration || 6) * 0.35));
+          try { poster.currentTime = at; } catch (e) {}
+        });
+        poster.addEventListener('seeked', function () {
+          clearTimeout(guard);
+          draw(poster, poster.videoWidth, poster.videoHeight);
+        });
+        poster.addEventListener('error', function () { clearTimeout(guard); finish(null); });
+        poster.load();
+      }
+
+      if (item.hasVideo) {
+        fromVideo();
+        return;
+      }
+
+      var still = new Image();
+      still.onload = function () { draw(still, still.naturalWidth, still.naturalHeight); };
+      still.onerror = function () { finish(null); };
+      still.src = '/preview?id=' + encodeURIComponent(item.id);
+      if (still.decode) {
+        still.decode().then(function () {
+          draw(still, still.naturalWidth, still.naturalHeight);
+        }).catch(function () {});
+      }
+    }
     function intervalFor() {
       return Math.max(60, (settings.minutes || 5) * 60) * 1000;
     }
@@ -420,6 +500,6 @@
     });
   })();
 </script>
-<script src="pet.js?v=90"></script>
+<script src="pet.js?v=91"></script>
 </body>
 </html>

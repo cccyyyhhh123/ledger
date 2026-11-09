@@ -176,7 +176,15 @@ $manifestCache = $null
 $manifestAt = [datetime]::MinValue
 
 while ($true) {
-  $client = $listener.AcceptTcpClient()
+  # keep accepting even when a client goes wrong: one dropped socket used to
+  # take the whole service with it
+  $client = $null
+  try {
+    $client = $listener.AcceptTcpClient()
+  } catch {
+    Start-Sleep -Milliseconds 200
+    continue
+  }
   try {
     $client.NoDelay = $true
     $stream = $client.GetStream()
