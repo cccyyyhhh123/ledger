@@ -10,8 +10,8 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="style.css?v=89">
-<script src="theme.js?v=89"></script>
+<link rel="stylesheet" href="style.css?v=90">
+<script src="theme.js?v=90"></script>
 </head>
 <body class="wp-body">
 
@@ -31,6 +31,10 @@
   <img class="wp-media" id="wpImage" alt="" hidden>
   <div class="wp-veil"></div>
 
+
+</div>
+
+<main class="shell tool">
   <div class="wp-bar">
     <div class="wp-bar__now">
       <span class="wp-bar__dot" id="wpDot"></span>
@@ -46,9 +50,7 @@
   </div>
 
   <canvas class="wp-spectrum" id="wpSpectrum" width="600" height="90" hidden></canvas>
-</div>
 
-<main class="shell tool">
   <header class="tool__head">
     <h1>Wallpaper</h1>
     <p>These are the wallpapers installed on this computer, read by the small local service on
@@ -78,6 +80,12 @@
 
   <section class="wp-library" id="wpLibrary" aria-live="polite"></section>
 
+<p class="wp-offline" id="wpOffline" hidden>
+  The local service is not answering on <span class="mono">127.0.0.1:8788</span>. Double-click
+  <span class="mono">_tools\启动壁纸台.bat</span> — it replaces any old copy and opens this page again.
+  This page keeps retrying every two seconds.
+</p>
+
   <section class="petnotes">
     <h2>What is honest here</h2>
     <ul>
@@ -98,8 +106,8 @@
   </section>
 </main>
 
-<script>window.__DESK_BUILD__ = 'v89';</script>
-<script src="nav.js?v=89"></script>
+<script>window.__DESK_BUILD__ = 'v90';</script>
+<script src="nav.js?v=90"></script>
 <script>
   /* ---------- the wallpaper library ----------
      Everything comes from the local service: /api/wallpapers lists what is
@@ -219,6 +227,11 @@
         img.loading = 'lazy';
         img.alt = '';
         img.src = '/preview?id=' + encodeURIComponent(item.id);
+        img.addEventListener('error', function () {
+          img.remove();
+          thumb.classList.add('is-blank');
+          thumb.setAttribute('data-initial', (item.title || '?').charAt(0).toUpperCase());
+        });
         thumb.appendChild(img);
 
         var badge = document.createElement('span');
@@ -354,11 +367,19 @@
       });
     });
 
-    /* ---------- load ---------- */
+    /* ---------- load ----------
+       the service may still be starting (the launcher takes a second), so a
+       miss is retried instead of leaving the page empty */
+    var retry = 0;
+    var retryTimer = 0;
+
     function load(force) {
+      clearTimeout(retryTimer);
       api('/api/wallpapers').then(function (data) {
+        retry = 0;
         items = data.items || [];
         paintLibrary();
+        nowMeta.textContent = items.length + ' found';
         if (!settings.current && items.length) {
           var firstVideo = items.find(function (it) { return it.hasVideo; });
           apply(firstVideo || items[0], true);
@@ -366,7 +387,11 @@
       }).catch(function () {
         items = [];
         paintLibrary();
+        retry += 1;
         nowMeta.textContent = 'service offline';
+        var note = document.getElementById('wpOffline');
+        if (note) note.hidden = false;
+        if (retry < 30) retryTimer = setTimeout(function () { load(force); }, 2000);
       });
     }
 
@@ -395,6 +420,6 @@
     });
   })();
 </script>
-<script src="pet.js?v=89"></script>
+<script src="pet.js?v=90"></script>
 </body>
 </html>

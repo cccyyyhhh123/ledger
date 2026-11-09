@@ -25,7 +25,7 @@ $ErrorActionPreference = 'Stop'
 [Console]::OutputEncoding = [System.Text.Encoding]::UTF8
 
 $ScriptBuild = 'w3'
-$Root = Split-Path -Parent $PSScriptRoot
+$SiteRoot = Split-Path -Parent $PSScriptRoot
 $CacheDir = Join-Path $PSScriptRoot 'cache'
 $SettingsFile = Join-Path $CacheDir 'wallpaper-settings.json'
 if (-not (Test-Path $CacheDir)) { New-Item -ItemType Directory -Path $CacheDir -Force | Out-Null }
@@ -96,9 +96,9 @@ function Read-Project($dir) {
 
 function Get-Manifest {
   $items = @()
-  foreach ($root in $WorkshopRoots) {
-    if (-not (Test-Path $root)) { continue }
-    foreach ($dir in Get-ChildItem $root -Directory -ErrorAction SilentlyContinue) {
+  foreach ($libraryRoot in $WorkshopRoots) {
+    if (-not (Test-Path $libraryRoot)) { continue }
+    foreach ($dir in Get-ChildItem $libraryRoot -Directory -ErrorAction SilentlyContinue) {
       $one = Read-Project $dir.FullName; if ($one) { $items += $one }
     }
   }
@@ -159,15 +159,15 @@ try { $listener.Start() } catch {
   exit 1
 }
 
-if (-not (Test-Path (Join-Path $Root 'wallpaper.html'))) {
-  Write-Host "  cannot find wallpaper.html under $Root" -ForegroundColor Red
+if (-not (Test-Path (Join-Path $SiteRoot 'wallpaper.html'))) {
+  Write-Host "  cannot find wallpaper.html under $SiteRoot" -ForegroundColor Red
   Write-Host "  this script has to sit in <site>\_tools\" -ForegroundColor Red
   Start-Sleep -Seconds 8
   exit 1
 }
 
 Write-Host ""
-Write-Host "  serving  $Root" -ForegroundColor DarkGray
+Write-Host "  serving  $SiteRoot" -ForegroundColor DarkGray
 Write-Host "  open     http://127.0.0.1:$Port/wallpaper.html" -ForegroundColor Green
 Write-Host "  close this window to stop" -ForegroundColor DarkGray
 Write-Host ""
@@ -178,6 +178,7 @@ $manifestAt = [datetime]::MinValue
 while ($true) {
   $client = $listener.AcceptTcpClient()
   try {
+    $client.NoDelay = $true
     $stream = $client.GetStream()
     $client.ReceiveTimeout = 5000
 
@@ -198,7 +199,7 @@ while ($true) {
     if ($method -eq 'OPTIONS') { Send-Bytes $stream '200 OK' 'text/plain' ([Text.Encoding]::ASCII.GetBytes('')); $client.Close(); continue }
 
     if ($pathOnly -eq '/api/version') {
-      Send-Json $stream ([ordered]@{ ok = $true; build = $ScriptBuild; root = $Root })
+      Send-Json $stream ([ordered]@{ ok = $true; build = $ScriptBuild; root = $SiteRoot })
     }
     elseif ($pathOnly -eq '/api/wallpapers') {
       if (-not $manifestCache -or ((Get-Date) - $manifestAt).TotalSeconds -gt 10) {
@@ -242,7 +243,7 @@ while ($true) {
       $item = Get-Manifest | Where-Object { $_.id -eq $id } | Select-Object -First 1
       if ($item) {
         $dirs = @()
-        foreach ($root in $WorkshopRoots) { $dirs += (Join-Path $root $id) }
+        foreach ($libraryRoot in $WorkshopRoots) { $dirs += (Join-Path $libraryRoot $id) }
         foreach ($we in $WeRoots) { $dirs += (Join-Path $we ('projects\myprojects\' + $id)); $dirs += (Join-Path $we ('projects\defaultprojects\' + $id)) }
         $file = $null
         foreach ($d in $dirs) {
@@ -277,7 +278,7 @@ while ($true) {
     else {
       $relative = if ($pathOnly -eq '/') { 'wallpaper.html' } else { $pathOnly.TrimStart('/') }
       $relative = [Uri]::UnescapeDataString($relative)
-      $full = Join-Path $Root ($relative -replace '/', '\')
+      $full = Join-Path $SiteRoot ($relative -replace '/', '\')
       if (-not (Test-Path -LiteralPath $full -PathType Leaf)) {
         Send-Bytes $stream '404 Not Found' 'text/plain' ([Text.Encoding]::ASCII.GetBytes('not found'))
       } else {
@@ -295,6 +296,11 @@ while ($true) {
   } catch {
     # one bad request must not stop the service
   } finally {
+    # writing then closing straight away truncates a large file: half the CSS
+    # or the video never leaves the buffer
+    try {
+      $client.Client.Shutdown([System.Net.Sockets.SocketShutdown]::Send)
+    } catch { }
     try { $client.Close() } catch { }
   }
 }
