@@ -64,7 +64,8 @@
        on a black frame, and publishing it would hide the page */
     if (url.length < 2000 || lum < 0.02) { done(null); return; }
 
-    theme.setWallpaper(url, title, lum);
+    var colours = theme.dominant ? theme.dominant(canvas, 3) : null;
+    theme.setWallpaper(url, title, lum, colours);
     done(url);
   }
 

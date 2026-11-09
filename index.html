@@ -11,7 +11,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Nunito:wght@700;800&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="style.css?v=114">
+<link rel="stylesheet" href="style.css?v=115">
 <!-- clock ink: kept here as well, so a cached style.css cannot leave the
      seconds a different colour from the hours -->
 <style>.anchor__sec { color: inherit !important; }</style>
@@ -201,6 +201,42 @@
     }
     tick();
     setInterval(tick, 1000);
+
+/* ---------- the clock wears the wallpaper ----------
+       Six columns, three colours taken from the picture, and stops in between:
+       the gradient runs from the first stop to the last across the whole time. */
+    function paintClock() {
+      var value = document.querySelector('.anchor__value');
+      if (!value) return;
+
+      var styles = getComputedStyle(document.documentElement);
+      var a = (styles.getPropertyValue('--wp-a') || '').trim();
+      var b = (styles.getPropertyValue('--wp-b') || '').trim();
+      var c = (styles.getPropertyValue('--wp-c') || '').trim();
+
+      var colours = value.querySelectorAll('.ct__col');
+      if (!colours.length) return;
+
+      function mix(x, y, t) {
+        return 'color-mix(in srgb, ' + x + ' ' + Math.round((1 - t) * 100) + '%, ' + y + ')';
+      }
+
+      var stops;
+      if (a && b && c) {
+        stops = [a, mix(a, b, 0.5), b, mix(b, c, 0.5), c, mix(c, a, 0.5)];
+      } else {
+        stops = [null, null, null, null, null, null];
+      }
+
+      Array.prototype.forEach.call(colours, function (column, index) {
+        if (stops[index]) column.style.setProperty('--digit', stops[index]);
+        else column.style.removeProperty('--digit');
+      });
+    }
+
+    paintClock();
+    window.addEventListener('deskwallpaper:live', function () { setTimeout(paintClock, 60); });
+    window.addEventListener('deskwallpaper:recolour', function () { setTimeout(paintClock, 60); });
 
     /* ---------- the affirmation of the day ---------- */
     var AFFIRMATIONS = [

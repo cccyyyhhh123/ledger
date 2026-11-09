@@ -342,13 +342,27 @@
   /* The image becomes part of the body's own background stack. A separate
      fixed layer would sit behind the body background and never be seen, no
      matter what z-index it is given. */
-  function paintWallpaper(url, lum) {
+  function paintWallpaper(url, lum, colours) {
     var root = document.documentElement;
     if (!url) {
       root.style.removeProperty('--wallpaper-url');
       root.style.removeProperty('--wp-dim');
+      root.style.removeProperty('--wp-a');
+      root.style.removeProperty('--wp-b');
+      root.style.removeProperty('--wp-c');
       root.removeAttribute('data-wallpaper');
       return;
+    }
+
+    /* the picture's own colours, so other parts of the page can borrow them */
+    var palette = colours;
+    if (!palette) {
+      try { palette = (savedWallpaper() || {}).colours; } catch (e) { palette = null; }
+    }
+    if (palette && palette.length) {
+      root.style.setProperty('--wp-a', palette[0]);
+      root.style.setProperty('--wp-b', palette[1] || palette[0]);
+      root.style.setProperty('--wp-c', palette[2] || palette[1] || palette[0]);
     }
     var level = typeof lum === 'number' && isFinite(lum) ? lum : 0.45;
     /* 0.42 for a dark photo, up to 0.86 for a white one */
@@ -358,9 +372,13 @@
     root.setAttribute('data-wallpaper', '');
   }
 
-  function setWallpaper(url, name, lum) {
-    try { localStorage.setItem(WALL_KEY, JSON.stringify({ url: url, name: name || '', lum: lum })); } catch (e) {}
-    paintWallpaper(url, lum);
+  function setWallpaper(url, name, lum, colours) {
+    try {
+      localStorage.setItem(WALL_KEY, JSON.stringify({
+        url: url, name: name || '', lum: lum, colours: colours || null
+      }));
+    } catch (e) {}
+    paintWallpaper(url, lum, colours);
     return true;
   }
 
@@ -374,6 +392,57 @@
       var value = JSON.parse(localStorage.getItem(WALL_KEY));
       return value && value.url ? value : null;
     } catch (e) { return null; }
+  }
+
+  /* three colours that stand for the picture: bucket the sample by hue, keep the
+     fullest buckets, average what is in them */
+  function dominant(canvas, count) {
+    var want = count || 3;
+    var probe = document.createElement('canvas');
+    probe.width = 32;
+    probe.height = 32;
+    var ctx = probe.getContext('2d', { willReadFrequently: true });
+    ctx.drawImage(canvas, 0, 0, 32, 32);
+    var data = ctx.getImageData(0, 0, 32, 32).data;
+
+    var buckets = {};
+    for (var i = 0; i < data.length; i += 4) {
+      var r = data[i], g = data[i + 1], b = data[i + 2];
+      var max = Math.max(r, g, b), min = Math.min(r, g, b);
+      if (max < 24) continue;                    /* near-black says nothing */
+      var key = Math.floor((r >> 5) / 1) + '-' + Math.floor((g >> 5) / 1) + '-' + Math.floor((b >> 5) / 1);
+      var bucket = buckets[key] || (buckets[key] = { n: 0, r: 0, g: 0, b: 0 });
+      bucket.n += 1;
+      bucket.r += r;
+      bucket.g += g;
+      bucket.b += b;
+    }
+
+    var list = Object.keys(buckets).map(function (k) {
+      var bucket = buckets[k];
+      return {
+        n: bucket.n,
+        r: Math.round(bucket.r / bucket.n),
+        g: Math.round(bucket.g / bucket.n),
+        b: Math.round(bucket.b / bucket.n)
+      };
+    }).sort(function (a, b) { return b.n - a.n; });
+
+    var out = [];
+    list.forEach(function (item) {
+      if (out.length >= want) return;
+      /* skip a colour that is practically one we already took */
+      for (var j = 0; j < out.length; j++) {
+        var other = out[j];
+        var dist = Math.abs(other.r - item.r) + Math.abs(other.g - item.g) + Math.abs(other.b - item.b);
+        if (dist < 90) return;
+      }
+      out.push(item);
+    });
+
+    return out.map(function (item) {
+      return 'rgb(' + item.r + ', ' + item.g + ', ' + item.b + ')';
+    });
   }
 
   /* shrink before storing: localStorage is small and a 6 MB photo would not fit */
@@ -406,7 +475,7 @@
             }
             var lum = sum / (px.length / 4);
 
-            resolve({ url: canvas.toDataURL('image/jpeg', 0.9), lum: lum });
+            resolve({ url: canvas.toDataURL('image/jpeg', 0.9), lum: lum, colours: dominant(canvas, 3) });
           } catch (e) { reject(e); }
         };
         image.onerror = reject;
@@ -443,6 +512,7 @@
     preset: preset,
     fromAccent: fromAccent,
     setWallpaper: setWallpaper,
+    dominant: dominant,
     clearWallpaper: clearWallpaper,
     wallpaper: savedWallpaper,
     prepareWallpaper: prepareWallpaper,

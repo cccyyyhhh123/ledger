@@ -375,12 +375,18 @@ img, svg, canvas { display: block; max-width: 100%; }
 /* a solid accent fill reads as a glare on a dark card: the primary action is
    now an accent outline with a light accent wash behind it */
 .btn--primary {
-  background: var(--hover-2);
-  border-color: var(--accent);
-  color: var(--accent);
+  /* a saturated accent on a dark panel is louder than a button should be: the
+     border keeps a hint of it, the label is the accent pulled towards the ink */
+  background: color-mix(in srgb, var(--accent) 12%, transparent);
+  border-color: color-mix(in srgb, var(--accent) 58%, var(--line-2));
+  color: color-mix(in srgb, var(--accent) 66%, var(--ink));
   font-weight: 600;
 }
-.btn--primary:hover { background: var(--hover); color: var(--accent); }
+.btn--primary:hover {
+  background: color-mix(in srgb, var(--accent) 20%, transparent);
+  border-color: color-mix(in srgb, var(--accent) 74%, var(--line-2));
+  color: color-mix(in srgb, var(--accent) 74%, var(--ink));
+}
 .btn--ghost { background: transparent; }
 .btn[disabled] { opacity: 0.45; cursor: default; }
 
@@ -993,6 +999,20 @@ body, .nav, .panel, .card, .metric, .rail__block, .watch, .stat,
     0 6px 18px rgba(0, 0, 0, 0.18);
   transition: opacity 260ms var(--ease-out-soft, ease);
 }
+/* ---------- the numbers borrow the wallpaper's own colours ----------
+   Each column carries one stop of a gradient taken from the picture, and the
+   glass is hollow: a pale rim of that stop, and the picture through the middle. */
+.anchor__value .ct__col {
+  --digit: var(--accent);
+  color: color-mix(in srgb, var(--digit) 13%, transparent);
+  -webkit-text-stroke: 1.15px color-mix(in srgb, var(--digit) 58%, #ffffff 30%);
+  text-shadow: 0 0 1px color-mix(in srgb, var(--digit) 26%, transparent);
+  transition: color 320ms var(--ease-out-soft, ease), -webkit-text-stroke-color 320ms var(--ease-out-soft, ease);
+}
+html[data-theme="light"] .anchor__value .ct__col {
+  -webkit-text-stroke: 1.3px color-mix(in srgb, var(--digit) 76%, #17131f 18%);
+  color: color-mix(in srgb, var(--digit) 9%, transparent);
+}
 /* on a light page the same pale rim disappears: the glass needs a darker edge
    there, while its inside still shows the paper through */
 html[data-theme="light"] .anchor__value {
@@ -1552,7 +1572,7 @@ html[data-wallpaper-live] .nav__links a { color: #f2f2f7; }
 }
 .field input:focus, .field textarea:focus {
   outline: none; border-color: var(--accent);
-  box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 22%, transparent);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 14%, transparent);
 }
 .field textarea { min-height: 8.5rem; line-height: 1.5; }
 
