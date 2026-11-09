@@ -329,6 +329,77 @@
     return value;
   }
 
+  /* ---------- the wallpaper itself ----------
+     The palette only ever took colours from the image. This keeps a small copy
+     of it (max 1600px wide, JPEG) and paints it behind the page, with a scrim
+     made of the theme background so text keeps its contrast. */
+  var WALL_KEY = 'deskWallpaper';
+
+  /* The image becomes part of the body's own background stack. A separate
+     fixed layer would sit behind the body background and never be seen, no
+     matter what z-index it is given. */
+  function paintWallpaper(url) {
+    var root = document.documentElement;
+    if (!url) {
+      root.style.removeProperty('--wallpaper-url');
+      root.removeAttribute('data-wallpaper');
+      return;
+    }
+    root.style.setProperty('--wallpaper-url', 'url("' + url + '")');
+    root.setAttribute('data-wallpaper', '');
+  }
+
+  function setWallpaper(url, name) {
+    try { localStorage.setItem(WALL_KEY, JSON.stringify({ url: url, name: name || '' })); } catch (e) {}
+    paintWallpaper(url);
+    return true;
+  }
+
+  function clearWallpaper() {
+    try { localStorage.removeItem(WALL_KEY); } catch (e) {}
+    paintWallpaper(null);
+  }
+
+  function savedWallpaper() {
+    try {
+      var value = JSON.parse(localStorage.getItem(WALL_KEY));
+      return value && value.url ? value : null;
+    } catch (e) { return null; }
+  }
+
+  /* shrink before storing: localStorage is small and a 6 MB photo would not fit */
+  function prepareWallpaper(file) {
+    return new Promise(function (resolve, reject) {
+      var reader = new FileReader();
+      reader.onload = function () {
+        var image = new Image();
+        image.onload = function () {
+          try {
+            var max = 1600;
+            var scale = Math.min(1, max / Math.max(image.width, image.height));
+            var canvas = document.createElement('canvas');
+            canvas.width = Math.round(image.width * scale);
+            canvas.height = Math.round(image.height * scale);
+            canvas.getContext('2d').drawImage(image, 0, 0, canvas.width, canvas.height);
+            resolve(canvas.toDataURL('image/jpeg', 0.72));
+          } catch (e) { reject(e); }
+        };
+        image.onerror = reject;
+        image.src = reader.result;
+      };
+      reader.onerror = reject;
+      reader.readAsDataURL(file);
+    });
+  }
+
+  /* put the saved one back before the first paint */
+  (function () {
+    var saved = savedWallpaper();
+    if (!saved) return;
+    var boot = function () { paintWallpaper(saved.url); };
+    if (document.body) boot();
+    else document.addEventListener('DOMContentLoaded', boot);
+  })();
   /* apply whatever was saved, before the page paints */
   setMode(currentMode());
 
@@ -346,6 +417,10 @@
     extract: extract,
     preset: preset,
     fromAccent: fromAccent,
+    setWallpaper: setWallpaper,
+    clearWallpaper: clearWallpaper,
+    wallpaper: savedWallpaper,
+    prepareWallpaper: prepareWallpaper,
     PRESETS: PRESETS
   };
 })(window);

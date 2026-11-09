@@ -45,6 +45,16 @@
 *, *::before, *::after { box-sizing: border-box; }
 
 /* 2 · base */
+/* a chosen wallpaper joins the body background: scrim, photo, glows, colour */
+html[data-wallpaper] body {
+  background:
+    linear-gradient(180deg, rgba(0, 0, 0, 0.38), rgba(0, 0, 0, 0.62)),
+    var(--wallpaper-url) center / cover no-repeat fixed,
+    radial-gradient(60rem 30rem at 15% -10%, var(--glow-a), transparent 60%),
+    radial-gradient(50rem 26rem at 90% 0%, var(--glow-b), transparent 55%),
+    var(--bg);
+}
+
 html { background: var(--bg); color-scheme: dark; }
 body {
   margin: 0;

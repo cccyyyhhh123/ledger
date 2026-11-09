@@ -11,8 +11,8 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="style.css?v=57">
-<script src="theme.js?v=57"></script>
+<link rel="stylesheet" href="style.css?v=58">
+<script src="theme.js?v=58"></script>
 </head>
 <body>
 
@@ -104,6 +104,7 @@
       <div class="row" style="gap:8px; margin-top:12px; flex-wrap:wrap">
         <label class="btn btn--primary" for="wallpaper" style="padding:7px 12px; font-size:0.8rem">Match wallpaper</label>
         <input id="wallpaper" type="file" accept="image/*" hidden>
+        <button class="btn btn--ghost" id="themeClearWallpaper" type="button" style="padding:7px 12px; font-size:0.8rem" hidden>Remove wallpaper</button>
         <button class="btn btn--ghost" id="themeReset" type="button" style="padding:7px 12px; font-size:0.8rem">Reset</button>
       </div>
       <p class="rail__note" id="themeStatus" role="status" aria-live="polite" style="margin-top:8px">
@@ -113,8 +114,8 @@
   </aside>
 </main>
 
-<script src="counter.js?v=57"></script>
-<script src="nav.js?v=57"></script>
+<script src="counter.js?v=58"></script>
+<script src="nav.js?v=58"></script>
 <script>
   (function () {
     var hour = new Date().getHours();
@@ -307,6 +308,16 @@
       var customChip = document.getElementById('customChip');
       var customColor = document.getElementById('customColor');
 
+      var clearWallpaperBtn = document.getElementById('themeClearWallpaper');
+      if (clearWallpaperBtn) {
+        if (DeskTheme.wallpaper && DeskTheme.wallpaper()) clearWallpaperBtn.hidden = false;
+        clearWallpaperBtn.addEventListener('click', function () {
+          DeskTheme.clearWallpaper();
+          clearWallpaperBtn.hidden = true;
+          status.textContent = 'Wallpaper removed; the colours stay.';
+        });
+      }
+
       if (customSwatch && customColor) {
         customSwatch.addEventListener('click', function (event) {
           if (event.target !== customColor) customColor.click();
@@ -359,13 +370,20 @@
           var file = input.files && input.files[0];
           if (!file) return;
           status.textContent = 'Reading the colours…';
-          DeskTheme.extract(file).then(function (theme) {
-            DeskTheme.save(theme);
-            paintSwatches(null);
-            status.textContent = 'Palette taken from ' + file.name + '.';
-          }).catch(function () {
-            status.textContent = 'That image could not be read.';
-          });
+
+          /* two things happen: a palette is taken from the image, and the image
+             itself is kept as the page wallpaper */
+          Promise.all([DeskTheme.extract(file), DeskTheme.prepareWallpaper(file)])
+            .then(function (results) {
+              DeskTheme.save(results[0]);
+              DeskTheme.setWallpaper(results[1], file.name);
+              paintSwatches(null);
+              status.textContent = 'Wallpaper and palette set from ' + file.name + '.';
+              if (clearWallpaperBtn) clearWallpaperBtn.hidden = false;
+            })
+            .catch(function () {
+              status.textContent = 'That image could not be read.';
+            });
           input.value = '';
         });
       }
