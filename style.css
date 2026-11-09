@@ -286,8 +286,15 @@ img, svg, canvas { display: block; max-width: 100%; }
 }
 .btn:hover { background: var(--hover-2); border-color: var(--line-2); }
 .btn:active { transform: scale(0.98); }
-.btn--primary { background: var(--accent); border-color: transparent; color: #140e24; font-weight: 600; }
-.btn--primary:hover { background: #b9a5fb; }
+/* a solid accent fill reads as a glare on a dark card: the primary action is
+   now an accent outline with a light accent wash behind it */
+.btn--primary {
+  background: var(--hover-2);
+  border-color: var(--accent);
+  color: var(--accent);
+  font-weight: 600;
+}
+.btn--primary:hover { background: var(--hover); color: var(--accent); }
 .btn--ghost { background: transparent; }
 .btn[disabled] { opacity: 0.45; cursor: default; }
 
