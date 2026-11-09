@@ -975,7 +975,10 @@ body, .nav, .panel, .card, .metric, .rail__block, .watch, .stat,
   font-size: clamp(3.4rem, 9vw, 6.6rem); line-height: 0.92;
   font-weight: 700; letter-spacing: -0.045em;
   font-variant-numeric: tabular-nums;
-  color: var(--ink);
+  /* the clock wears the colour the reader picked, so the palette is visible in
+     the biggest thing on the page */
+  color: var(--accent);
+  transition: color 260ms var(--ease-out-soft, ease);
 }
 .anchor__value .ct__col { width: 0.58em; height: 1.14em; }
 /* the colon is two dots of our own: a font glyph sits on the baseline and
@@ -983,7 +986,7 @@ body, .nav, .panel, .card, .metric, .rail__block, .watch, .stat,
 .anchor__value .ct__sep {
   display: inline-flex; flex-direction: column; align-items: center; justify-content: center;
   gap: 0.19em; align-self: center; font-size: 1em; line-height: 1;
-  padding: 0 0.07em; color: var(--ink); transform: translateY(0.03em);
+  padding: 0 0.07em; color: var(--accent); transform: translateY(0.03em);
 }
 /* hours, minutes and seconds are one size; the seconds only sit a shade
    quieter so the eye still lands on the time first */
