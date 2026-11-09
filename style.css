@@ -1544,6 +1544,16 @@ html[data-wallpaper-live="ready"] .wp-live {
   color: var(--accent); font: inherit; font-size: 0.72rem; cursor: pointer;
 }
 .wppick__launch:hover { background: var(--hover); }
+.wppick.is-flash {
+  outline: 2px solid var(--accent);
+  outline-offset: 6px; border-radius: 12px;
+  animation: wppick-flash 1.2s ease-out;
+}
+@keyframes wppick-flash {
+  0% { outline-color: transparent; }
+  20% { outline-color: var(--accent); }
+  100% { outline-color: transparent; }
+}
 .wppick__hint { font-size: 0.72rem; color: var(--muted); line-height: 1.45; }
 /* ---------- wallpaper page ---------- */
 .wp-body { background: #08080c; }
