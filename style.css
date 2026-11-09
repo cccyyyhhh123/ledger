@@ -1003,36 +1003,23 @@ body, .nav, .panel, .card, .metric, .rail__block, .watch, .stat,
    than on the container: each digit is painted by its own span, so the rolling
    strips no longer swallow it */
 .anchor__value .ct__digit {
-  /* liquid glass: the glyph is filled with the wallpaper itself, held still so it
-     lines up with the page behind it, then veiled and lit like a pane — a
-     specular streak, a shaded edge, and the picture still recognisable inside */
+  /* frosted glass with nothing sampled inside it: a specular streak, a lit top
+     and a shaded foot, and the theme colour held low — the wallpaper no longer
+     shows through the letters */
   background-image:
     linear-gradient(115deg,
       rgba(255, 255, 255, 0) 26%,
-      rgba(255, 255, 255, 0.34) 41%,
-      rgba(255, 255, 255, 0.06) 52%,
+      rgba(255, 255, 255, 0.30) 41%,
+      rgba(255, 255, 255, 0.05) 52%,
       rgba(255, 255, 255, 0) 62%),
     linear-gradient(180deg,
       rgba(255, 255, 255, 0.34) 0%,
       rgba(255, 255, 255, 0.08) 36%,
       rgba(10, 10, 16, 0.14) 72%,
       rgba(10, 10, 16, 0.30) 100%),
-    /* a fog layer over the picture: the shapes stay, the detail does not — this
-       is what makes it read as frosted rather than as a window */
-    linear-gradient(180deg,
-      color-mix(in srgb, var(--bg) 40%, transparent) 0%,
-      color-mix(in srgb, var(--bg) 48%, transparent) 100%),
-    var(--wallpaper-url, none),
     linear-gradient(180deg,
       color-mix(in srgb, var(--digit, var(--accent)) 26%, transparent) 0%,
       color-mix(in srgb, var(--digit, var(--accent)) 10%, transparent) 100%);
-  /* fixed keeps every lane showing the part of the picture that is really
-     behind it; it only survives while nothing on the way down has a filter,
-     which is why the saturate() that used to sit here is gone */
-  background-attachment: fixed, fixed, fixed, fixed, fixed;
-  background-size: cover, cover, cover, cover, cover;
-  background-position: center, center, center, center, center;
-  background-repeat: no-repeat, no-repeat, no-repeat, no-repeat, no-repeat;
   -webkit-background-clip: text;
   background-clip: text;
   -webkit-text-fill-color: transparent;
