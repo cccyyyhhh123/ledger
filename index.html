@@ -11,8 +11,8 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="style.css?v=69">
-<script src="theme.js?v=69"></script>
+<link rel="stylesheet" href="style.css?v=70">
+<script src="theme.js?v=70"></script>
 </head>
 <body>
 
@@ -70,14 +70,11 @@
     </div>
 
     <p class="nextup" id="nextExam">—</p>
-  </section>
 
-  <aside class="desk__rail">
     <a class="wxcard" href="weather.html" aria-label="Open the weather page">
       <div class="wxcard__top">
         <span class="wxcard__icon" id="wxIcon" aria-hidden="true"></span>
         <span class="wxcard__temp" id="wxTemp">—</span>
-        <span class="wxcard__go" aria-hidden="true">→</span>
       </div>
       <p class="wxcard__line" id="wxCond">Reading the forecast…</p>
       <dl class="wxcard__facts">
@@ -85,7 +82,11 @@
         <div><dt>High</dt><dd id="wxHigh">—</dd></div>
         <div><dt>Low</dt><dd id="wxLow">—</dd></div>
       </dl>
+      <span class="wxcard__go" aria-hidden="true">→</span>
     </a>
+  </section>
+
+  <aside class="desk__rail">
 
     <div class="rail__block">
       <h2>On the desk</h2>
@@ -126,8 +127,8 @@
   </aside>
 </main>
 
-<script src="counter.js?v=69"></script>
-<script src="nav.js?v=69"></script>
+<script src="counter.js?v=70"></script>
+<script src="nav.js?v=70"></script>
 <script>
   (function () {
     var hour = new Date().getHours();
@@ -242,7 +243,6 @@
     } catch (e) {
       document.getElementById('metricMood').textContent = '—';
     }
-
 
     /* ---------- what is coming ---------- */
     var EXAMS = [
