@@ -1436,6 +1436,55 @@ body, .nav, .panel, .card, .metric, .rail__block, .watch, .stat,
 .wp-body .petnotes h2 { color: var(--ink); }
 .wp-body .petnotes li b { color: var(--ink); }
 
+/* ---------- the moving wallpaper behind a page ----------
+   only mounted when the local service answers, so the published site never
+   asks for it */
+.wp-live {
+  position: fixed; inset: 0; z-index: 0;
+  width: 100%; height: 100%; object-fit: cover; object-position: center;
+  pointer-events: none; background: #08080c;
+}
+.wp-live__scrim {
+  position: fixed; inset: 0; z-index: 0; pointer-events: none;
+  background: linear-gradient(180deg, rgba(6, 6, 10, 0.62), rgba(6, 6, 10, 0.34) 42%, rgba(6, 6, 10, 0.74));
+}
+html[data-wallpaper-live] body { background: #08080c; }
+html[data-wallpaper-live] .shell { position: relative; z-index: 1; }
+html[data-wallpaper-live] .nav { position: relative; z-index: 3; }
+html[data-wallpaper-live] .desk__greet,
+html[data-wallpaper-live] .anchor__value,
+html[data-wallpaper-live] .anchor__meta,
+html[data-wallpaper-live] .affirm__line,
+html[data-wallpaper-live] .affirm__cn,
+html[data-wallpaper-live] .nextup { color: #f2f2f7; }
+html[data-wallpaper-live] .anchor__meta,
+html[data-wallpaper-live] .affirm__cn { color: rgba(242, 242, 247, 0.78); }
+html[data-wallpaper-live] .nav__brand,
+html[data-wallpaper-live] .nav__links a { color: #f2f2f7; }
+/* ---------- wallpaper strip in the rail ---------- */
+.wppick { display: grid; gap: 6px; margin-top: 14px; }
+.wppick[hidden] { display: none !important; }
+.wppick__label {
+  font-size: 0.62rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted-2);
+}
+.wppick__row {
+  display: grid; grid-auto-flow: column; grid-auto-columns: 3.6rem; gap: 6px;
+  overflow-x: auto; padding-bottom: 4px;
+  scrollbar-width: thin;
+}
+.wppick__thumb {
+  position: relative; padding: 0; border: 1px solid var(--line); border-radius: 10px;
+  overflow: hidden; cursor: pointer; background: var(--panel-2); aspect-ratio: 1;
+}
+.wppick__thumb img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.wppick__thumb:hover { border-color: var(--line-2); }
+.wppick__thumb.is-on { border-color: var(--accent); box-shadow: 0 0 0 1px var(--accent); }
+.wppick__play {
+  position: absolute; right: 3px; bottom: 3px; width: 14px; height: 14px;
+  display: grid; place-items: center; border-radius: 50%;
+  background: rgba(8, 8, 12, 0.7); color: #fff; font-size: 0.5rem;
+}
+.wppick__hint { font-size: 0.72rem; color: var(--muted); line-height: 1.45; }
 /* ---------- wallpaper page ---------- */
 .wp-body { background: #08080c; }
 .wp-body .nav { position: sticky; }

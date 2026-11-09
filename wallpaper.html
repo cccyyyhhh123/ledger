@@ -10,8 +10,8 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="style.css?v=91">
-<script src="theme.js?v=91"></script>
+<link rel="stylesheet" href="style.css?v=92">
+<script src="theme.js?v=92"></script>
 </head>
 <body class="wp-body">
 
@@ -106,8 +106,8 @@
   </section>
 </main>
 
-<script>window.__DESK_BUILD__ = 'v91';</script>
-<script src="nav.js?v=91"></script>
+<script>window.__DESK_BUILD__ = 'v92';</script>
+<script src="nav.js?v=92"></script>
 <script>
   /* ---------- the wallpaper library ----------
      Everything comes from the local service: /api/wallpapers lists what is
@@ -190,6 +190,10 @@
       }
       paintLibrary();
       publishStill(item);
+      try {
+        if (item.hasVideo) localStorage.setItem('deskWallpaperLive', JSON.stringify({ id: item.id, title: item.title }));
+        else localStorage.removeItem('deskWallpaperLive');
+      } catch (e) {}
       if (!quiet) saveSettings();
     }
 
@@ -500,6 +504,6 @@
     });
   })();
 </script>
-<script src="pet.js?v=91"></script>
+<script src="pet.js?v=92"></script>
 </body>
 </html>

@@ -11,11 +11,11 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="style.css?v=91">
+<link rel="stylesheet" href="style.css?v=92">
 <!-- clock ink: kept here as well, so a cached style.css cannot leave the
      seconds a different colour from the hours -->
 <style>.anchor__sec { color: inherit !important; }</style>
-<script src="theme.js?v=91"></script>
+<script src="theme.js?v=92"></script>
 </head>
 <body>
 
@@ -123,6 +123,13 @@
         <button class="btn btn--ghost" id="themeClearWallpaper" type="button" style="padding:7px 12px; font-size:0.8rem" hidden>Remove wallpaper</button>
         <button class="btn btn--ghost" id="themeReset" type="button" style="padding:7px 12px; font-size:0.8rem">Reset</button>
       </div>
+
+      <div class="wppick" id="wallpaperPick" hidden>
+        <span class="wppick__label">From this computer</span>
+        <div class="wppick__row" id="wallpaperPickRow"></div>
+        <p class="wppick__hint" id="wallpaperPickHint"></p>
+      </div>
+
       <p class="rail__note" id="themeStatus" role="status" aria-live="polite" style="margin-top:8px">
         Colours are kept in this browser and apply to every page.
       </p>
@@ -150,8 +157,8 @@
   </div>
 </div>
 
-<script src="counter.js?v=91"></script>
-<script src="nav.js?v=91"></script>
+<script src="counter.js?v=92"></script>
+<script src="nav.js?v=92"></script>
 <script>
   (function () {
     var hour = new Date().getHours();
@@ -383,7 +390,76 @@
       var status = document.getElementById('themeStatus');
       var input = document.getElementById('wallpaper');
 
-      /* ---------- pick any colour ---------- */
+  /* ---------- picking a wallpaper from this computer ----------
+     The library behind 127.0.0.1:8788 is only reachable when the page itself
+     is served from there, so the strip hides itself on the published site and
+     points at the wallpaper page instead. */
+  (function () {
+    var box = document.getElementById('wallpaperPick');
+    var row = document.getElementById('wallpaperPickRow');
+    var hint = document.getElementById('wallpaperPickHint');
+    if (!box || !row) return;
+
+    function start() {
+    if (!window.DeskWallpaper) return;
+
+    function state(text) { hint.textContent = text; }
+
+    window.DeskWallpaper.load().then(function (items) {
+      if (!items.length) { state('The library came back empty.'); return; }
+      box.hidden = false;
+
+      var shown = items.slice(0, 12);
+      shown.forEach(function (item) {
+        var button = document.createElement('button');
+        button.type = 'button';
+        button.className = 'wppick__thumb';
+        button.title = item.title;
+        button.setAttribute('aria-label', 'Use ' + item.title);
+
+        var picture = document.createElement('img');
+        picture.loading = 'lazy';
+        picture.alt = '';
+        picture.src = window.DeskWallpaper.previewUrl(item);
+        button.appendChild(picture);
+
+        if (item.hasVideo) {
+          var mark = document.createElement('span');
+          mark.className = 'wppick__play';
+          mark.textContent = '▶';
+          button.appendChild(mark);
+        }
+
+        button.addEventListener('click', function () {
+          state('Applying ' + item.title + '…');
+          Array.prototype.forEach.call(row.children, function (other) {
+            other.classList.remove('is-on');
+          });
+          button.classList.add('is-on');
+          window.DeskWallpaper.publish(item, function (url) {
+            state(url ? item.title + ' kept, on every page.' : 'That frame was empty, nothing changed.');
+            window.DeskWallpaper.remember(item.id);
+            window.DeskWallpaper.setLive(item);
+          });
+        });
+
+        row.appendChild(button);
+      });
+
+      if (items.length > shown.length) {
+        state('Showing ' + shown.length + ' of ' + items.length + ' — the rest are on the wallpaper page.');
+      }
+    }).catch(function () {
+      box.hidden = false;
+      state('The local library is not reachable from here. Open the site through 启动壁纸台.bat, or use the wallpaper page.');
+    });
+    }
+
+    if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', start);
+    else start();
+  })();
+
+    /* ---------- pick any colour ---------- */
       var customSwatch = document.getElementById('customSwatch');
       var customChip = document.getElementById('customChip');
       var customColor = document.getElementById('customColor');
@@ -881,6 +957,8 @@
     window.DeskCrop = { open: open };
   })();
 </script>
-<script src="pet.js?v=91"></script>
+<script src="wallpaper-pick.js?v=92"></script>
+<script src="wallpaper-live.js?v=92"></script>
+<script src="pet.js?v=92"></script>
 </body>
 </html>
