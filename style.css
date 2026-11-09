@@ -992,7 +992,7 @@ body, .nav, .panel, .card, .metric, .rail__block, .watch, .stat,
      see-through — the wallpaper shows straight through — and what carries the
      shape is a pale, cool rim of the theme colour, softened at the edges */
   color: color-mix(in srgb, var(--accent) 12%, transparent);
-  -webkit-text-stroke: 1.1px color-mix(in srgb, var(--accent) 46%, #ffffff 34%);
+  -webkit-text-stroke: 0;
   filter: blur(0.35px);
   text-shadow:
     0 0 1px color-mix(in srgb, var(--accent) 24%, transparent),
@@ -1013,13 +1013,13 @@ body, .nav, .panel, .card, .metric, .rail__block, .watch, .stat,
       rgba(255, 255, 255, 0.07) 52%,
       rgba(255, 255, 255, 0) 63%),
     linear-gradient(180deg,
-      rgba(255, 255, 255, 0.42) 0%,
-      rgba(255, 255, 255, 0.12) 34%,
-      rgba(10, 10, 16, 0.20) 70%,
-      rgba(10, 10, 16, 0.38) 100%),
+      rgba(255, 255, 255, 0.48) 0%,
+      rgba(255, 255, 255, 0.16) 34%,
+      rgba(10, 10, 16, 0.24) 70%,
+      rgba(10, 10, 16, 0.44) 100%),
     linear-gradient(180deg,
-      color-mix(in srgb, var(--digit, var(--accent)) 40%, transparent) 0%,
-      color-mix(in srgb, var(--digit, var(--accent)) 22%, transparent) 100%);
+      color-mix(in srgb, var(--digit, var(--accent)) 58%, transparent) 0%,
+      color-mix(in srgb, var(--digit, var(--accent)) 34%, transparent) 100%);
   -webkit-background-clip: text;
   background-clip: text;
   -webkit-text-fill-color: transparent;
@@ -1031,18 +1031,18 @@ body, .nav, .panel, .card, .metric, .rail__block, .watch, .stat,
 .anchor__value .ct__col {
   --digit: var(--accent);
   color: color-mix(in srgb, var(--digit) 13%, transparent);
-  -webkit-text-stroke: 1.15px color-mix(in srgb, var(--digit) 58%, #ffffff 30%);
+  -webkit-text-stroke: 0;
   text-shadow: 0 0 1px color-mix(in srgb, var(--digit) 26%, transparent);
   transition: color 320ms var(--ease-out-soft, ease), -webkit-text-stroke-color 320ms var(--ease-out-soft, ease);
 }
 html[data-theme="light"] .anchor__value .ct__col {
-  -webkit-text-stroke: 1.3px color-mix(in srgb, var(--digit) 76%, #17131f 18%);
+  -webkit-text-stroke: 0;
   color: color-mix(in srgb, var(--digit) 9%, transparent);
 }
 /* on a light page the same pale rim disappears: the glass needs a darker edge
    there, while its inside still shows the paper through */
 html[data-theme="light"] .anchor__value {
-  -webkit-text-stroke: 1.25px color-mix(in srgb, var(--accent) 74%, #17131f 14%);
+  -webkit-text-stroke: 0;
   color: color-mix(in srgb, var(--accent) 8%, transparent);
   text-shadow: 0 0 1px color-mix(in srgb, var(--accent) 18%, transparent);
 }
