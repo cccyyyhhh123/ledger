@@ -11,7 +11,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Nunito:wght@700;800&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="style.css?v=112">
+<link rel="stylesheet" href="style.css?v=113">
 <!-- clock ink: kept here as well, so a cached style.css cannot leave the
      seconds a different colour from the hours -->
 <style>.anchor__sec { color: inherit !important; }</style>
@@ -215,11 +215,25 @@
       { en: 'You are allowed to change your mind with evidence.', cn: '有证据时，你可以改变主意。' },
       { en: 'Being new at this is not the same as being bad at it.', cn: '刚学，不等于学不好。' },
       { en: 'A deadline is a shape, not a verdict.', cn: '截止日期是形状，不是判决。' },
-      { en: 'Write it badly first.', cn: '先写烂，再写好。' }
+      { en: 'Write it badly first.', cn: '先写烂，再写好。' },
+      { en: 'Do the next honest thing.', cn: '做下一件老实的事。' },
+      { en: 'A little every day beats a lot someday.', cn: '每天一点，胜过某天很多。' },
+      { en: 'You can be tired and still be kind.', cn: '累了也可以好好说话。' },
+      { en: 'Nothing here has to be perfect to be useful.', cn: '有用，不必完美。' },
+      { en: 'Close the tab you are not reading.', cn: '关掉那个你不看的标签页。' },
+      { en: 'Begin again from where you are.', cn: '从你现在的位置，再来一次。' }
     ];
 
-    var dayIndex = Math.floor((Date.now() - new Date(new Date().getFullYear(), 0, 0)) / 86400000);
-    var affirmIndex = dayIndex % AFFIRMATIONS.length;
+    /* a new line each time the desk is opened, never the same one twice in a
+       row — a quote of the day repeats every fortnight, which stops reading */
+    var lastShown = -1;
+    try { lastShown = Number(localStorage.getItem('deskAffirmLast')); } catch (e) { lastShown = -1; }
+
+    var affirmIndex = Math.floor(Math.random() * AFFIRMATIONS.length);
+    if (AFFIRMATIONS.length > 1 && affirmIndex === lastShown) {
+      affirmIndex = (affirmIndex + 1 + Math.floor(Math.random() * (AFFIRMATIONS.length - 1))) % AFFIRMATIONS.length;
+    }
+    try { localStorage.setItem('deskAffirmLast', String(affirmIndex)); } catch (e) {}
     var affirmLine = document.getElementById('affirmLine');
     var affirmCn = document.getElementById('affirmCn');
     var affirmNext = document.getElementById('affirmNext');
