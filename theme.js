@@ -342,20 +342,25 @@
   /* The image becomes part of the body's own background stack. A separate
      fixed layer would sit behind the body background and never be seen, no
      matter what z-index it is given. */
-  function paintWallpaper(url) {
+  function paintWallpaper(url, lum) {
     var root = document.documentElement;
     if (!url) {
       root.style.removeProperty('--wallpaper-url');
+      root.style.removeProperty('--wp-dim');
       root.removeAttribute('data-wallpaper');
       return;
     }
+    var level = typeof lum === 'number' && isFinite(lum) ? lum : 0.45;
+    /* 0.42 for a dark photo, up to 0.86 for a white one */
+    var dim = Math.max(0.42, Math.min(0.86, 0.40 + level * 0.52));
     root.style.setProperty('--wallpaper-url', 'url("' + url + '")');
+    root.style.setProperty('--wp-dim', dim.toFixed(2));
     root.setAttribute('data-wallpaper', '');
   }
 
-  function setWallpaper(url, name) {
-    try { localStorage.setItem(WALL_KEY, JSON.stringify({ url: url, name: name || '' })); } catch (e) {}
-    paintWallpaper(url);
+  function setWallpaper(url, name, lum) {
+    try { localStorage.setItem(WALL_KEY, JSON.stringify({ url: url, name: name || '', lum: lum })); } catch (e) {}
+    paintWallpaper(url, lum);
     return true;
   }
 
@@ -384,8 +389,24 @@
             var canvas = document.createElement('canvas');
             canvas.width = Math.round(image.width * scale);
             canvas.height = Math.round(image.height * scale);
-            canvas.getContext('2d').drawImage(image, 0, 0, canvas.width, canvas.height);
-            resolve(canvas.toDataURL('image/jpeg', 0.72));
+            var ctx = canvas.getContext('2d');
+            ctx.drawImage(image, 0, 0, canvas.width, canvas.height);
+
+            /* mean luminance decides how hard the scrim has to be: a white
+               photo behind dark-mode text needs far more dimming than a dark one */
+            var probe = document.createElement('canvas');
+            probe.width = 24;
+            probe.height = 24;
+            var pctx = probe.getContext('2d', { willReadFrequently: true });
+            pctx.drawImage(image, 0, 0, 24, 24);
+            var px = pctx.getImageData(0, 0, 24, 24).data;
+            var sum = 0;
+            for (var i = 0; i < px.length; i += 4) {
+              sum += (0.2126 * px[i] + 0.7152 * px[i + 1] + 0.0722 * px[i + 2]) / 255;
+            }
+            var lum = sum / (px.length / 4);
+
+            resolve({ url: canvas.toDataURL('image/jpeg', 0.72), lum: lum });
           } catch (e) { reject(e); }
         };
         image.onerror = reject;
@@ -400,7 +421,7 @@
   (function () {
     var saved = savedWallpaper();
     if (!saved) return;
-    var boot = function () { paintWallpaper(saved.url); };
+    var boot = function () { paintWallpaper(saved.url, saved.lum); };
     if (document.body) boot();
     else document.addEventListener('DOMContentLoaded', boot);
   })();

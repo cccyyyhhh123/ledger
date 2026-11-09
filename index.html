@@ -11,8 +11,8 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="style.css?v=62">
-<script src="theme.js?v=62"></script>
+<link rel="stylesheet" href="style.css?v=63">
+<script src="theme.js?v=63"></script>
 </head>
 <body>
 
@@ -114,8 +114,8 @@
   </aside>
 </main>
 
-<script src="counter.js?v=62"></script>
-<script src="nav.js?v=62"></script>
+<script src="counter.js?v=63"></script>
+<script src="nav.js?v=63"></script>
 <script>
   (function () {
     var hour = new Date().getHours();
@@ -376,7 +376,7 @@
           Promise.all([DeskTheme.extract(file), DeskTheme.prepareWallpaper(file)])
             .then(function (results) {
               DeskTheme.save(results[0]);
-              DeskTheme.setWallpaper(results[1], file.name);
+              DeskTheme.setWallpaper(results[1].url, file.name, results[1].lum);
               paintSwatches(null);
               status.textContent = 'Wallpaper and palette set from ' + file.name + '.';
               if (clearWallpaperBtn) clearWallpaperBtn.hidden = false;

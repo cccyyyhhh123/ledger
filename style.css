@@ -38,7 +38,8 @@
   --mood-4: #7cc46a;
   --mood-5: #4cc38a;
   /* used only when a wallpaper is behind the page */
-  --nav-glass: rgba(11, 11, 16, 0.38);
+  --nav-glass: rgba(11, 11, 16, 0.78);
+  --nav-glass-fade: rgba(11, 11, 16, 0.30);
   --panel-a: rgba(23, 23, 31, 0.66);
   --panel-2-a: rgba(32, 32, 42, 0.72);
   --r-sm: 10px;
@@ -54,10 +55,15 @@
    reads through them instead of being hidden by a wall of cards */
 /* the nav goes to glass as well: a solid band over a photo reads as a black bar */
 html[data-wallpaper] .nav {
-  background: var(--nav-glass);
-  -webkit-backdrop-filter: blur(20px) saturate(1.35);
-  backdrop-filter: blur(20px) saturate(1.35);
-  box-shadow: 0 1px 0 var(--line);
+  /* a scrim that fades out and follows the photo's brightness, so it never
+     turns into a flat grey band over a bright picture */
+  background: linear-gradient(180deg,
+    rgba(0, 0, 0, calc(var(--wp-dim, 0.55) * 0.96)) 0%,
+    rgba(0, 0, 0, calc(var(--wp-dim, 0.55) * 0.42)) 62%,
+    transparent 100%);
+  -webkit-backdrop-filter: blur(18px) saturate(1.3);
+  backdrop-filter: blur(18px) saturate(1.3);
+  box-shadow: none;
 }
 
 html[data-wallpaper] .panel,
@@ -80,11 +86,30 @@ html[data-wallpaper] .chart__bar { background: var(--panel-2-a); }
 
 html[data-wallpaper] body {
   background:
-    linear-gradient(180deg, rgba(0, 0, 0, 0.38), rgba(0, 0, 0, 0.62)),
+    linear-gradient(180deg,
+      rgba(0, 0, 0, calc(var(--wp-dim, 0.55) * 0.82)),
+      rgba(0, 0, 0, var(--wp-dim, 0.55))),
     var(--wallpaper-url) center / cover no-repeat fixed,
     radial-gradient(60rem 30rem at 15% -10%, var(--glow-a), transparent 60%),
     radial-gradient(50rem 26rem at 90% 0%, var(--glow-b), transparent 55%),
     var(--bg);
+}
+/* in light mode the same photo is dimmed with paper, not with black */
+html[data-theme="light"][data-wallpaper] body {
+  background:
+    linear-gradient(180deg,
+      rgba(255, 255, 255, calc(var(--wp-dim, 0.55) * 0.86)),
+      rgba(255, 255, 255, calc(var(--wp-dim, 0.55) * 0.62))),
+    var(--wallpaper-url) center / cover no-repeat fixed,
+    radial-gradient(60rem 30rem at 15% -10%, var(--glow-a), transparent 60%),
+    radial-gradient(50rem 26rem at 90% 0%, var(--glow-b), transparent 55%),
+    var(--bg);
+}
+html[data-theme="light"][data-wallpaper] .nav {
+  background: linear-gradient(180deg,
+    rgba(255, 255, 255, calc(var(--wp-dim, 0.55) * 0.95)) 0%,
+    rgba(255, 255, 255, calc(var(--wp-dim, 0.55) * 0.5)) 62%,
+    transparent 100%);
 }
 
 html { background: var(--bg); color-scheme: dark; }
@@ -864,7 +889,8 @@ td.num.neg { color: var(--muted); }
   --mood-3: #9c7a12;
   --mood-4: #4b8f38;
   --mood-5: #2c8a5a;
-  --nav-glass: rgba(247, 246, 243, 0.55);
+  --nav-glass: rgba(247, 246, 243, 0.86);
+  --nav-glass-fade: rgba(247, 246, 243, 0.42);
   --panel-a: rgba(255, 255, 255, 0.80);
   --panel-2-a: rgba(244, 243, 240, 0.78);
 }
