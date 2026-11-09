@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Weather — Yuhan's Desk</title>
+<meta name="description" content="Live weather for Danzhou: now, the next hours and the week ahead.">
+<link rel="icon" href="Images/favicon-32.png" sizes="32x32" type="image/png">
+<link rel="apple-touch-icon" href="Images/icon-180.png">
+<meta name="theme-color" content="#0b0b10">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="theme.js?v=41"></script>
+<link rel="stylesheet" href="style.css?v=41">
+</head>
+<body>
+
+<nav class="nav">
+  <a class="nav__brand" href="index.html">Yuhan<span>.</span>Desk</a>
+  <div class="nav__links">
+    <a href="index.html">Home</a>
+    <a href="music.html">Music</a>
+    <a href="study.html">Study</a>
+    <a href="clock.html">Clock</a>
+    <a href="weather.html" aria-current="page">Weather</a>
+    <a href="ledger.html">Ledger</a>
+    <a href="tarot.html">Tarot</a>
+  </div>
+</nav>
+
+<main class="shell tool">
+  <header class="tool__head">
+    <a class="back" href="index.html">← Back to the desk</a>
+    <h1>Weather</h1>
+    <p>Danzhou, read from Open-Meteo every ten minutes. No key, no account — the numbers come
+       from the same public forecast model the weather apps use.</p>
+  </header>
+
+  <section class="panel">
+    <div class="wx-now">
+      <div class="wx-now__main">
+        <span class="wx-now__icon" id="wxIcon" aria-hidden="true"></span>
+        <div>
+          <p class="wx-now__temp"><span id="wxTemp">—</span><small>°C</small></p>
+          <p class="wx-now__cond" id="wxCond">Loading…</p>
+        </div>
+      </div>
+      <dl class="wx-now__facts">
+        <div><dt>Feels like</dt><dd id="wxFeels">—</dd></div>
+        <div><dt>Humidity</dt><dd id="wxHumidity">—</dd></div>
+        <div><dt>Wind</dt><dd id="wxWind">—</dd></div>
+        <div><dt>Updated</dt><dd id="wxUpdated">—</dd></div>
+      </dl>
+    </div>
+    <p class="small muted" id="wxStatus" role="status" aria-live="polite"></p>
+  </section>
+
+  <section class="panel">
+    <h2>Next twelve hours</h2>
+    <div class="wx-hours" id="wxHours"></div>
+  </section>
+
+  <section class="panel">
+    <h2>This week</h2>
+    <ul class="wx-days" id="wxDays"></ul>
+    <p class="small muted" style="margin-top:12px">
+      Source: <a href="https://open-meteo.com/" target="_blank" rel="noopener">open-meteo.com</a> ·
+      Danzhou 19.52°N 109.57°E · timezone Asia/Shanghai
+    </p>
+  </section>
+</main>
+
+<script src="nav.js?v=41"></script>
+<script>
+  /* ---------- live weather ----------
+     Open-Meteo answers with CORS enabled, so the browser can call it directly;
+     no key, no proxy, nothing to keep secret. The page asks again every ten
+     minutes, and just keeps the last numbers if a request fails. */
+  (function () {
+    var LAT = 19.52;
+    var LON = 109.57;
+    var ENDPOINT = 'https://api.open-meteo.com/v1/forecast?latitude=' + LAT + '&longitude=' + LON +
+      '&current=temperature_2m,relative_humidity_2m,apparent_temperature,weather_code,wind_speed_10m' +
+      '&hourly=temperature_2m,weather_code' +
+      '&daily=weather_code,temperature_2m_max,temperature_2m_min' +
+      '&timezone=Asia%2FShanghai&forecast_days=7';
+
+    var el = {
+      temp: document.getElementById('wxTemp'),
+      cond: document.getElementById('wxCond'),
+      feels: document.getElementById('wxFeels'),
+      humidity: document.getElementById('wxHumidity'),
+      wind: document.getElementById('wxWind'),
+      updated: document.getElementById('wxUpdated'),
+      icon: document.getElementById('wxIcon'),
+      status: document.getElementById('wxStatus'),
+      hours: document.getElementById('wxHours'),
+      days: document.getElementById('wxDays')
+    };
+    if (!el.temp) return;
+
+    /* WMO weather codes, grouped until they are worth telling apart */
+    var CODES = [
+      { max: 0, label: 'Clear sky', icon: 'sun' },
+      { max: 2, label: 'Mostly clear', icon: 'sun-cloud' },
+      { max: 3, label: 'Overcast', icon: 'cloud' },
+      { max: 48, label: 'Fog', icon: 'fog' },
+      { max: 57, label: 'Drizzle', icon: 'drizzle' },
+      { max: 67, label: 'Rain', icon: 'rain' },
+      { max: 77, label: 'Snow', icon: 'snow' },
+      { max: 82, label: 'Showers', icon: 'rain' },
+      { max: 86, label: 'Snow showers', icon: 'snow' },
+      { max: 99, label: 'Thunderstorm', icon: 'storm' }
+    ];
+
+    function describe(code) {
+      for (var i = 0; i < CODES.length; i++) {
+        if (code <= CODES[i].max) return CODES[i];
+      }
+      return { label: 'Unknown', icon: 'cloud' };
+    }
+
+    var PATHS = {
+      sun: '<circle cx="12" cy="12" r="4.2"/><path d="M12 2v2.4M12 19.6V22M2 12h2.4M19.6 12H22M4.9 4.9l1.7 1.7M17.4 17.4l1.7 1.7M19.1 4.9l-1.7 1.7M6.6 17.4l-1.7 1.7"/>',
+      'sun-cloud': '<circle cx="8.5" cy="8.5" r="3"/><path d="M8.5 2.5v1.4M2.5 8.5h1.4M4.3 4.3l1 1"/><path d="M9 18h9a3.5 3.5 0 0 0 .3-6.98A5 5 0 0 0 9.2 12.5 3 3 0 0 0 9 18z"/>',
+      cloud: '<path d="M7 18h10a4 4 0 0 0 .3-7.98A6 6 0 0 0 5.6 11.4 3.6 3.6 0 0 0 7 18z"/>',
+      fog: '<path d="M6 10h12M4 14h16M6 18h12"/><path d="M8 6h8"/>',
+      drizzle: '<path d="M7 14h10a3 3 0 0 0 .3-5.98A4.6 4.6 0 0 0 8 9 3 3 0 0 0 7 14z"/><path d="M9 18v1.5M13 17.5V19M17 18v1.5"/>',
+      rain: '<path d="M7 13h10a3 3 0 0 0 .3-5.98A4.6 4.6 0 0 0 8 8 3 3 0 0 0 7 13z"/><path d="M8.5 16.5L7 20M12.5 16.5L11 20M16.5 16.5L15 20"/>',
+      snow: '<path d="M7 13h10a3 3 0 0 0 .3-5.98A4.6 4.6 0 0 0 8 8 3 3 0 0 0 7 13z"/><path d="M9 17.5v.01M13 19v.01M17 17.5v.01"/>',
+      storm: '<path d="M7 12h10a3 3 0 0 0 .3-5.98A4.6 4.6 0 0 0 8 7 3 3 0 0 0 7 12z"/><path d="M13 14l-3 4h3l-1.5 3"/>'
+    };
+
+    function icon(name) {
+      return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" ' +
+        'stroke-linecap="round" stroke-linejoin="round">' + (PATHS[name] || PATHS.cloud) + '</svg>';
+    }
+
+    function round(value) { return Math.round(value); }
+
+    function clock(iso) { return iso.slice(11, 16); }
+
+    function dayName(iso) {
+      return new Date(iso + 'T00:00:00').toLocaleDateString('en-GB', { weekday: 'short' });
+    }
+
+    function paint(data) {
+      var now = data.current;
+      var info = describe(now.weather_code);
+
+      el.temp.textContent = round(now.temperature_2m);
+      el.cond.textContent = info.label;
+      el.icon.innerHTML = icon(info.icon);
+      el.feels.textContent = round(now.apparent_temperature) + '°';
+      el.humidity.textContent = round(now.relative_humidity_2m) + '%';
+      el.wind.textContent = round(now.wind_speed_10m) + ' km/h';
+      el.updated.textContent = clock(now.time);
+
+      /* the next twelve hours start at the current hour */
+      var start = data.hourly.time.findIndex(function (time) { return time >= now.time; });
+      if (start < 0) start = 0;
+      el.hours.replaceChildren();
+      for (var i = start; i < start + 12 && i < data.hourly.time.length; i++) {
+        var hour = document.createElement('div');
+        hour.className = 'wx-hour';
+
+        var label = document.createElement('span');
+        label.className = 'wx-hour__time';
+        label.textContent = i === start ? 'now' : clock(data.hourly.time[i]);
+
+        var glyph = document.createElement('span');
+        glyph.className = 'wx-hour__icon';
+        glyph.innerHTML = icon(describe(data.hourly.weather_code[i]).icon);
+
+        var temp = document.createElement('span');
+        temp.className = 'wx-hour__temp';
+        temp.textContent = round(data.hourly.temperature_2m[i]) + '°';
+
+        hour.append(label, glyph, temp);
+        el.hours.appendChild(hour);
+      }
+
+      /* the week, with a bar showing each day's range inside the week's range */
+      var highs = data.daily.temperature_2m_max;
+      var lows = data.daily.temperature_2m_min;
+      var top = Math.max.apply(null, highs);
+      var bottom = Math.min.apply(null, lows);
+      var span = Math.max(1, top - bottom);
+
+      el.days.replaceChildren();
+      data.daily.time.forEach(function (date, index) {
+        var info = describe(data.daily.weather_code[index]);
+        var row = document.createElement('li');
+        row.className = 'wx-day' + (index === 0 ? ' is-today' : '');
+
+        var name = document.createElement('span');
+        name.className = 'wx-day__name';
+        name.textContent = index === 0 ? 'Today' : dayName(date);
+
+        var glyph = document.createElement('span');
+        glyph.className = 'wx-day__icon';
+        glyph.innerHTML = icon(info.icon);
+
+        var low = document.createElement('span');
+        low.className = 'wx-day__edge';
+        low.textContent = round(lows[index]) + '°';
+
+        var track = document.createElement('span');
+        track.className = 'wx-day__track';
+        var bar = document.createElement('i');
+        bar.style.left = ((lows[index] - bottom) / span * 100).toFixed(1) + '%';
+        bar.style.width = ((highs[index] - lows[index]) / span * 100).toFixed(1) + '%';
+        track.appendChild(bar);
+
+        var high = document.createElement('span');
+        high.className = 'wx-day__edge';
+        high.textContent = round(highs[index]) + '°';
+
+        row.append(name, glyph, low, track, high);
+        el.days.appendChild(row);
+      });
+
+      el.status.textContent = 'Live · refreshes every ten minutes.';
+    }
+
+    function load() {
+      el.status.textContent = 'Reading the forecast…';
+      fetch(ENDPOINT, { cache: 'no-store' })
+        .then(function (response) {
+          if (!response.ok) throw new Error('http ' + response.status);
+          return response.json();
+        })
+        .then(function (data) {
+          paint(data);
+          try { localStorage.setItem('deskWeatherAt', String(Date.now())); } catch (e) {}
+        })
+        .catch(function () {
+          el.status.textContent = 'Could not reach the forecast just now — the numbers above '
+            + 'may be a little old. It will try again in a few minutes.';
+        });
+    }
+
+    load();
+    setInterval(load, 10 * 60 * 1000);
+
+    document.addEventListener('visibilitychange', function () {
+      if (!document.hidden) load();
+    });
+  })();
+</script>
+</body>
+</html>

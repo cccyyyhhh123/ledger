@@ -1,0 +1,398 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Tarot — Yuhan's Desk</title>
+<meta name="description" content="Draw three cards from the twenty-two major arcana — past, present, future.">
+<link rel="icon" href="Images/favicon-32.png" sizes="32x32" type="image/png">
+<link rel="apple-touch-icon" href="Images/icon-180.png">
+<meta name="theme-color" content="#0b0b10">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Cormorant+Garamond:wght@500;600&display=swap" rel="stylesheet">
+<script src="theme.js?v=41"></script>
+<link rel="stylesheet" href="style.css?v=41">
+</head>
+<body>
+
+<canvas id="sky" aria-hidden="true"></canvas>
+
+<nav class="nav">
+  <a class="nav__brand" href="index.html">Yuhan<span>.</span>Desk</a>
+  <div class="nav__links">
+    <a href="index.html">Home</a>
+    <a href="music.html">Music</a>
+    <a href="study.html">Study</a>
+    <a href="clock.html">Clock</a>
+    <a href="weather.html">Weather</a>
+    <a href="ledger.html">Ledger</a>
+    <a href="tarot.html" aria-current="page">Tarot</a>
+  </div>
+</nav>
+
+<main class="shell tool">
+  <header class="tool__head">
+    <a class="back" href="index.html">← Back to the desk</a>
+    <h1>Three cards</h1>
+    <p>Past, present, future — drawn from the twenty-two major arcana. It is a way to put a
+       question into words, not a prediction: nothing here knows anything you do not.</p>
+  </header>
+
+  <section class="panel">
+    <div class="tarot-controls">
+      <button class="btn btn--primary" id="draw" type="button">Shuffle and draw</button>
+      <button class="btn btn--ghost" id="flipAll" type="button">Turn them over</button>
+      <span class="muted small" id="status" role="status" aria-live="polite">A fresh deck, face down.</span>
+    </div>
+
+    <div class="spread" id="spread"></div>
+  </section>
+
+  <section class="panel breathe-panel">
+    <div class="breathe-panel__head">
+      <div>
+        <h2>正念 · Breathe</h2>
+        <p class="hint small" style="margin-bottom:0">Four seconds in, six seconds out. Twenty
+          seconds is enough to land; the count is for today only.</p>
+      </div>
+      <p class="breathe-count" id="breatheCount">0 rounds today</p>
+    </div>
+
+    <div class="breathe" id="breathe">
+      <div class="breathe__orb" id="breatheOrb"></div>
+      <p class="breathe__label" id="breatheLabel">Ready when you are</p>
+    </div>
+
+    <div class="row" style="justify-content:center">
+      <button class="btn btn--primary" id="breatheToggle" type="button">Start breathing</button>
+    </div>
+  </section>
+</main>
+
+<script src="sky.js?v=9"></script>
+<script>window.__DESK_BUILD__ = 'v41';</script>
+<script src="nav.js?v=41"></script>
+<script>
+  /* ---------- the twenty-two majors ----------
+     Each card carries a small emblem drawn as SVG in a 64-unit frame, a
+     keyword, and the line that actually answers the question. The emblems
+     are line drawings, not pictures: they hold up at 180 px wide. */
+
+  const ROMAN = ['0', 'I', 'II', 'III', 'IV', 'V', 'VI', 'VII', 'VIII', 'IX', 'X',
+                 'XI', 'XII', 'XIII', 'XIV', 'XV', 'XVI', 'XVII', 'XVIII', 'XIX', 'XX', 'XXI'];
+
+  const CARDS = [
+    {
+      n: 0, name: 'The Fool', keyword: 'a beginning',
+      emblem: '<path d="M32 9l3.4 19.6L55 32l-19.6 3.4L32 55l-3.4-19.6L9 32l19.6-3.4z"/><circle cx="32" cy="32" r="2.4"/>',
+      meaning: 'A beginning taken without a map. Trust the step, not the plan.'
+    },
+    {
+      n: 1, name: 'The Magician', keyword: 'the tools',
+      emblem: '<circle cx="23" cy="38" r="8"/><circle cx="41" cy="38" r="8"/><path d="M32 8v18"/>',
+      meaning: 'You already have the tools. The question is whether you will use them.'
+    },
+    {
+      n: 2, name: 'The High Priestess', keyword: 'the unspoken',
+      emblem: '<path d="M40 13a19 19 0 1 0 0 38 15 15 0 1 1 0-38z"/>',
+      meaning: 'Something is known but not yet said. Listen before acting.'
+    },
+    {
+      n: 3, name: 'The Empress', keyword: 'growth',
+      emblem: '<circle cx="32" cy="36" r="12"/><path d="M32 24V10M32 16l-6-6M32 16l6-6"/>',
+      meaning: 'Growth that needs tending rather than pushing.'
+    },
+    {
+      n: 4, name: 'The Emperor', keyword: 'the frame',
+      emblem: '<path d="M13 46h38l-4-20-10 9-5-15-5 15-10-9z"/>',
+      meaning: 'Structure, rules, the frame that makes the work possible.'
+    },
+    {
+      n: 5, name: 'The Hierophant', keyword: 'tradition',
+      emblem: '<path d="M32 10v44M19 20h26M22 33h20M25 46h14"/>',
+      meaning: 'Tradition and teaching. What has been done well before you.'
+    },
+    {
+      n: 6, name: 'The Lovers', keyword: 'a choice',
+      emblem: '<circle cx="25" cy="34" r="13"/><circle cx="39" cy="34" r="13"/>',
+      meaning: 'A choice made from what you value, not from what is convenient.'
+    },
+    {
+      n: 7, name: 'The Chariot', keyword: 'momentum',
+      emblem: '<circle cx="32" cy="32" r="17"/><path d="M32 15v34M15 32h34"/>',
+      meaning: 'Momentum held in two directions at once — keep the reins.'
+    },
+    {
+      n: 8, name: 'Strength', keyword: 'patience',
+      emblem: '<circle cx="32" cy="35" r="12"/><path d="M21 27l-4-8 10 3M43 27l4-8-10 3"/><path d="M32 35v5M26 37h12"/><circle cx="27" cy="31" r="1.1"/><circle cx="37" cy="31" r="1.1"/>',
+      meaning: 'Patience used as force. The gentler hand wins.'
+    },
+    {
+      n: 9, name: 'The Hermit', keyword: 'withdrawal',
+      emblem: '<rect x="23" y="24" width="18" height="24" rx="3"/><path d="M32 8v8M26 12h12M32 20v4"/>',
+      meaning: 'Withdraw to think. The answer is quieter than the question.'
+    },
+    {
+      n: 10, name: 'Wheel of Fortune', keyword: 'the turn',
+      emblem: '<circle cx="32" cy="32" r="17"/><path d="M32 15v34M15 32h34M20 20l24 24M44 20L20 44"/>',
+      meaning: 'The part that turns without you. Work with the turn.'
+    },
+    {
+      n: 11, name: 'Justice', keyword: 'the scale',
+      emblem: '<path d="M32 10v44M18 18h28"/><path d="M10 40a8 8 0 0 0 16 0z"/><path d="M38 40a8 8 0 0 0 16 0z"/>',
+      meaning: 'Weigh it honestly; the scale does not care what you hoped.'
+    },
+    {
+      n: 12, name: 'The Hanged Man', keyword: 'the pause',
+      emblem: '<path d="M18 14h28L32 42z"/><path d="M32 42v14"/>',
+      meaning: 'A pause that is not wasted. Look at it upside down.'
+    },
+    {
+      n: 13, name: 'Death', keyword: 'an ending',
+      emblem: '<path d="M14 50c14-6 22-16 26-30"/><path d="M38 12a12 12 0 0 1 12 12"/><path d="M20 40l-6 6"/>',
+      meaning: 'An ending that makes room. Not a loss, a close.'
+    },
+    {
+      n: 14, name: 'Temperance', keyword: 'the mix',
+      emblem: '<path d="M14 22h15v8a7.5 7.5 0 0 1-15 0z"/><path d="M35 38h15v8a7.5 7.5 0 0 1-15 0z"/><path d="M32 12c-3.2 4.2-4.6 6.6-4.6 8.6a4.6 4.6 0 0 0 9.2 0c0-2-1.4-4.4-4.6-8.6z"/>',
+      meaning: 'Mixing two things carefully until neither dominates.'
+    },
+    {
+      n: 15, name: 'The Devil', keyword: 'the chain',
+      emblem: '<g transform="rotate(180 32 32)"><path d="M32 10l6.5 17.5L56 28l-13 11.5L47 57l-15-9-15 9 4-17.5L8 28l17.5-.5z"/></g>',
+      meaning: 'A habit worn as a chain. Check whether the lock is real.'
+    },
+    {
+      n: 16, name: 'The Tower', keyword: 'the break',
+      emblem: '<path d="M23 54V26h18v28"/><path d="M18 26l14-9 14 9"/><path d="M37 16l-7 12h7l-5 10"/>',
+      meaning: 'A structure breaking so the ground shows through.'
+    },
+    {
+      n: 17, name: 'The Star', keyword: 'recovery',
+      emblem: '<path d="M32 9l3.2 19.8L55 32l-19.8 3.2L32 55l-3.2-19.8L9 32l19.8-3.2z"/><path d="M18 18l28 28M46 18L18 46" opacity="0.4"/><circle cx="14" cy="14" r="1.6"/><circle cx="50" cy="50" r="1.6"/>',
+      meaning: 'Recovery, quietly. Something to aim at again.'
+    },
+    {
+      n: 18, name: 'The Moon', keyword: 'half light',
+      emblem: '<path d="M42 13a19 19 0 1 0 0 38 15 15 0 1 1 0-38z"/><circle cx="19" cy="22" r="1.8"/><circle cx="17" cy="33" r="1.3"/>',
+      meaning: 'Half-lit. Do not decide from a shape you cannot see.'
+    },
+    {
+      n: 19, name: 'The Sun', keyword: 'plain sight',
+      emblem: '<circle cx="32" cy="32" r="11"/><path d="M32 8v6M32 50v6M8 32h6M50 32h6M15 15l4.4 4.4M44.6 44.6L49 49M49 15l-4.4 4.4M19.4 44.6L15 49"/>',
+      meaning: 'Clarity, plainly. Say the thing out loud.'
+    },
+    {
+      n: 20, name: 'Judgement', keyword: 'the call',
+      emblem: '<path d="M10 30l22-11v26L10 34z"/><path d="M34 25h7a9 9 0 0 1 0 18h-7"/><path d="M22 44v6"/>',
+      meaning: 'A call to account — by you, first of all.'
+    },
+    {
+      n: 21, name: 'The World', keyword: 'a loop closed',
+      emblem: '<circle cx="32" cy="32" r="14"/><circle cx="32" cy="9" r="2.2"/><circle cx="32" cy="55" r="2.2"/><circle cx="9" cy="32" r="2.2"/><circle cx="55" cy="32" r="2.2"/>',
+      meaning: 'A loop closed. Take the credit, then start the next one.'
+    }
+  ];
+
+  const POSITIONS = ['Past', 'Present', 'Future'];
+  const spread = document.getElementById('spread');
+  const status = document.getElementById('status');
+
+  let current = [];
+  let revealed = [false, false, false];
+
+  function shuffled() {
+    const deck = CARDS.slice();
+    for (let i = deck.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [deck[i], deck[j]] = [deck[j], deck[i]];
+    }
+    return deck;
+  }
+
+  function buildFace(card, shown) {
+    const face = document.createElement('div');
+    face.className = 'cardface' + (shown ? ' is-open' : '');
+    face.tabIndex = 0;
+    face.setAttribute('role', 'button');
+    face.setAttribute('aria-label', shown ? card.name : 'Turn over the ' + card.name);
+
+    if (!shown) {
+      const back = document.createElement('span');
+      back.className = 'cardface__back';
+      back.innerHTML = '<span class="cardface__eclipse"></span>';
+      face.appendChild(back);
+      return face;
+    }
+
+    const num = document.createElement('span');
+    num.className = 'cardface__num';
+    num.textContent = ROMAN[card.n];
+
+    const seal = document.createElement('span');
+    seal.className = 'cardface__seal';
+    seal.innerHTML = '<svg viewBox="0 0 64 64" aria-hidden="true">' + card.emblem + '</svg>';
+
+    const name = document.createElement('span');
+    name.className = 'cardface__name';
+    name.textContent = card.name;
+
+    const key = document.createElement('span');
+    key.className = 'cardface__key';
+    key.textContent = card.keyword;
+
+    const top = document.createElement('span');
+    top.className = 'cardface__top';
+    top.textContent = '· ' + ROMAN[card.n] + ' ·';
+
+    const bottom = document.createElement('span');
+    bottom.className = 'cardface__bottom';
+    bottom.append(name, key);
+
+    face.append(top, seal, bottom);
+    return face;
+  }
+
+  function render() {
+    spread.replaceChildren();
+    current.forEach(function (card, i) {
+      const figure = document.createElement('figure');
+      figure.className = 'tarot-card';
+
+      const position = document.createElement('figcaption');
+      position.className = 'tarot-card__pos';
+      position.textContent = POSITIONS[i];
+
+      const face = buildFace(card, revealed[i]);
+      function flip() {
+        revealed[i] = !revealed[i];
+        render();
+        updateStatus();
+      }
+      face.addEventListener('click', flip);
+      face.addEventListener('keydown', function (event) {
+        if (event.key === 'Enter' || event.key === ' ') { event.preventDefault(); flip(); }
+      });
+
+      const meaning = document.createElement('p');
+      meaning.className = 'tarot-card__meaning';
+      meaning.textContent = revealed[i] ? card.meaning : 'Turn it over to read it.';
+
+      figure.append(position, face, meaning);
+      spread.appendChild(figure);
+    });
+  }
+
+  function updateStatus() {
+    const count = revealed.filter(Boolean).length;
+    status.textContent = count === 3
+      ? 'All three are open.'
+      : count === 0
+        ? 'Three cards, face down. Click one to turn it over.'
+        : count + ' of 3 turned over.';
+  }
+
+  function draw() {
+    current = shuffled().slice(0, 3);
+    revealed = [false, false, false];
+    render();
+    updateStatus();
+
+  }
+
+  document.getElementById('draw').addEventListener('click', draw);
+  document.getElementById('flipAll').addEventListener('click', function () {
+    const allOpen = revealed.every(Boolean);
+    revealed = revealed.map(function () { return !allOpen; });
+    render();
+    updateStatus();
+  });
+
+  draw();
+
+  /* ---------- 正念: four in, six out ----------
+     One orb that grows on the inhale and settles on the exhale, so the pace
+     is something to follow rather than a number to watch. Rounds are kept
+     for the current day only. */
+  (function () {
+    var orb = document.getElementById('breatheOrb');
+    var label = document.getElementById('breatheLabel');
+    var toggle = document.getElementById('breatheToggle');
+    var countEl = document.getElementById('breatheCount');
+    if (!orb || !toggle) return;
+
+    var STORE = 'deskMindful';
+    var IN = 4000;
+    var OUT = 6000;
+
+    var running = false;
+    var timer = 0;
+    var rounds = 0;
+
+    function today() { return new Date().toISOString().slice(0, 10); }
+
+    function load() {
+      try {
+        var saved = JSON.parse(localStorage.getItem(STORE)) || null;
+        rounds = saved && saved.date === today() ? Number(saved.rounds) || 0 : 0;
+      } catch (e) { rounds = 0; }
+    }
+    function save() {
+      try { localStorage.setItem(STORE, JSON.stringify({ date: today(), rounds: rounds })); } catch (e) {}
+    }
+    function paintCount() {
+      countEl.textContent = rounds + (rounds === 1 ? ' round today' : ' rounds today');
+    }
+
+    function inhale() {
+      if (!running) return;
+      label.textContent = 'Breathe in';
+      orb.classList.remove('is-out');
+      orb.classList.add('is-in');
+      timer = setTimeout(exhale, IN);
+    }
+
+    function exhale() {
+      if (!running) return;
+      label.textContent = 'Breathe out';
+      orb.classList.remove('is-in');
+      orb.classList.add('is-out');
+      timer = setTimeout(function () {
+        if (!running) return;
+        rounds += 1;
+        save();
+        paintCount();
+        inhale();
+      }, OUT);
+    }
+
+    function start() {
+      running = true;
+      toggle.textContent = 'Stop';
+      inhale();
+    }
+
+    function stop() {
+      running = false;
+      clearTimeout(timer);
+      toggle.textContent = rounds ? 'Start again' : 'Start breathing';
+      label.textContent = 'Paused';
+      orb.classList.remove('is-in', 'is-out');
+    }
+
+    toggle.addEventListener('click', function () {
+      if (running) stop(); else start();
+    });
+
+    /* a hidden tab should not keep breathing on its own */
+    document.addEventListener('visibilitychange', function () {
+      if (document.hidden && running) stop();
+    });
+
+    load();
+    paintCount();
+  })();
+</script>
+</body>
+</html>

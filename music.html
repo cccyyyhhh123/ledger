@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Music — Yuhan's Desk</title>
+<meta name="description" content="Search QQ Music by song name and play it here.">
+<link rel="icon" href="Images/favicon-32.png" sizes="32x32" type="image/png">
+<link rel="apple-touch-icon" href="Images/icon-180.png">
+<meta name="theme-color" content="#0b0b10">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="theme.js?v=41"></script>
+<link rel="stylesheet" href="style.css?v=41">
+</head>
+<body>
+
+<nav class="nav">
+  <a class="nav__brand" href="index.html">Yuhan<span>.</span>Desk</a>
+  <div class="nav__links">
+    <a href="index.html">Home</a>
+    <a href="music.html" aria-current="page">Music</a>
+    <a href="study.html">Study</a>
+    <a href="clock.html">Clock</a>
+    <a href="weather.html">Weather</a>
+    <a href="ledger.html">Ledger</a>
+    <a href="tarot.html">Tarot</a>
+  </div>
+</nav>
+
+<main class="shell tool">
+  <header class="tool__head">
+    <a class="back" href="index.html">← Back to the desk</a>
+    <h1>Music</h1>
+    <p>Search QQ Music by song name. Pick a result and their own player loads right here —
+       it only appears once you have chosen a song, so the page starts as a search box and nothing else.</p>
+  </header>
+
+  <section class="panel">
+    <h2>QQ Music</h2>
+    <p class="hint">Results come from QQ Music's own search. Picking one loads their player in this
+      page — same audio, same catalogue, no account needed.</p>
+
+    <form class="qq" id="qqForm" role="search">
+      <input class="input" id="qqQuery" type="search" autocomplete="off"
+             placeholder="Hello, 晴天, Adele…" aria-label="Search QQ Music">
+      <button class="btn btn--primary" type="submit">Search</button>
+      <a class="btn btn--ghost" href="https://y.qq.com" target="_blank" rel="noopener">Open QQ Music ↗</a>
+    </form>
+
+    <p class="small muted" id="qqStatus" role="status" aria-live="polite" style="margin-top:10px">
+      Type a name and press Enter.
+    </p>
+
+    <div class="es-row">
+      <span class="es-row__label">Volume</span>
+      <div class="es-host" id="volume"></div>
+      <span class="es-row__value" id="volumeValue" aria-live="off">45</span>
+      <span class="small muted es-row__note">drives the page's own chime — QQ's player keeps its own level</span>
+    </div>
+
+    <ol class="qq-results" id="qqResults" hidden></ol>
+
+    <div id="qqStage" hidden style="margin-top:14px">
+      <iframe class="embed embed--player" id="qqFrame" title="QQ Music player" allow="autoplay; encrypted-media"></iframe>
+      <p class="embed-note" id="qqNote"></p>
+    </div>
+  </section>
+
+  <section class="panel" id="recentPanel" hidden>
+    <h2>Recently played</h2>
+    <p class="hint">Kept in this browser only — the last eight songs you started.</p>
+    <ol class="qq-results" id="recentList"></ol>
+  </section>
+</main>
+
+<script>window.__DESK_BUILD__ = 'v41';</script>
+<script src="elastic-slider.js?v=41"></script>
+<script src="nav.js?v=41"></script>
+<script>
+  /* ---------- QQ Music search ----------
+     Their search endpoint answers JSONP, which a <script> tag can load from
+     another origin, and their outchain player accepts ?songid= — so a name
+     typed here can end up playing inside that iframe. */
+  (function () {
+    const form = document.getElementById('qqForm');
+    const input = document.getElementById('qqQuery');
+    const status = document.getElementById('qqStatus');
+    const results = document.getElementById('qqResults');
+    const stage = document.getElementById('qqStage');
+    const frame = document.getElementById('qqFrame');
+    const note = document.getElementById('qqNote');
+    if (!form) return;
+
+    function search(query) {
+      return new Promise(function (resolve, reject) {
+        /* QQ Music ignores the callback name we ask for and always calls
+           window.callback — so that is the one we install. */
+        const script = document.createElement('script');
+        let timer = 0;
+        let done = false;
+
+        function clean() {
+          if (done) return;
+          done = true;
+          try { delete window.callback; } catch (e) { window.callback = undefined; }
+          script.remove();
+          clearTimeout(timer);
+        }
+
+        window.callback = function (data) {
+          clean();
+          resolve(data);
+        };
+
+        script.onerror = function () {
+          clean();
+          reject(new Error('qq-search-failed'));
+        };
+
+        script.src = 'https://c.y.qq.com/soso/fcgi-bin/client_search_cp?format=jsonp&n=8&p=1&w=' +
+          encodeURIComponent(query) + '&callback=callback';
+
+        timer = setTimeout(function () {
+          clean();
+          reject(new Error('qq-search-timeout'));
+        }, 9000);
+
+        document.head.appendChild(script);
+      });
+    }
+
+    const RECENT = 'deskMusicRecent';
+    let recent = [];
+    try { recent = JSON.parse(localStorage.getItem(RECENT)) || []; } catch (e) { recent = []; }
+
+    const recentPanel = document.getElementById('recentPanel');
+    const recentList = document.getElementById('recentList');
+
+    function remember(song) {
+      recent = [{ id: song.id, mid: song.mid, name: song.name, singer: song.singer, album: song.album }]
+        .concat(recent.filter(function (item) { return item.id !== song.id; }))
+        .slice(0, 8);
+      try { localStorage.setItem(RECENT, JSON.stringify(recent)); } catch (e) {}
+      paintRecent();
+    }
+
+    function paintRecent() {
+      if (!recent.length) {
+        recentPanel.hidden = true;
+        return;
+      }
+      recentList.replaceChildren();
+      recent.forEach(function (song, index) {
+        const li = document.createElement('li');
+        const n = document.createElement('span');
+        n.textContent = String(index + 1).padStart(2, '0');
+        const text = document.createElement('span');
+        const title = document.createElement('b');
+        title.textContent = song.name;
+        const who = document.createElement('span');
+        who.textContent = ' · ' + song.singer;
+        text.append(title, who);
+        li.append(n, text);
+        li.tabIndex = 0;
+        li.addEventListener('click', function () { play(song); });
+        li.addEventListener('keydown', function (event) {
+          if (event.key === 'Enter' || event.key === ' ') { event.preventDefault(); play(song); }
+        });
+        recentList.appendChild(li);
+      });
+      recentPanel.hidden = false;
+    }
+
+    function play(song) {
+      const url = 'https://i.y.qq.com/n2/m/outchain/player/index.html?songid=' +
+        encodeURIComponent(song.id) + '&songmid=' + encodeURIComponent(song.mid) + '&autoplay=1';
+      stage.hidden = false;
+      frame.src = url;
+      if (window.__deskChime) window.__deskChime();
+      note.textContent = 'Loaded “' + song.name + '” by ' + song.singer +
+        '. If it does not start on its own, press play inside the player.';
+      frame.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+      remember(song);
+    }
+
+    function render(songs) {
+      results.replaceChildren();
+      songs.forEach(function (song, index) {
+        const li = document.createElement('li');
+        const n = document.createElement('span');
+        n.textContent = String(index + 1).padStart(2, '0');
+        const text = document.createElement('span');
+        const title = document.createElement('b');
+        title.textContent = song.name;
+        const who = document.createElement('span');
+        who.textContent = ' · ' + song.singer + (song.album ? ' · ' + song.album : '');
+        text.append(title, who);
+        li.append(n, text);
+        li.tabIndex = 0;
+        li.addEventListener('click', function () { play(song); });
+        li.addEventListener('keydown', function (event) {
+          if (event.key === 'Enter' || event.key === ' ') { event.preventDefault(); play(song); }
+        });
+        results.appendChild(li);
+      });
+      results.hidden = false;
+    }
+
+    paintRecent();
+
+    form.addEventListener('submit', function (event) {
+      event.preventDefault();
+      const query = input.value.trim();
+      if (!query) {
+        status.textContent = 'Type a song or a singer first.';
+        return;
+      }
+      status.textContent = 'Searching QQ Music for “' + query + '”…';
+      results.hidden = true;
+
+      search(query).then(function (data) {
+        const list = (data && data.data && data.data.song && data.data.song.list) || [];
+        const songs = list.map(function (item) {
+          return {
+            id: item.songid,
+            mid: item.songmid,
+            name: item.songname,
+            singer: (item.singer || []).map(function (person) { return person.name; }).join(' / '),
+            album: item.albumname || ''
+          };
+        }).filter(function (song) { return song.id && song.mid; });
+
+        if (!songs.length) {
+          status.textContent = 'QQ Music returned nothing for “' + query + '”.';
+          return;
+        }
+        status.textContent = songs.length + ' results · pick one to play it.';
+        render(songs);
+      }).catch(function (error) {
+        status.textContent = error.message === 'qq-search-timeout'
+          ? 'QQ Music did not answer in time — try again, or open their site.'
+          : 'The search could not be loaded — QQ Music may be blocked on this network.';
+      });
+    });
+  })();
+
+  /* ---------- volume ----------
+     QQ Music's player is a cross-origin iframe: its audio track cannot be
+     touched from here, and their streams answer 403 to anyone without a
+     signed url. So the slider drives the only audio this page owns — the
+     short chime when a track loads — and the level is remembered. */
+  (function () {
+    var host = document.getElementById('volume');
+    if (!host || !window.ElasticSlider) return;
+
+    /* Number(null) is 0, which would start the slider at silence */
+    var stored = localStorage.getItem('deskChimeVolume');
+    var level = stored === null ? 45 : Number(stored);
+    if (!isFinite(level) || level < 0) level = 45;
+    level = Math.min(100, level);
+
+    var context = null;
+    function audio() {
+      if (!context) {
+        var Ctor = window.AudioContext || window.webkitAudioContext;
+        if (!Ctor) return null;
+        context = new Ctor();
+      }
+      return context;
+    }
+
+    var readout = document.getElementById('volumeValue');
+    var lastChime = 0;
+
+    var slider = window.ElasticSlider.mount(host, {
+      min: 0,
+      max: 100,
+      step: 1,
+      value: level,
+      label: 'Volume for the page sounds',
+      single: true,
+      onChange: function (value) {
+        level = value;
+        try { localStorage.setItem('deskChimeVolume', String(value)); } catch (e) {}
+        if (readout) readout.textContent = String(Math.round(value));
+
+        /* a short tick while dragging proves the level is doing something */
+        var now = Date.now();
+        if (now - lastChime > 140) {
+          lastChime = now;
+          chime();
+        }
+      }
+    });
+    if (readout) readout.textContent = String(Math.round(level));
+
+    /* the audio context only starts on a gesture, and dragging is one */
+    host.addEventListener('pointerdown', function () {
+      var ctx = audio();
+      if (ctx && ctx.state === 'suspended') ctx.resume();
+    });
+
+    /* two short notes, quiet, so the slider has something real to change */
+    function chime() {
+      var ctx = audio();
+      if (!ctx || level <= 0) return;
+      if (ctx.state === 'suspended') ctx.resume();
+
+      var gain = ctx.createGain();
+      gain.gain.value = (level / 100) * 0.16;
+      gain.connect(ctx.destination);
+
+      [660, 990].forEach(function (frequency, index) {
+        var osc = ctx.createOscillator();
+        osc.type = 'sine';
+        osc.frequency.value = frequency;
+        var envelope = ctx.createGain();
+        envelope.gain.setValueAtTime(0, ctx.currentTime + index * 0.09);
+        envelope.gain.linearRampToValueAtTime(1, ctx.currentTime + index * 0.09 + 0.01);
+        envelope.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + index * 0.09 + 0.26);
+        osc.connect(envelope);
+        envelope.connect(gain);
+        osc.start(ctx.currentTime + index * 0.09);
+        osc.stop(ctx.currentTime + index * 0.09 + 0.3);
+      });
+    }
+
+    /* the same chime when a song is chosen from the results */
+    window.__deskChime = chime;
+    window.__deskSlider = slider;
+  })();
+</script>
+</body>
+</html>

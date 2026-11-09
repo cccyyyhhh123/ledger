@@ -21,3 +21,6 @@ _tools/auto-commit.log
 
 # hand-in screenshots (not site assets)
 _submit/
+
+# a separate 3D project, not part of this site
+ovo/

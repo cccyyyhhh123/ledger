@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Ledger — Yuhan's Desk</title>
+<meta name="description" content="The shared expense book: one six-digit key, one balance, entries kept in this browser.">
+<link rel="icon" href="Images/favicon-32.png" sizes="32x32" type="image/png">
+<link rel="apple-touch-icon" href="Images/icon-180.png">
+<meta name="theme-color" content="#0b0b10">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="theme.js?v=41"></script>
+<link rel="stylesheet" href="style.css?v=41">
+</head>
+<body>
+
+<nav class="nav">
+  <a class="nav__brand" href="index.html">Yuhan<span>.</span>Desk</a>
+  <div class="nav__links">
+    <a href="index.html">Home</a>
+    <a href="music.html">Music</a>
+    <a href="study.html">Study</a>
+    <a href="clock.html">Clock</a>
+    <a href="weather.html">Weather</a>
+    <a href="ledger.html" aria-current="page">Ledger</a>
+    <a href="tarot.html">Tarot</a>
+  </div>
+</nav>
+
+<main class="shell tool">
+  <header class="tool__head">
+    <a class="back" href="index.html">← Back to the desk</a>
+    <h1>The shared ledger</h1>
+    <p>One key, one balance. Anyone holding the six digits writes into the same list;
+       everything is kept in this browser, so clearing site data clears the book.</p>
+  </header>
+
+  <section class="panel">
+    <div class="row" style="justify-content:space-between">
+      <div>
+        <p class="small muted">Shared key</p>
+        <p class="mono" id="key" style="font-size:1.2rem; letter-spacing:0.35em">------</p>
+      </div>
+      <div class="row">
+        <button class="btn btn--ghost" id="newBook" type="button">Start another book</button>
+      </div>
+    </div>
+
+    <div class="stats" style="margin-top:16px">
+      <div class="stat"><dt>Balance</dt><dd class="balance" id="balance">0.00</dd></div>
+      <div class="stat"><dt>In this month</dt><dd id="monthIn">0.00</dd></div>
+      <div class="stat"><dt>Out this month</dt><dd id="monthOut">0.00</dd></div>
+    </div>
+    <p class="small muted" id="summary">No entries yet.</p>
+  </section>
+
+  
+
+  <section class="panel">
+    <h2>Add an entry</h2>
+    <form class="entryform" id="form" style="margin-top:12px">
+      <label class="field">
+        <span>Date</span>
+        <input class="input" type="text" id="date" placeholder="YYYY-MM-DD" inputmode="numeric" maxlength="10" required>
+      </label>
+      <label class="field">
+        <span>Type</span>
+        <select class="input" id="type">
+          <option value="deposit">Deposit</option>
+          <option value="spend">Spend</option>
+        </select>
+      </label>
+      <label class="field">
+        <span>Category</span>
+        <input class="input" type="text" id="category" placeholder="Grocery run, rent, tram…" maxlength="40" required>
+      </label>
+      <label class="field">
+        <span>Amount</span>
+        <input class="input" type="number" id="amount" step="0.01" min="0.01" placeholder="0.00" required>
+      </label>
+      <button class="btn btn--primary" type="submit">Save entry</button>
+    </form>
+    <p class="small" id="note" role="status" aria-live="polite" style="color:var(--bad); min-height:1.2em; margin-top:6px"></p>
+  </section>
+
+  <section class="panel">
+    <div class="row" style="justify-content:space-between">
+      <h2>Entries</h2>
+      <div class="row">
+        <select class="input" id="filterMonth" aria-label="Filter by month" style="width:auto"></select>
+        <select class="input" id="filterType" aria-label="Filter by type" style="width:auto">
+          <option value="">All types</option>
+          <option value="deposit">Deposits only</option>
+          <option value="spend">Spending only</option>
+        </select>
+      </div>
+    </div>
+
+    <table>
+      <thead>
+        <tr><th>Date</th><th>Type</th><th>Category</th><th style="text-align:right">Amount</th><th>Note</th><th></th></tr>
+      </thead>
+      <tbody id="rows"></tbody>
+    </table>
+    <p class="small muted" id="empty" hidden></p>
+  </section>
+</main>
+
+<script>window.__DESK_BUILD__ = 'v41';</script>
+<script src="nav.js?v=41"></script>
+<script>
+  /* The same storage key and the same entry shape as the standalone ledger,
+     so both pages read one book instead of two. */
+  const STORE = 'shareBillStorage';
+  const ACTIVE = 'activeBookKey';
+
+  const SAMPLE = [
+    { offset: -1,  type: 'spend',   category: 'Grocery run', money: 32.4 },
+    { offset: -2,  type: 'deposit', category: 'Deposit',     money: 180 },
+    { offset: -4,  type: 'spend',   category: 'Steam',       money: 14.99 },
+    { offset: -6,  type: 'spend',   category: 'Voice chat',  money: 8.5 },
+    { offset: -8,  type: 'spend',   category: 'Gifting',     money: 26, note: 'birthday' },
+    { offset: -11, type: 'deposit', category: 'Deposit',     money: 124.39 },
+    { offset: -14, type: 'spend',   category: 'Tram fare',   money: 6 },
+    { offset: -17, type: 'spend',   category: 'Valorant',    money: 19.9 },
+    { offset: -21, type: 'deposit', category: 'Deposit',     money: 90, note: 'top-up' }
+  ];
+
+  let books = {};
+  try { books = JSON.parse(localStorage.getItem(STORE)) || {}; } catch (e) { books = {}; }
+
+  let key = sessionStorage.getItem(ACTIVE);
+
+  function save() {
+    try { localStorage.setItem(STORE, JSON.stringify(books)); } catch (e) {}
+  }
+
+  if (!key || !books[key]) {
+    const known = Object.keys(books);
+    if (known.length) {
+      key = known[known.length - 1];
+    } else {
+      key = String(Math.floor(100000 + Math.random() * 900000));
+      const now = Date.now();
+      books[key] = SAMPLE.map(function (entry, i) {
+        return {
+          id: now + i,
+          date: new Date(now + entry.offset * 86400000).toISOString().slice(0, 10),
+          type: entry.type,
+          class: entry.category,
+          money: entry.money,
+          note: entry.note || ''
+        };
+      });
+      save();
+    }
+    sessionStorage.setItem(ACTIVE, key);
+  }
+
+  const el = {
+    key: document.getElementById('key'),
+    balance: document.getElementById('balance'),
+    monthIn: document.getElementById('monthIn'),
+    monthOut: document.getElementById('monthOut'),
+    summary: document.getElementById('summary'),
+    date: document.getElementById('date'),
+    type: document.getElementById('type'),
+    category: document.getElementById('category'),
+    amount: document.getElementById('amount'),
+    note: document.getElementById('note'),
+    form: document.getElementById('form'),
+    rows: document.getElementById('rows'),
+    empty: document.getElementById('empty'),
+    filterMonth: document.getElementById('filterMonth'),
+    filterType: document.getElementById('filterType'),
+    newBook: document.getElementById('newBook')
+  };
+
+  const money = function (value) {
+    return Number(value).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  };
+
+  function list() { return books[key] || []; }
+
+  function stats() {
+    const month = new Date().toISOString().slice(0, 7);
+    let monthIn = 0, monthOut = 0, totalIn = 0, totalOut = 0;
+    list().forEach(function (entry) {
+      const amount = Number(entry.money) || 0;
+      const inMonth = entry.date.indexOf(month) === 0;
+      if (entry.type === 'deposit') { totalIn += amount; if (inMonth) monthIn += amount; }
+      else { totalOut += amount; if (inMonth) monthOut += amount; }
+    });
+    return { monthIn, monthOut, totalIn, totalOut, balance: totalIn - totalOut };
+  }
+
+  function paintMonths() {
+    const previous = el.filterMonth.value;
+    const months = Array.from(new Set(list().map(function (entry) { return entry.date.slice(0, 7); }))).sort().reverse();
+    el.filterMonth.replaceChildren(new Option('All months', ''));
+    months.forEach(function (month) { el.filterMonth.add(new Option(month, month)); });
+    el.filterMonth.value = months.indexOf(previous) >= 0 ? previous : '';
+  }
+
+  function render() {
+    el.key.textContent = key;
+
+    paintMonths();
+    const month = el.filterMonth.value;
+    const type = el.filterType.value;
+
+    let rows = list().slice();
+    if (month) rows = rows.filter(function (entry) { return entry.date.indexOf(month) === 0; });
+    if (type) rows = rows.filter(function (entry) { return entry.type === type; });
+    rows.sort(function (a, b) { return a.date < b.date ? 1 : a.date > b.date ? -1 : String(b.id).localeCompare(String(a.id)); });
+
+    el.rows.replaceChildren();
+    rows.forEach(function (entry) {
+      const tr = document.createElement('tr');
+      const isIn = entry.type === 'deposit';
+
+      const date = document.createElement('td');
+      date.textContent = entry.date;
+
+      const typeCell = document.createElement('td');
+      typeCell.textContent = isIn ? 'Deposit' : 'Spend';
+      typeCell.style.color = isIn ? 'var(--good)' : 'var(--muted)';
+
+      const category = document.createElement('td');
+      category.textContent = entry.class || '—';
+
+      const amount = document.createElement('td');
+      amount.className = 'num ' + (isIn ? 'pos' : 'neg');
+      amount.textContent = (isIn ? '+' : '−') + money(entry.money);
+
+      const note = document.createElement('td');
+      note.textContent = entry.note || '—';
+      note.style.color = 'var(--muted)';
+
+      const actions = document.createElement('td');
+      actions.className = 'actions';
+      const del = document.createElement('button');
+      del.className = 'del';
+      del.type = 'button';
+      del.textContent = 'Delete';
+      del.setAttribute('aria-label', 'Delete the entry from ' + entry.date);
+      del.addEventListener('click', function () {
+        books[key] = list().filter(function (item) { return item.id !== entry.id; });
+        save();
+        render();
+      });
+      actions.appendChild(del);
+
+      tr.append(date, typeCell, category, amount, note, actions);
+      el.rows.appendChild(tr);
+    });
+
+    const total = list().length;
+    if (!rows.length) {
+      el.empty.hidden = false;
+      el.empty.textContent = total
+        ? 'Nothing matches these filters.'
+        : 'No entries yet. The first deposit or spend lands here.';
+    } else {
+      el.empty.hidden = true;
+    }
+
+    const summary = stats();
+    el.balance.textContent = money(summary.balance);
+    el.balance.classList.toggle('is-negative', summary.balance < 0);
+    el.monthIn.textContent = money(summary.monthIn);
+    el.monthOut.textContent = money(summary.monthOut);
+    el.summary.textContent = total
+      ? total + (total === 1 ? ' entry' : ' entries') + ' · in ' + money(summary.totalIn) + ', out ' + money(summary.totalOut)
+      : 'No entries yet.';
+  }
+
+  el.form.addEventListener('submit', function (event) {
+    event.preventDefault();
+    const date = el.date.value.trim().replace(/[./]/g, '-');
+    const amount = Number(el.amount.value);
+    const category = el.category.value.trim().replace(/\s+/g, ' ');
+    const match = date.match(/^(\d{4})-(\d{1,2})-(\d{1,2})$/);
+
+    if (!match) { el.note.textContent = 'Write the date as YYYY-MM-DD.'; return; }
+    if (!category) { el.note.textContent = 'Give the entry a category.'; return; }
+    if (!(amount > 0)) { el.note.textContent = 'The amount has to be above zero.'; return; }
+
+    const normalised = match[1] + '-' + match[2].padStart(2, '0') + '-' + match[3].padStart(2, '0');
+    books[key].push({
+      id: Date.now(),
+      date: normalised,
+      type: el.type.value,
+      class: category,
+      money: amount,
+      note: ''
+    });
+    save();
+    el.note.textContent = '';
+    el.amount.value = '';
+    render();
+    el.amount.focus();
+  });
+
+  el.filterMonth.addEventListener('change', render);
+  el.filterType.addEventListener('change', render);
+
+  el.newBook.addEventListener('click', function () {
+    key = String(Math.floor(100000 + Math.random() * 900000));
+    books[key] = [];
+    save();
+    sessionStorage.setItem(ACTIVE, key);
+    render();
+  });
+
+  el.date.value = new Date().toISOString().slice(0, 10);
+  render();
+</script>
+</body>
+</html>

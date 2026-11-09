@@ -1,0 +1,551 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Clock — Yuhan's Desk</title>
+<meta name="description" content="A clock whose hands are hanging ropes, plus a countdown with presets.">
+<link rel="icon" href="Images/favicon-32.png" sizes="32x32" type="image/png">
+<link rel="apple-touch-icon" href="Images/icon-180.png">
+<meta name="theme-color" content="#0b0b10">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="theme.js?v=41"></script>
+<link rel="stylesheet" href="style.css?v=41">
+</head>
+<body>
+
+<nav class="nav">
+  <a class="nav__brand" href="index.html">Yuhan<span>.</span>Desk</a>
+  <div class="nav__links">
+    <a href="index.html">Home</a>
+    <a href="music.html">Music</a>
+    <a href="study.html">Study</a>
+    <a href="clock.html" aria-current="page">Clock</a>
+    <a href="weather.html">Weather</a>
+    <a href="ledger.html">Ledger</a>
+    <a href="tarot.html">Tarot</a>
+  </div>
+</nav>
+
+<main class="shell tool">
+  <header class="tool__head">
+    <a class="back" href="index.html">← Back to the desk</a>
+    <h1>Clock</h1>
+    <p>The hands are ropes, not sticks: they hang from the centre, sag in the middle and swing
+       into place with a little overshoot. The other half of the widget is a countdown.</p>
+  </header>
+
+  <section class="cw" aria-label="Clock widget">
+    <div class="cw__tabs" role="tablist" aria-label="View">
+      <button class="cw__tab" type="button" role="tab" id="tabClock" aria-selected="true" aria-controls="paneClock">Clock</button>
+      <button class="cw__tab" type="button" role="tab" id="tabTimer" aria-selected="false" aria-controls="paneTimer">Timer</button>
+    </div>
+
+    <div class="cw__pane" id="paneClock" role="tabpanel" aria-labelledby="tabClock">
+      <svg class="cw__svg" viewBox="0 0 300 300" role="img" aria-label="Clock">
+        <g id="ticks"></g>
+
+        <text class="cw__num" x="150" y="56" text-anchor="middle" dominant-baseline="central">12</text>
+        <text class="cw__num" x="244" y="150" text-anchor="middle" dominant-baseline="central">3</text>
+        <text class="cw__num" x="150" y="244" text-anchor="middle" dominant-baseline="central">6</text>
+        <text class="cw__num" x="56" y="150" text-anchor="middle" dominant-baseline="central">9</text>
+
+        <!-- three hanging ropes, drawn from the centre to a bead at their end -->
+        <path id="hourPath" fill="none" stroke="currentColor" stroke-width="5.5" stroke-linecap="round"/>
+        <path id="minPath" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round"/>
+        <path id="secPath" fill="none" stroke="#a8382c" stroke-width="2.4" stroke-linecap="round"/>
+
+        <circle id="hourBead" r="7" fill="currentColor"/>
+        <circle id="minBead" r="6" fill="currentColor"/>
+        <circle id="secBead" r="4.5" fill="#a8382c"/>
+
+        <circle id="hub" cx="150" cy="150" r="8" fill="currentColor"/>
+        <circle id="hubPin" cx="150" cy="150" r="3"/>
+      </svg>
+    </div>
+
+    <div class="cw__pane" id="paneTimer" role="tabpanel" aria-labelledby="tabTimer" hidden>
+      <p class="cw__mode" id="mode">Countdown · 25 minutes</p>
+      <p class="cw__count" id="countdown">25:00</p>
+      <div class="cw__actions">
+        <button class="cw__btn cw__btn--dark" id="toggle" type="button">Start</button>
+        <button class="cw__btn" id="resetTimer" type="button">Reset</button>
+      </div>
+      <div class="cw__presets" id="presets" role="group" aria-label="Countdown presets"></div>
+      <div class="cw__meta">
+        <span class="cw__rounds" id="rounds">No rounds finished yet.</span>
+        <button class="cw__mini" id="clearRounds" type="button" hidden>Clear</button>
+      </div>
+    </div>
+
+    <div class="cw__chips">
+      <span class="cw__chip" id="chipTime">--:--</span>
+      <span class="cw__chip cw__chip--wide" id="chipDate">—</span>
+    </div>
+  </section>
+
+  <section class="panel worldclock" id="worldPanel">
+    <div class="row" style="justify-content:space-between">
+      <h2>Elsewhere</h2>
+      <span class="small muted" id="whereCount">the same moment</span>
+    </div>
+    <form class="city-add" id="cityForm">
+      <input class="input" id="cityInput" type="text" list="zoneList" autocomplete="off"
+             placeholder="Add any city or zone — Europe/Paris, Asia/Kolkata…"
+             aria-label="Add a time zone">
+      <button class="btn" type="submit">Add</button>
+      <datalist id="zoneList"></datalist>
+    </form>
+    <p class="small" id="cityStatus" role="status" aria-live="polite" style="color:var(--bad); min-height:1.1em; margin:6px 0 0"></p>
+
+    <div class="watches" id="watches"></div>
+  </section>
+</main>
+
+<script>window.__DESK_BUILD__ = 'v41';</script>
+<script src="nav.js?v=41"></script>
+<script>
+  /* ---------- the dial ---------- */
+  (function () {
+    const ticks = document.getElementById('ticks');
+    for (let i = 0; i < 60; i++) {
+      const major = i % 5 === 0;
+      const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+      const angle = (i / 60) * Math.PI * 2;
+      const r1 = major ? 110 : 116;
+      const r2 = 123;
+      line.setAttribute('x1', String(150 + Math.sin(angle) * r1));
+      line.setAttribute('y1', String(150 - Math.cos(angle) * r1));
+      line.setAttribute('x2', String(150 + Math.sin(angle) * r2));
+      line.setAttribute('y2', String(150 - Math.cos(angle) * r2));
+      line.setAttribute('stroke', major ? 'rgba(23,23,29,0.42)' : 'rgba(23,23,29,0.16)');
+      line.setAttribute('stroke-width', major ? '2.4' : '1.2');
+      line.setAttribute('stroke-linecap', 'round');
+      ticks.appendChild(line);
+    }
+  })();
+
+  /* ---------- rope hands ----------
+     Each hand is a hanging cord: its tip chases the clock angle on a spring,
+     so it swings past and settles back, and the middle of the cord bends
+     downwards — most when the cord is horizontal, not at all when vertical. */
+  (function () {
+    const CX = 150, CY = 150;
+
+    const hands = [
+      { path: 'hourPath', bead: 'hourBead', len: 74,  k: 46, c: 8.4, sag: 0.15, angle: 0, vel: 0, target: 0 },
+      { path: 'minPath',  bead: 'minBead',  len: 108, k: 52, c: 8.8, sag: 0.13, angle: 0, vel: 0, target: 0 },
+      { path: 'secPath',  bead: 'secBead',  len: 118, k: 34, c: 6.2, sag: 0.10, angle: 0, vel: 0, target: 0 }
+    ];
+
+    hands.forEach(function (hand) {
+      hand.pathEl = document.getElementById(hand.path);
+      hand.beadEl = document.getElementById(hand.bead);
+    });
+
+    function wrap(delta) {
+      while (delta > Math.PI) delta -= Math.PI * 2;
+      while (delta < -Math.PI) delta += Math.PI * 2;
+      return delta;
+    }
+
+    function draw(hand) {
+      const dirX = Math.sin(hand.angle);
+      const dirY = -Math.cos(hand.angle);
+
+      const tipX = CX + dirX * hand.len;
+      const tipY = CY + dirY * hand.len;
+
+      /* gravity's pull is what bends the cord, so the bow is the part of
+         gravity that is perpendicular to it: (sin·cos, sin²), which is zero
+         when the cord hangs straight down or points straight up */
+      const s = Math.sin(hand.angle);
+      const c = Math.cos(hand.angle);
+      const bow = hand.len * hand.sag;
+      const ctrlX = CX + dirX * hand.len * 0.5 + s * c * bow;
+      const ctrlY = CY + dirY * hand.len * 0.5 + s * s * bow;
+
+      hand.pathEl.setAttribute('d', 'M ' + CX + ' ' + CY + ' Q ' + ctrlX.toFixed(2) + ' ' +
+        ctrlY.toFixed(2) + ' ' + tipX.toFixed(2) + ' ' + tipY.toFixed(2));
+
+      hand.beadEl.setAttribute('cx', tipX.toFixed(2));
+      hand.beadEl.setAttribute('cy', tipY.toFixed(2));
+    }
+
+    function targets() {
+      const now = new Date();
+      const s = now.getSeconds() + now.getMilliseconds() / 1000;
+      const m = now.getMinutes() + s / 60;
+      const h = (now.getHours() % 12) + m / 60;
+      hands[0].target = (h / 12) * Math.PI * 2;
+      hands[1].target = (m / 60) * Math.PI * 2;
+      hands[2].target = (s / 60) * Math.PI * 2;
+    }
+
+    /* start slightly behind, so the first second is a small settle, not a spin */
+    targets();
+    hands.forEach(function (hand) { hand.angle = hand.target - 0.22; });
+
+    const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    const clockPane = document.getElementById('paneClock');
+
+    let last = performance.now();
+    let raf = 0;
+    let idle = false;
+
+    function frame(now) {
+      const dt = Math.min(0.05, (now - last) / 1000);
+      last = now;
+
+      /* the timer tab or a hidden tab does not need a redrawn clock */
+      if (document.hidden || (clockPane && clockPane.hidden)) {
+        idle = true;
+        raf = requestAnimationFrame(frame);
+        return;
+      }
+
+      targets();
+
+      /* coming back after a pause: put the hands where the time is instead of
+         letting the spring spin them round the dial */
+      if (idle) {
+        idle = false;
+        hands.forEach(function (hand) {
+          hand.angle = hand.target;
+          hand.vel = 0;
+          draw(hand);
+        });
+        return;
+      }
+      hands.forEach(function (hand) {
+        const delta = wrap(hand.target - hand.angle);
+        hand.vel += (delta * hand.k - hand.vel * hand.c) * dt;
+        hand.angle += hand.vel * dt;
+        draw(hand);
+      });
+
+      raf = requestAnimationFrame(frame);
+    }
+    if (reduce) {
+      /* still hands, updated once a second — no spring, no wobble */
+      setInterval(function () {
+        targets();
+        hands.forEach(function (hand) { hand.angle = hand.target; draw(hand); });
+      }, 1000);
+    } else {
+      raf = requestAnimationFrame(frame);
+    }
+
+    /* the two chips */
+    const chipTime = document.getElementById('chipTime');
+    const chipDate = document.getElementById('chipDate');
+    function chips() {
+      const now = new Date();
+      chipTime.textContent = now.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' });
+      chipDate.textContent = now.toLocaleDateString('en-GB', { day: 'numeric', month: 'short', weekday: 'short' });
+    }
+    chips();
+    setInterval(chips, 5000);
+
+    /* the other places — shown on the clock view only, and you can add any
+       zone the browser knows about (Intl.supportedValuesOf gives the list) */
+    const DEFAULT_CITIES = [
+      { name: 'Danzhou', zone: 'Asia/Shanghai', note: 'where I am' },
+      { name: 'London', zone: 'Europe/London', note: 'UTC baseline' },
+      { name: 'New York', zone: 'America/New_York', note: 'the other side' },
+      { name: 'Tokyo', zone: 'Asia/Tokyo', note: 'one hour ahead of home' },
+      { name: 'Sydney', zone: 'Australia/Sydney', note: 'the far edge of the map' }
+    ];
+
+    const CITY_STORE = 'deskCities';
+    const watches = document.getElementById('watches');
+    const cityForm = document.getElementById('cityForm');
+    const cityInput = document.getElementById('cityInput');
+    const cityStatus = document.getElementById('cityStatus');
+    const whereCount = document.getElementById('whereCount');
+
+    function loadAdded() {
+      try {
+        const saved = JSON.parse(localStorage.getItem(CITY_STORE));
+        return Array.isArray(saved) ? saved : [];
+      } catch (e) { return []; }
+    }
+    function saveAdded(list) {
+      try { localStorage.setItem(CITY_STORE, JSON.stringify(list)); } catch (e) {}
+    }
+
+    let added = loadAdded();
+
+    function cities() {
+      return DEFAULT_CITIES.concat(added);
+    }
+
+    function prettyName(zone) {
+      const parts = zone.split('/');
+      return parts[parts.length - 1].replace(/_/g, ' ');
+    }
+
+    function isValidZone(zone) {
+      try {
+        new Intl.DateTimeFormat('en-GB', { timeZone: zone }).format(new Date());
+        return true;
+      } catch (e) { return false; }
+    }
+
+    /* the suggestion list: every zone the browser knows, plus a plain name */
+    function fillZones() {
+      const list = document.getElementById('zoneList');
+      if (!list) return;
+      let zones = [];
+      try {
+        if (typeof Intl.supportedValuesOf === 'function') zones = Intl.supportedValuesOf('timeZone');
+      } catch (e) { zones = []; }
+      if (!zones.length) {
+        zones = ['Asia/Shanghai', 'Asia/Tokyo', 'Asia/Kolkata', 'Asia/Dubai', 'Europe/London',
+                 'Europe/Paris', 'Europe/Berlin', 'Europe/Moscow', 'America/New_York',
+                 'America/Los_Angeles', 'America/Sao_Paulo', 'Africa/Cairo', 'Australia/Sydney',
+                 'Pacific/Auckland'];
+      }
+      list.replaceChildren();
+      zones.forEach(function (zone) {
+        const option = document.createElement('option');
+        option.value = zone;
+        list.appendChild(option);
+      });
+    }
+
+    function paintCount() {
+      const total = cities().length;
+      if (whereCount) whereCount.textContent = 'the same moment, ' + total +
+        (total === 1 ? ' place' : ' places');
+    }
+
+    function buildRows() {
+      watches.replaceChildren();
+
+      cities().forEach(function (city, index) {
+        const isAdded = index >= DEFAULT_CITIES.length;
+
+        const row = document.createElement('div');
+        row.className = 'watch' + (isAdded ? ' watch--added' : '');
+
+        const name = document.createElement('b');
+        name.textContent = city.name;
+
+        const time = document.createElement('em');
+        time.dataset.zone = city.zone;
+
+        const note = document.createElement('span');
+        note.textContent = city.note || city.zone;
+
+        const day = document.createElement('i');
+        day.className = 'watch__day';
+        day.dataset.zone = city.zone;
+
+        row.append(name, time, note, day);
+
+        if (isAdded) {
+          const remove = document.createElement('button');
+          remove.type = 'button';
+          remove.className = 'watch__remove';
+          remove.textContent = '×';
+          remove.setAttribute('aria-label', 'Remove ' + city.name);
+          remove.addEventListener('click', function () {
+            added = added.filter(function (item) { return item.zone !== city.zone; });
+            saveAdded(added);
+            buildRows();
+            paintCities();
+          });
+          row.appendChild(remove);
+        }
+
+        watches.appendChild(row);
+      });
+
+      paintCount();
+    }
+
+    function paintCities() {
+      const now = new Date();
+      const here = now.toLocaleDateString('en-CA', { timeZone: 'Asia/Shanghai' });
+      watches.querySelectorAll('em').forEach(function (time) {
+        const zone = time.dataset.zone;
+        time.textContent = now.toLocaleTimeString('en-GB', {
+          timeZone: zone, hour12: false, hour: '2-digit', minute: '2-digit'
+        });
+        const badge = time.parentElement.querySelector('.watch__day');
+        const there = now.toLocaleDateString('en-CA', { timeZone: zone });
+        badge.textContent = there === here ? '' : (there > here ? '+1 day' : '−1 day');
+      });
+    }
+
+    if (cityForm) {
+      cityForm.addEventListener('submit', function (event) {
+        event.preventDefault();
+        const raw = cityInput.value.trim();
+        if (!raw) return;
+
+        /* accept a zone id, or a city name that matches one */
+        let zone = raw;
+        if (!isValidZone(zone)) {
+          const guess = cities().concat(
+            (typeof Intl.supportedValuesOf === 'function' ? Intl.supportedValuesOf('timeZone') : [])
+          ).find(function (candidate) {
+            const value = candidate.zone || candidate;
+            return prettyName(value).toLowerCase() === raw.toLowerCase();
+          });
+          zone = guess ? (guess.zone || guess) : '';
+        }
+
+        if (!zone || !isValidZone(zone)) {
+          cityStatus.textContent = 'Not a time zone I can find — try a value like Europe/Paris.';
+          return;
+        }
+        if (cities().some(function (city) { return city.zone === zone; })) {
+          cityStatus.textContent = 'That place is already in the list.';
+          return;
+        }
+
+        added.push({ name: prettyName(zone), zone: zone, note: 'added' });
+        saveAdded(added);
+        cityStatus.textContent = '';
+        cityInput.value = '';
+        buildRows();
+        paintCities();
+      });
+    }
+
+    fillZones();
+    buildRows();
+    paintCities();
+    setInterval(paintCities, 15000);
+
+
+  })();
+
+  /* ---------- clock / timer ---------- */
+  (function () {
+    const tabClock = document.getElementById('tabClock');
+    const tabTimer = document.getElementById('tabTimer');
+    const paneClock = document.getElementById('paneClock');
+    const paneTimer = document.getElementById('paneTimer');
+
+    function show(which) {
+      const isClock = which === 'clock';
+      tabClock.setAttribute('aria-selected', String(isClock));
+      tabTimer.setAttribute('aria-selected', String(!isClock));
+      paneClock.hidden = !isClock;
+      paneTimer.hidden = isClock;
+      const world = document.getElementById('worldPanel');
+      if (world) world.hidden = !isClock;
+    }
+    tabClock.addEventListener('click', function () { show('clock'); });
+    tabTimer.addEventListener('click', function () { show('timer'); });
+    show('clock');
+  })();
+
+  /* ---------- the countdown ---------- */
+  (function () {
+    const PRESETS = [1, 3, 5, 10, 15, 25, 45, 60];
+
+    let minutes = 25;
+    let left = minutes * 60;
+    let running = false;
+    let handle = 0;
+    let finished = false;
+    let rounds = Number(localStorage.getItem('deskTimerRounds')) || 0;
+
+    const modeEl = document.getElementById('mode');
+    const countdown = document.getElementById('countdown');
+    const toggle = document.getElementById('toggle');
+    const resetBtn = document.getElementById('resetTimer');
+    const presetsEl = document.getElementById('presets');
+    const roundsEl = document.getElementById('rounds');
+    const clearBtn = document.getElementById('clearRounds');
+
+    function paint() {
+      const m = Math.floor(left / 60);
+      const s = left % 60;
+      countdown.textContent = m + ':' + (s < 10 ? '0' : '') + s;
+      modeEl.textContent = 'Countdown · ' + minutes + (minutes === 1 ? ' minute' : ' minutes');
+      toggle.textContent = running ? 'Pause' : (finished ? 'Again' : (left === minutes * 60 ? 'Start' : 'Resume'));
+      roundsEl.textContent = rounds
+        ? rounds + (rounds === 1 ? ' round finished' : ' rounds finished') + (finished ? ' · time is up' : '')
+        : (finished ? 'Time is up. That was the first round.' : 'No rounds finished yet.');
+      clearBtn.hidden = rounds === 0;
+
+      Array.prototype.forEach.call(presetsEl.children, function (chip) {
+        chip.setAttribute('aria-pressed', String(Number(chip.dataset.min) === minutes));
+      });
+    }
+
+    function stop() {
+      running = false;
+      clearInterval(handle);
+      handle = 0;
+      paint();
+    }
+
+    function start() {
+      if (finished) {
+        finished = false;
+        left = minutes * 60;
+      }
+      running = true;
+      handle = setInterval(function () {
+        left -= 1;
+        if (left <= 0) {
+          left = 0;
+          finished = true;
+          rounds += 1;
+          try { localStorage.setItem('deskTimerRounds', String(rounds)); } catch (e) {}
+          stop();
+          document.title = "Time is up — Yuhan's Desk";
+          return;
+        }
+        paint();
+      }, 1000);
+      document.title = "Clock — Yuhan's Desk";
+      paint();
+    }
+
+    function choose(length) {
+      stop();
+      minutes = length;
+      left = minutes * 60;
+      finished = false;
+      paint();
+    }
+
+    PRESETS.forEach(function (length) {
+      const chip = document.createElement('button');
+      chip.type = 'button';
+      chip.className = 'cw__preset';
+      chip.dataset.min = String(length);
+      chip.textContent = length + ' min';
+      chip.setAttribute('aria-pressed', 'false');
+      chip.addEventListener('click', function () { choose(length); });
+      presetsEl.appendChild(chip);
+    });
+
+    toggle.addEventListener('click', function () { if (running) stop(); else start(); });
+    resetBtn.addEventListener('click', function () {
+      stop();
+      left = minutes * 60;
+      finished = false;
+      paint();
+    });
+    clearBtn.addEventListener('click', function () {
+      rounds = 0;
+      try { localStorage.setItem('deskTimerRounds', '0'); } catch (e) {}
+      paint();
+    });
+
+    paint();
+  })();
+</script>
+</body>
+</html>

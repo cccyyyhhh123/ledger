@@ -1,59 +1,23 @@
-# Ledger — one book, one balance
+# Yuhan's Desk
 
-A shared expense book for a household or a crew. Everyone types the same six
-digits and writes into the same running total. No account, no server, nothing
-leaves the browser.
+Six tools on one page, hand-written HTML, CSS and JavaScript. No framework, no build step;
+everything runs from GitHub Pages and keeps its state in the browser.
 
-**Author:** Yuhan.Cai
-**Stack:** hand-written HTML, CSS and JavaScript — no framework, no build step
-**Storage:** `localStorage`
-
-## Pages
-
-| File | What it is |
+| Page | What it is |
 | --- | --- |
-| `index.html` | Home: dark hero over a video glow, a mockup of the ledger screen, four steps |
-| `contact.html` | Contact: one field and one button, the facts about the book, three columns of links |
-| `book.html` | The ledger screen: add a line, filter by month or type, delete a mistake |
+| `index.html` | The desk: the clock as the anchor number, today's affirmation, study figures, a rail of tools |
+| `music.html` | Search QQ Music and play it in their own embedded player |
+| `study.html` | Four courses of revision cards, a chart with a period switch, exams and a revision plan |
+| `clock.html` | A clock whose hands are hanging ropes, a countdown with presets, five other cities |
+| `weather.html` | Live weather for Danzhou from Open-Meteo |
+| `ledger.html` | The shared expense book — one six-digit key, entries kept locally |
+| `tarot.html` | A three-card spread, and a breathing timer |
 
-Every page carries its own top bar and links to the other three. Open
-`index.html` and press **Open a ledger** — a six-digit key is made for you and
-the ledger opens with it.
+Shared files: `style.css` (one stylesheet), `theme.js` (light/dark plus wall-paper palettes),
+`nav.js` (the sliding menu highlight and the theme switch), `counter.js` (the rolling digits),
+`sky.js` (the tarot starfield), `elastic-slider.js` (the volume control).
 
-## Identity
+Light and dark are the same component tree with different token values; a palette chosen
+from an image is turned into a light or dark version depending on the mode.
 
-- `images/og-image.jpg` — 1200 × 630, the poster share cards show
-- `images/apple-touch-icon.png` — 180 × 180
-- `images/favicon-32.png` — 32 × 32 (plus `favicon-192.png` for Android)
-- the Open Graph and Twitter tags sit in every page's `<head>`
-
-## The look
-
-One system across the three pages, kept in each file's own `<style>` block so
-every page stands alone:
-
-- ground `#0d0d12`, panels `#0f0f15`, hairlines `rgba(255,255,255,0.07)`
-- one accent: purple `#a855f7` (hover `#9333ea`)
-- type: Inter for text, Plus Jakarta Sans for headings
-- corners: 16px panels, 10px controls, 6px chips, 999px pills
-
-## Motion
-
-- `index.html` — the balance in the mockup counts up once, when it scrolls into view
-- `contact.html` — the rows fade up in a stagger; the form says “Sent!” for 3 s, then resets
-- `book.html` — the balance counts from its old value to the new one on every change
-
-All of it is shortened or skipped under `prefers-reduced-motion: reduce`.
-
-## Files
-
-```
-index.html  contact.html  book.html
-images/     favicon, icons, OG image, screenshots
-vendor/     anime.min.js (3.2.2, MIT) — self-hosted, so the CDN cannot fail
-```
-
-## Credits
-
-Made by **Yuhan.Cai**. Icons are drawn by hand as inline SVG; the type is Inter
-and Plus Jakarta Sans from Google Fonts; Anime.js is MIT (Julian Garnier).
+Written by Yuhan Cai.

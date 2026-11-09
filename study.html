@@ -1,0 +1,785 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Study — Yuhan's Desk</title>
+<meta name="description" content="Revision cards for four courses, with per-course progress, a chart, exam dates and a plan.">
+<link rel="icon" href="Images/favicon-32.png" sizes="32x32" type="image/png">
+<link rel="apple-touch-icon" href="Images/icon-180.png">
+<meta name="theme-color" content="#0b0b10">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css?v=41">
+<script src="theme.js?v=41"></script>
+</head>
+<body>
+
+<nav class="nav">
+  <a class="nav__brand" href="index.html">Yuhan<span>.</span>Desk</a>
+  <div class="nav__links">
+    <a href="index.html">Home</a>
+    <a href="music.html">Music</a>
+    <a href="study.html" aria-current="page">Study</a>
+    <a href="clock.html">Clock</a>
+    <a href="weather.html">Weather</a>
+    <a href="ledger.html">Ledger</a>
+    <a href="tarot.html">Tarot</a>
+  </div>
+</nav>
+
+<main class="shell tool">
+  <header class="tool__head">
+    <a class="back" href="index.html">← Back to the desk</a>
+    <h1>Study</h1>
+    <p>Four courses, eight cards each. Pick a course on the left of the grid and everything below
+       follows it — the deck, the note, the figures. The chart on the right keeps all four in view.</p>
+  </header>
+
+  <!-- hero: the picture and the one figure that matters -->
+  <section class="study-hero">
+    <figure class="study-hero__photo">
+      <img src="Images/study-hero.jpg" alt="The campus lake under a wide sky" width="720" height="900" loading="lazy" decoding="async">
+    </figure>
+
+    <div class="study-hero__panel">
+      <p class="study-hero__eyebrow">Where I am · <span id="heroCourse">Programming III</span></p>
+      <p class="study-hero__figure"><span id="heroKnown">0</span><small>/ 8</small></p>
+      <p class="study-hero__note" id="heroNote">cards known · 8 to go</p>
+      <div class="study-hero__track"><i id="heroBar" style="width:0%"></i></div>
+
+      <dl class="study-hero__facts">
+        <div><dt>Courses</dt><dd>4</dd></div>
+        <div><dt>Projects</dt><dd id="heroProjects">0</dd></div>
+        <div><dt>Next exam</dt><dd id="heroExam">—</dd></div>
+      </dl>
+    </div>
+  </section>
+
+  <!-- the grid: three widths, never one repeated card -->
+  <section class="study-grid">
+    <article class="scard scard--courses">
+      <h2>Courses</h2>
+      <div class="subjects" id="subjects"></div>
+      <div class="subject-note" id="subjectNote" hidden></div>
+    </article>
+
+    <article class="scard scard--chart">
+      <div class="scard__head">
+        <h2>Marked known</h2>
+        <div class="period" id="period" role="group" aria-label="Period">
+          <button type="button" data-period="week">Week</button>
+          <button type="button" data-period="month">Month</button>
+          <button type="button" data-period="all" aria-pressed="true">All</button>
+        </div>
+      </div>
+      <p class="scard__hint" id="chartNote">Every card you have marked, by course.</p>
+      <div class="chart" id="chart"></div>
+    </article>
+
+    <article class="scard scard--deck">
+      <div class="scard__head">
+        <h2>Deck</h2>
+        <span class="scard__meta" id="counter">—</span>
+      </div>
+      <div class="flash" id="card" tabindex="0" role="button" aria-label="Show the answer">
+        <span class="flash__tag" id="tag">—</span>
+        <div>
+          <p class="flash__q" id="question">Loading…</p>
+          <p class="flash__a" id="answer" hidden></p>
+        </div>
+      </div>
+      <div class="row" style="margin-top:14px">
+        <button class="btn" id="flip" type="button">Show answer</button>
+        <button class="btn btn--primary" id="known" type="button">I know this</button>
+        <button class="btn" id="again" type="button">Later</button>
+        <span class="spacer"></span>
+        <button class="btn btn--ghost" id="reset" type="button">Reset</button>
+      </div>
+    </article>
+
+    <article class="scard scard--exams">
+      <h2>Exams</h2>
+      <div class="exams" id="exams"></div>
+      <p class="scard__hint" style="margin-top:10px">
+        Dates from the term record — check Canvas for anything not confirmed.
+      </p>
+    </article>
+
+    <article class="scard scard--projects">
+      <h2>My projects</h2>
+      <form class="project-form" id="projectForm">
+        <label class="field">
+          <span>Project</span>
+          <input class="input" id="projectName" type="text" maxlength="40" placeholder="e.g. Linear algebra retake" required>
+        </label>
+        <label class="field">
+          <span>Units</span>
+          <input class="input" id="projectUnits" type="number" min="2" max="30" step="1" value="6">
+        </label>
+        <label class="field">
+          <span>Deadline</span>
+          <input class="input" id="projectDate" type="text" inputmode="numeric" maxlength="10" placeholder="YYYY-MM-DD">
+        </label>
+        <button class="btn btn--primary" type="submit">Add and plan</button>
+      </form>
+      <p class="small" id="projectStatus" role="status" aria-live="polite" style="margin-top:8px; min-height:1.1em; color:var(--bad)"></p>
+      <div class="projects" id="projects"></div>
+    </article>
+  </section>
+</main>
+
+<script src="nav.js?v=41"></script>
+<script>
+  const SUBJECTS = {
+    cpp: {
+      name: 'Programming III', code: 'C++',
+      canvas: 'https://learn.hibiuh.edu.cn/courses/146',
+      note: {
+        first: 'Start with references and RAII — most of the rest hangs off those two ideas.',
+        points: [
+          'Passing by value copies; passing by reference writes back.',
+          'RAII: a resource is owned by an object, so the destructor cleans up through an exception.',
+          'const methods promise not to change the object; the compiler enforces it.',
+          'vector over raw arrays: it knows its size and cleans up after itself.',
+          'virtual is dynamic dispatch through a base pointer.'
+        ]
+      },
+      cards: [
+        { q: 'What is the difference between passing by value and by reference?', a: 'By value copies the object, so the caller cannot see changes. By reference (&) binds to the caller\'s object, so writes go back to it — and it avoids a copy.' },
+        { q: 'Why mark a method const?', a: 'A const method promises not to modify the object, so it can be called on a const object and it documents intent. The compiler enforces it.' },
+        { q: 'What does RAII mean?', a: 'Resource Acquisition Is Initialisation: a resource is owned by an object, so it is released by the destructor — even when an exception is thrown.' },
+        { q: 'What is the difference between a pointer and a reference?', a: 'A reference always refers to something, cannot be reseated, and is never null. A pointer can be null, can be moved to another object, and needs an explicit *.' },
+        { q: 'When is a destructor called?', a: 'When the object goes out of scope, when delete is called on it, or when a container destroys its elements — in reverse order of construction.' },
+        { q: 'Why is std::vector preferred over a raw array?', a: 'It knows its size, grows safely, cleans up after itself, and works with the standard algorithms and iterators.' },
+        { q: 'What does virtual do on a method?', a: 'It allows the derived override to be called through a base pointer or reference — dynamic dispatch instead of compile-time binding.' },
+        { q: 'What is the difference between size_t and int?', a: 'size_t is an unsigned type meant for sizes and indices; using int can overflow or produce sign warnings compared with .size().' }
+      ]
+    },
+    stats: {
+      name: 'Statistics', code: 'MATH III',
+      canvas: 'https://learn.hibiuh.edu.cn/courses/140',
+      note: {
+        first: 'The exam is mostly interpretation: a number without a sentence is worth half.',
+        points: [
+          'Mean is broken by outliers; median is not.',
+          'Know the 68–95–99.7 rule well enough to estimate without a calculator.',
+          'A p-value is not the probability that the null is true.',
+          'A confidence interval is about repeated samples.',
+          'Correlation is not causation — name the third variable.'
+        ]
+      },
+      cards: [
+        { q: 'Mean, median or mode — which one do outliers break?', a: 'The mean. The median only moves with rank, and the mode is unaffected by magnitude.' },
+        { q: 'What does a standard deviation of 0 mean?', a: 'Every observation is identical to the mean — the sample has no spread.' },
+        { q: 'State the 68–95–99.7 rule.', a: 'For a normal distribution, about 68% of values fall within 1 SD of the mean, 95% within 2, and 99.7% within 3.' },
+        { q: 'What is a p-value actually saying?', a: 'The probability of data at least this extreme if the null hypothesis were true. It is not the probability that the null is true.' },
+        { q: 'What does a 95% confidence interval mean?', a: 'If the experiment were repeated many times, about 95% of such intervals would contain the true parameter.' },
+        { q: 'Correlation is high — does that prove causation?', a: 'No. It can be coincidence, reverse causation, or a third variable driving both.' },
+        { q: 'What does the central limit theorem give you?', a: 'The sampling distribution of the mean tends to normal as the sample grows, whatever the underlying distribution.' },
+        { q: 'Type I versus Type II error?', a: 'Type I: rejecting a true null. Type II: failing to reject a false null. Power = 1 − Type II.' }
+      ]
+    },
+    data: {
+      name: 'Data Analytics & ML', code: 'DA&ML',
+      canvas: 'https://learn.hibiuh.edu.cn/courses/143',
+      note: {
+        first: 'Every question in this course is really "how do you know it generalises?"',
+        points: [
+          'Supervised has labels; unsupervised looks for structure.',
+          'Train/test split measures behaviour on unseen data.',
+          'Overfitting: training error falls while validation error rises.',
+          'Precision and recall trade off — pick the one the user cares about.',
+          'Scale features before distance-based methods.'
+        ]
+      },
+      cards: [
+        { q: 'Supervised versus unsupervised learning?', a: 'Supervised has labelled targets to predict; unsupervised looks for structure without labels.' },
+        { q: 'Why split into training and test sets?', a: 'To measure how the model behaves on data it has not seen — otherwise the score measures memorisation.' },
+        { q: 'What does overfitting look like?', a: 'Training error keeps falling while validation error rises.' },
+        { q: 'What is in a confusion matrix?', a: 'True positives, true negatives, false positives and false negatives.' },
+        { q: 'Precision versus recall?', a: 'Precision = of the ones you flagged, how many were right. Recall = of the ones that were right, how many you caught.' },
+        { q: 'Why scale features before KNN or gradient descent?', a: 'Distance and step size depend on units; a feature measured in thousands would dominate one measured in tenths.' },
+        { q: 'How does KNN classify a point?', a: 'It looks at the k nearest training points and takes the majority label.' },
+        { q: 'What is a learning rate doing?', a: 'It sets how far each gradient step moves the weights — too small crawls, too large overshoots.' }
+      ]
+    },
+    web: {
+      name: 'Web Technologies', code: 'WEB',
+      canvas: 'https://learn.hibiuh.edu.cn/courses/149',
+      note: {
+        first: 'This is the course where you have a live site — use it as your example in every answer.',
+        points: [
+          'Box model + box-sizing explains most "why is it 4px wider" questions.',
+          'Flex items refuse to shrink below their content unless min-width: 0.',
+          'Semantic elements describe role, not appearance.',
+          'Specificity: inline > id > class > element.',
+          'localStorage survives a closed tab, sessionStorage does not.'
+        ]
+      },
+      cards: [
+        { q: 'Describe the CSS box model in one sentence.', a: 'Every element is a box of content plus padding plus border plus margin, and box-sizing decides whether width includes the first three.' },
+        { q: 'When does a flex item overflow its container?', a: 'When its min-width is auto and its content cannot shrink — set min-width: 0 to let it shrink properly.' },
+        { q: 'Name three semantic elements and what they say.', a: 'header, main, nav, article, section, footer, aside — they describe the role of the content, not its look.' },
+        { q: 'How does CSS specificity rank selectors?', a: 'Inline styles beat ids, ids beat classes, classes beat element selectors; !important overrides all of it.' },
+        { q: 'What is event bubbling?', a: 'An event fires on the target and then on each ancestor up to the document.' },
+        { q: 'localStorage versus sessionStorage?', a: 'Both are key–value stores; localStorage survives closing the tab, sessionStorage does not.' },
+        { q: 'What is a media query for?', a: 'Applying different CSS depending on viewport or device features — width, orientation, pointer type, prefers-reduced-motion.' },
+        { q: 'Why add aria-label or a <label>?', a: 'A visual hint does not exist for a screen reader; the accessible name has to be written in the markup.' }
+      ]
+    }
+  };
+
+  /* progress is now { state, at } so the chart can filter by period;
+     older entries were plain strings and count as "known, date unknown". */
+  const STORE = 'deskStudyProgress';
+  const EXAM_STORE = 'deskExamDates';
+  const PROJECT_STORE = 'deskProjects';
+  const DEFAULT_EXAMS = { cpp: '2026-11-23', stats: '2026-11-24', data: '2026-11-25', web: '2026-11-20' };
+
+  function load(key, fallback) {
+    try {
+      const value = JSON.parse(localStorage.getItem(key));
+      return value == null ? fallback : value;
+    } catch (e) { return fallback; }
+  }
+  function save(key, value) {
+    try { localStorage.setItem(key, JSON.stringify(value)); } catch (e) {}
+  }
+
+  const rawProgress = load(STORE, {});
+  const progress = {};
+  Object.keys(rawProgress).forEach(function (id) {
+    const entry = rawProgress[id];
+    if (entry && entry.state) progress[id] = entry;
+    else if (entry === 'known') progress[id] = { state: 'known', at: null };
+  });
+  save(STORE, progress);
+
+  const examDates = load(EXAM_STORE, {});
+  let projects = load(PROJECT_STORE, []);
+  if (!Array.isArray(projects)) projects = [];
+
+  let current = 'cpp';
+  let period = 'all';
+  let order = [];
+  let cursor = 0;
+  let flipped = false;
+  let noteOpen = true;
+
+  const el = {
+    subjects: document.getElementById('subjects'),
+    note: document.getElementById('subjectNote'),
+    exams: document.getElementById('exams'),
+    chart: document.getElementById('chart'),
+    chartNote: document.getElementById('chartNote'),
+    period: document.getElementById('period'),
+    card: document.getElementById('card'),
+    tag: document.getElementById('tag'),
+    question: document.getElementById('question'),
+    answer: document.getElementById('answer'),
+    flip: document.getElementById('flip'),
+    known: document.getElementById('known'),
+    again: document.getElementById('again'),
+    reset: document.getElementById('reset'),
+    counter: document.getElementById('counter'),
+    heroCourse: document.getElementById('heroCourse'),
+    heroKnown: document.getElementById('heroKnown'),
+    heroNote: document.getElementById('heroNote'),
+    heroBar: document.getElementById('heroBar'),
+    heroProjects: document.getElementById('heroProjects'),
+    heroExam: document.getElementById('heroExam')
+  };
+
+  function cardId(subject, index) { return subject + ':' + index; }
+
+  function isKnown(id, range) {
+    const entry = progress[id];
+    if (!entry || entry.state !== 'known') return false;
+    if (range === 'all') return true;
+    if (!entry.at) return false;
+    const days = range === 'week' ? 7 : 30;
+    return (Date.now() - entry.at) <= days * 86400000;
+  }
+
+  function knownIn(key, range) {
+    return SUBJECTS[key].cards.filter(function (_, i) {
+      return isKnown(cardId(key, i), range || 'all');
+    }).length;
+  }
+
+  /* ---------- hero ---------- */
+  function paintHero() {
+    const subject = SUBJECTS[current];
+    const total = subject.cards.length;
+    const known = knownIn(current, 'all');
+
+    el.heroCourse.textContent = subject.name;
+    el.heroKnown.textContent = String(known);
+    el.heroNote.textContent = 'cards known · ' + (total - known) + ' to go';
+    el.heroBar.style.width = (known / total * 100).toFixed(1) + '%';
+    el.heroProjects.textContent = String(projects.length);
+
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const upcoming = Object.keys(SUBJECTS).map(function (key) {
+      const iso = examDates[key] || DEFAULT_EXAMS[key];
+      return { key: key, date: iso, days: Math.round((new Date(iso + 'T00:00:00') - today) / 86400000) };
+    }).filter(function (exam) { return exam.days >= 0; })
+      .sort(function (a, b) { return a.days - b.days; });
+
+    el.heroExam.textContent = upcoming.length
+      ? (upcoming[0].days === 0 ? 'today' : 'in ' + upcoming[0].days + 'd')
+      : '—';
+  }
+
+  /* ---------- courses (the "books") ---------- */
+  function buildSubjects() {
+    el.subjects.replaceChildren();
+    Object.keys(SUBJECTS).forEach(function (key) {
+      const subject = SUBJECTS[key];
+      const total = subject.cards.length;
+      const known = knownIn(key, 'all');
+
+      const button = document.createElement('button');
+      button.type = 'button';
+      button.className = 'subject';
+      button.setAttribute('aria-pressed', String(key === current));
+
+      const head = document.createElement('span');
+      head.className = 'subject__head';
+      const name = document.createElement('b');
+      name.textContent = subject.name;
+      const chevron = document.createElement('span');
+      chevron.className = 'subject__chevron';
+      chevron.textContent = key === current && noteOpen ? '▾' : '▸';
+      head.append(name, chevron);
+
+      const track = document.createElement('span');
+      track.className = 'subject__track';
+      const fill = document.createElement('i');
+      fill.style.width = (known / total * 100).toFixed(1) + '%';
+      track.appendChild(fill);
+
+      const meta = document.createElement('span');
+      meta.className = 'subject__meta';
+      meta.textContent = known + ' / ' + total + ' known';
+
+      button.append(head, track, meta);
+      button.addEventListener('click', function () {
+        if (key === current) { noteOpen = !noteOpen; }
+        else { current = key; noteOpen = true; buildOrder(); }
+        buildSubjects();
+        buildNote();
+        paintHero();
+        render();
+      });
+      el.subjects.appendChild(button);
+    });
+  }
+
+  function buildNote() {
+    if (!noteOpen) { el.note.hidden = true; el.note.replaceChildren(); return; }
+    const subject = SUBJECTS[current];
+    el.note.replaceChildren();
+
+    const title = document.createElement('p');
+    title.className = 'subject-note__title';
+    title.textContent = subject.name + ' · what to revise first';
+
+    const lead = document.createElement('p');
+    lead.className = 'subject-note__lead';
+    lead.textContent = subject.note.first;
+
+    const list = document.createElement('ul');
+    subject.note.points.forEach(function (point) {
+      const li = document.createElement('li');
+      li.textContent = point;
+      list.appendChild(li);
+    });
+
+    const link = document.createElement('a');
+    link.className = 'subject-note__link';
+    link.href = subject.canvas;
+    link.target = '_blank';
+    link.rel = 'noopener';
+    link.textContent = 'Open in Canvas ↗';
+
+    el.note.append(title, lead, list, link);
+    el.note.hidden = false;
+  }
+
+  /* ---------- the chart ---------- */
+  const PERIOD_LABEL = { week: 'this week', month: 'this month', all: 'all time' };
+
+  function buildPeriod() {
+    Array.prototype.forEach.call(el.period.children, function (button) {
+      const value = button.dataset.period;
+      const active = value === period;
+      button.setAttribute('aria-pressed', String(active));
+      button.addEventListener('click', function () {
+        if (period === value) return;
+        period = value;
+        buildPeriod();
+        paintChart();
+      });
+    });
+  }
+
+  function paintChart() {
+    const keys = Object.keys(SUBJECTS);
+    const totals = keys.map(function (key) { return knownIn(key, period); });
+    const peak = Math.max(1, Math.max.apply(null, totals));
+
+    el.chart.replaceChildren();
+    keys.forEach(function (key, index) {
+      const value = totals[index];
+      const subject = SUBJECTS[key];
+
+      const column = document.createElement('button');
+      column.type = 'button';
+      column.className = 'chart__col' + (key === current ? ' is-current' : '');
+      column.title = subject.name + ': ' + value + ' known ' + PERIOD_LABEL[period];
+      column.addEventListener('click', function () {
+        current = key;
+        noteOpen = true;
+        buildOrder();
+        buildSubjects();
+        buildNote();
+        paintHero();
+        render();
+        paintChart();
+      });
+
+      const value_ = document.createElement('span');
+      value_.className = 'chart__value';
+      value_.textContent = String(value);
+
+      const bar = document.createElement('span');
+      bar.className = 'chart__bar';
+      const fill = document.createElement('i');
+      fill.style.height = (value / peak * 100) + '%';
+      bar.appendChild(fill);
+
+      const label = document.createElement('span');
+      label.className = 'chart__label';
+      label.textContent = subject.code;
+
+      column.append(value_, bar, label);
+      el.chart.appendChild(column);
+    });
+
+    const sum = totals.reduce(function (a, b) { return a + b; }, 0);
+    el.chartNote.textContent = sum
+      ? sum + ' card' + (sum === 1 ? '' : 's') + ' marked known · ' + PERIOD_LABEL[period]
+      : 'Nothing marked ' + PERIOD_LABEL[period] + ' yet.';
+  }
+
+  /* ---------- exams ---------- */
+  function daysUntil(iso) {
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(iso || '')) return null;
+    const target = new Date(iso + 'T00:00:00');
+    if (isNaN(target)) return null;
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    return Math.round((target - today) / 86400000);
+  }
+
+  function buildExams() {
+    el.exams.replaceChildren();
+    Object.keys(SUBJECTS).forEach(function (key) {
+      const subject = SUBJECTS[key];
+      const value = examDates[key] || DEFAULT_EXAMS[key] || '';
+
+      const row = document.createElement('div');
+      row.className = 'exam';
+
+      const name = document.createElement('span');
+      name.className = 'exam__name';
+      name.textContent = subject.code;
+
+      const input = document.createElement('input');
+      input.className = 'input exam__input';
+      input.type = 'text';
+      input.inputMode = 'numeric';
+      input.maxLength = 10;
+      input.placeholder = 'YYYY-MM-DD';
+      input.value = value;
+      input.setAttribute('aria-label', subject.name + ' exam date');
+
+      const when = document.createElement('span');
+      when.className = 'exam__when';
+
+      function paintWhen() {
+        const days = daysUntil(input.value.trim());
+        if (days === null) {
+          when.textContent = 'no date';
+          when.className = 'exam__when';
+          return;
+        }
+        if (days < 0) {
+          when.textContent = 'done';
+          when.className = 'exam__when is-past';
+        } else if (days === 0) {
+          when.textContent = 'today';
+          when.className = 'exam__when is-soon';
+        } else {
+          when.textContent = 'in ' + days + 'd';
+          when.className = 'exam__when' + (days <= 7 ? ' is-soon' : '');
+        }
+      }
+
+      input.addEventListener('input', paintWhen);
+      input.addEventListener('change', function () {
+        const text = input.value.trim();
+        if (/^\d{4}-\d{2}-\d{2}$/.test(text)) examDates[key] = text;
+        else delete examDates[key];
+        save(EXAM_STORE, examDates);
+        paintWhen();
+        paintHero();
+      });
+
+      paintWhen();
+      row.append(name, input, when);
+      el.exams.appendChild(row);
+    });
+  }
+
+  /* ---------- projects ---------- */
+  function isoDate(date) {
+    const copy = new Date(date.getTime() - date.getTimezoneOffset() * 60000);
+    return copy.toISOString().slice(0, 10);
+  }
+  function dayLabel(iso) {
+    return new Date(iso + 'T00:00:00').toLocaleDateString('en-GB', { day: 'numeric', month: 'short' });
+  }
+
+  function makePlan(units, deadline) {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const end = deadline ? new Date(deadline + 'T00:00:00') : new Date(today.getTime() + 13 * 86400000);
+    const span = Math.max(2, Math.round((end - today) / 86400000));
+    const sessions = Math.max(3, Math.min(6, units, span));
+    const rows = [];
+
+    for (let i = 0; i < sessions - 1; i++) {
+      const offset = Math.round(i * (span - 1) / (sessions - 1));
+      const from = Math.floor(i * units / (sessions - 1)) + 1;
+      const to = Math.floor((i + 1) * units / (sessions - 1));
+      rows.push({ date: isoDate(new Date(today.getTime() + offset * 86400000)), label: 'Units ' + from + (to > from ? '–' + to : ''), done: false });
+    }
+    rows.push({ date: isoDate(end), label: 'Full pass — every unit once', done: false });
+    return rows;
+  }
+
+  function renderProjects() {
+    const box = document.getElementById('projects');
+    box.replaceChildren();
+    if (!projects.length) {
+      const empty = document.createElement('p');
+      empty.className = 'small muted';
+      empty.style.marginTop = '12px';
+      empty.textContent = 'No projects yet. Add one above and the plan appears here.';
+      box.appendChild(empty);
+      return;
+    }
+
+    projects.forEach(function (project) {
+      const wrap = document.createElement('article');
+      wrap.className = 'project';
+
+      const head = document.createElement('div');
+      head.className = 'project__head';
+      const title = document.createElement('div');
+      const name = document.createElement('b');
+      name.textContent = project.name;
+      const meta = document.createElement('span');
+      const done = project.plan.filter(function (row) { return row.done; }).length;
+      meta.textContent = done + ' / ' + project.plan.length + ' sessions' +
+        (project.deadline ? ' · due ' + dayLabel(project.deadline) : '');
+      title.append(name, meta);
+
+      const actions = document.createElement('div');
+      actions.className = 'project__actions';
+      const replan = document.createElement('button');
+      replan.type = 'button';
+      replan.className = 'btn btn--ghost project__btn';
+      replan.textContent = 'Re-plan';
+      replan.addEventListener('click', function () {
+        project.plan = makePlan(project.units, project.deadline);
+        save(PROJECT_STORE, projects);
+        renderProjects();
+      });
+      const remove = document.createElement('button');
+      remove.type = 'button';
+      remove.className = 'btn btn--ghost project__btn';
+      remove.textContent = 'Remove';
+      remove.addEventListener('click', function () {
+        projects = projects.filter(function (item) { return item.id !== project.id; });
+        save(PROJECT_STORE, projects);
+        renderProjects();
+        paintHero();
+      });
+      actions.append(replan, remove);
+      head.append(title, actions);
+
+      const bar = document.createElement('div');
+      bar.className = 'progress project__bar';
+      const fill = document.createElement('i');
+      fill.style.width = (project.plan.length ? done / project.plan.length * 100 : 0) + '%';
+      bar.appendChild(fill);
+
+      const list = document.createElement('ul');
+      list.className = 'plan';
+      project.plan.forEach(function (row, index) {
+        const li = document.createElement('li');
+        li.className = 'plan__row' + (row.done ? ' is-done' : '');
+        const id = 'plan-' + project.id + '-' + index;
+        const checkbox = document.createElement('input');
+        checkbox.type = 'checkbox';
+        checkbox.id = id;
+        checkbox.checked = row.done;
+        checkbox.addEventListener('change', function () {
+          row.done = checkbox.checked;
+          save(PROJECT_STORE, projects);
+          renderProjects();
+        });
+        const label = document.createElement('label');
+        label.setAttribute('for', id);
+        const date = document.createElement('span');
+        date.className = 'plan__date';
+        date.textContent = dayLabel(row.date);
+        const text = document.createElement('span');
+        text.className = 'plan__text';
+        text.textContent = row.label;
+        label.append(date, text);
+        li.append(checkbox, label);
+        list.appendChild(li);
+      });
+
+      wrap.append(head, bar, list);
+      box.appendChild(wrap);
+    });
+  }
+
+  /* ---------- the deck ---------- */
+  function buildOrder() {
+    const subject = SUBJECTS[current];
+    const unknown = [];
+    const known = [];
+    subject.cards.forEach(function (_, i) {
+      (isKnown(cardId(current, i), 'all') ? known : unknown).push(i);
+    });
+    unknown.sort(function () { return Math.random() - 0.5; });
+    order = unknown.concat(known);
+    cursor = 0;
+    flipped = false;
+  }
+
+  function render() {
+    const subject = SUBJECTS[current];
+    const total = subject.cards.length;
+    const known = knownIn(current, 'all');
+
+    el.counter.textContent = known + ' / ' + total + ' known';
+    const index = order[cursor];
+    const card = subject.cards[index];
+    el.tag.textContent = subject.code + ' · card ' + (cursor + 1);
+    el.question.textContent = card.q;
+    el.answer.textContent = card.a;
+    el.answer.hidden = !flipped;
+    el.flip.textContent = flipped ? 'Hide answer' : 'Show answer';
+    el.known.textContent = isKnown(cardId(current, index), 'all') ? 'Known ✓' : 'I know this';
+  }
+
+  function flip() { flipped = !flipped; render(); }
+  function advance() { flipped = false; cursor = (cursor + 1) % order.length; render(); }
+
+  el.card.addEventListener('click', flip);
+  el.card.addEventListener('keydown', function (event) {
+    if (event.key === 'Enter' || event.key === ' ') { event.preventDefault(); flip(); }
+  });
+  el.flip.addEventListener('click', flip);
+
+  el.known.addEventListener('click', function () {
+    progress[cardId(current, order[cursor])] = { state: 'known', at: Date.now() };
+    save(STORE, progress);
+    buildSubjects();
+    paintHero();
+    paintChart();
+    advance();
+  });
+
+  el.again.addEventListener('click', function () {
+    delete progress[cardId(current, order[cursor])];
+    save(STORE, progress);
+    buildSubjects();
+    paintHero();
+    paintChart();
+    advance();
+  });
+
+  el.reset.addEventListener('click', function () {
+    Object.keys(progress).forEach(function (id) {
+      if (id.indexOf(current + ':') === 0) delete progress[id];
+    });
+    save(STORE, progress);
+    buildOrder();
+    buildSubjects();
+    paintHero();
+    paintChart();
+    render();
+  });
+
+  document.addEventListener('keydown', function (event) {
+    const tag = (event.target.tagName || '').toLowerCase();
+    if (tag === 'input' || tag === 'textarea') return;
+    if (event.key === ' ') { event.preventDefault(); flip(); }
+    if (event.key === 'ArrowRight') el.known.click();
+    if (event.key === 'ArrowLeft') el.again.click();
+  });
+
+  const projectForm = document.getElementById('projectForm');
+  if (projectForm) {
+    projectForm.addEventListener('submit', function (event) {
+      event.preventDefault();
+      const nameInput = document.getElementById('projectName');
+      const unitsInput = document.getElementById('projectUnits');
+      const dateInput = document.getElementById('projectDate');
+      const status = document.getElementById('projectStatus');
+
+      const name = nameInput.value.trim();
+      const units = Math.max(2, Math.min(30, Number(unitsInput.value) || 6));
+      const deadline = dateInput.value.trim();
+
+      if (!name) { status.textContent = 'Give the project a name first.'; return; }
+      if (deadline && !/^\d{4}-\d{2}-\d{2}$/.test(deadline)) {
+        status.textContent = 'The deadline has to look like 2026-12-15, or stay empty.';
+        return;
+      }
+
+      const project = { id: Date.now(), name: name, units: units, deadline: deadline || '', plan: makePlan(units, deadline || '') };
+      projects.push(project);
+      save(PROJECT_STORE, projects);
+      renderProjects();
+      paintHero();
+      status.textContent = '';
+      nameInput.value = '';
+      unitsInput.value = '6';
+      dateInput.value = '';
+    });
+  }
+
+  buildSubjects();
+  buildNote();
+  buildPeriod();
+  buildExams();
+  renderProjects();
+  buildOrder();
+  paintHero();
+  paintChart();
+  render();
+</script>
+</body>
+</html>
