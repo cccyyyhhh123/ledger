@@ -24,6 +24,7 @@ param([int]$Port = 8788)
 $ErrorActionPreference = 'Stop'
 [Console]::OutputEncoding = [System.Text.Encoding]::UTF8
 
+$ScriptBuild = 'w3'
 $Root = Split-Path -Parent $PSScriptRoot
 $CacheDir = Join-Path $PSScriptRoot 'cache'
 $SettingsFile = Join-Path $CacheDir 'wallpaper-settings.json'
@@ -196,7 +197,10 @@ while ($true) {
 
     if ($method -eq 'OPTIONS') { Send-Bytes $stream '200 OK' 'text/plain' ([Text.Encoding]::ASCII.GetBytes('')); $client.Close(); continue }
 
-    if ($pathOnly -eq '/api/wallpapers') {
+    if ($pathOnly -eq '/api/version') {
+      Send-Json $stream ([ordered]@{ ok = $true; build = $ScriptBuild; root = $Root })
+    }
+    elseif ($pathOnly -eq '/api/wallpapers') {
       if (-not $manifestCache -or ((Get-Date) - $manifestAt).TotalSeconds -gt 10) {
         $manifestCache = Get-Manifest
         $manifestAt = Get-Date
