@@ -4,15 +4,15 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Pet — Yuhan's Desk</title>
-<meta name="description" content="A small blue desk pet that wanders, sleeps, and reacts when you poke it.">
+<meta name="description" content="A small blue desk pet that lives on every page: it wanders, naps, and reacts when you poke it.">
 <link rel="icon" href="Images/favicon-32.png" sizes="32x32" type="image/png">
 <link rel="apple-touch-icon" href="Images/icon-180.png">
 <meta name="theme-color" content="#0b0b10">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="style.css?v=74">
-<script src="theme.js?v=74"></script>
+<link rel="stylesheet" href="style.css?v=75">
+<script src="theme.js?v=75"></script>
 </head>
 <body>
 
@@ -29,8 +29,8 @@
 <main class="shell tool petpage">
   <header class="tool__head">
     <h1>Pet</h1>
-    <p>A small thing that lives on the desk. It walks when it feels like it, sleeps when you stop
-       touching it, and has an opinion when you poke it.</p>
+    <p>It is not only on this page — it follows you around the whole site. This page just has the
+       controls; the creature itself lives in <span class="mono">pet.js</span> and every page loads it.</p>
   </header>
 
   <section class="petctrl" aria-label="Pet controls">
@@ -46,22 +46,23 @@
 
     <div class="petctrl__row">
       <label class="petctrl__label" for="petSize">Size</label>
-      <input class="petctrl__range" id="petSize" type="range" min="90" max="300" step="10" value="190">
+      <input class="petctrl__range" id="petSize" type="range" min="90" max="300" step="10" value="150">
       <button class="btn petctrl__btn" id="petHome" type="button">Back to the corner</button>
     </div>
 
     <p class="petctrl__hint">
       Drag to move it · click to poke it · double-click to play · scroll over it to resize ·
-      right-click for more.
+      right-click for more. These work on any page, not just this one.
     </p>
   </section>
 
   <section class="petnotes">
     <h2>What it does</h2>
     <ul>
+      <li><b>Follows the site</b> — the same pet, the same spot, on all seven pages.</li>
       <li><b>Wanders</b> — every few seconds it picks a spot nearby and hops over, facing the way it goes.</li>
       <li><b>Sleeps</b> — after about a minute without a poke it curls up; any touch wakes it up.</li>
-      <li><b>React</b> — a poke plays the cheer animation and a line in the bubble.</li>
+      <li><b>Reacts</b> — a poke plays the cheer animation and a line in the bubble.</li>
       <li><b>Remembers</b> — where it was and how big it got stay in this browser
           (<span class="mono">deskPet</span>).</li>
     </ul>
@@ -73,355 +74,38 @@
   </section>
 </main>
 
-<div class="petbubble" id="petBubble" hidden>
-  <span class="petbubble__en" id="petBubbleEn"></span>
-  <span class="petbubble__cn" id="petBubbleCn"></span>
-</div>
-
-<div class="petmenu" id="petMenu" hidden>
-  <button type="button" data-act="wander">Wander</button>
-  <button type="button" data-act="sleep">Sleep</button>
-  <button type="button" data-act="bigger">Bigger</button>
-  <button type="button" data-act="smaller">Smaller</button>
-  <button type="button" data-act="corner">Back to the corner</button>
-</div>
-
-<canvas class="petcanvas" id="pet" width="400" height="400" aria-label="Desk pet"></canvas>
-
-<script>window.__DESK_BUILD__ = 'v74';</script>
-<script src="nav.js?v=74"></script>
+<script>window.__DESK_BUILD__ = 'v75';</script>
+<script src="nav.js?v=75"></script>
+<script src="pet.js?v=75"></script>
 <script>
-  /* ---------- the desk pet ----------
-     One canvas, four sprite sheets. Each state has its own frame count and
-     speed; the pet keeps its own little position/velocity and a target it hops
-     towards, so it wanders without any input. */
-  (function () {
-    var canvas = document.getElementById('pet');
-    if (!canvas) return;
-    var ctx = canvas.getContext('2d');
-    var bubble = document.getElementById('petBubble');
-    var bubbleEn = document.getElementById('petBubbleEn');
-    var bubbleCn = document.getElementById('petBubbleCn');
-    var menu = document.getElementById('petMenu');
+  /* this page only wires its controls to the shared pet */
+  window.addEventListener('load', function () {
+    var pet = window.DeskPet;
+    if (!pet) return;
+
     var sizeInput = document.getElementById('petSize');
     var homeBtn = document.getElementById('petHome');
+    var buttons = Array.prototype.slice.call(document.querySelectorAll('.petctrl__btn[data-state]'));
 
-    var FRAME = 200;
-    var SHEETS = {};
-    var STATES = {
-      /* deliberately unhurried: a desk pet should not fidget */
-      idle:  { frames: 24, fps: 8, loop: true },
-      happy: { frames: 12, fps: 11, loop: false, next: 'idle' },
-      play:  { frames: 12, fps: 9, loop: false, next: 'idle' },
-      sleep: { frames: 12, fps: 5, loop: true }
-    };
-
-    var state = 'idle';
-    var frame = 0;
-    var frameClock = 0;
-    var last = performance.now();
-    var still = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-
-    /* where it is, where it is going */
-    var size = 190;
-    var pos = { x: 0, y: 0 };
-    var target = { x: 0, y: 0 };
-    var facing = 1;
-    var dragging = false;
-    var dragOffset = { x: 0, y: 0 };
-    var movedWhileDown = 0;
-    var downAt = { x: 0, y: 0, time: 0 };
-    var nextWanderAt = 0;
-    var sleepAt = 0;
-    var bubbleTimer = 0;
-
-    var LINES = [
-      { en: 'You are doing fine.', cn: '你做得挺好。' },
-      { en: 'Water. Now.', cn: '去喝口水。' },
-      { en: 'Stretch? I will too.', cn: '伸个懒腰吧，我也伸。' },
-      { en: 'One more page, then a break.', cn: '再看一页就休息。' },
-      { en: 'I have been here all along.', cn: '我一直在这儿。' },
-      { en: 'Tired is allowed.', cn: '累了就累着，允许的。' },
-      { en: 'Focus. I will watch the clock.', cn: '你专注，我盯着钟。' },
-      { en: 'Poke received.', cn: '戳收到了。' }
-    ];
-
-    var STORE = 'deskPet';
-
-    function load() {
-      try {
-        var saved = JSON.parse(localStorage.getItem(STORE));
-        if (!saved) return;
-        if (typeof saved.size === 'number') size = Math.max(90, Math.min(300, saved.size));
-        if (typeof saved.x === 'number' && typeof saved.y === 'number') {
-          pos.x = saved.x; pos.y = saved.y;
-        }
-      } catch (e) {}
-    }
-    function persist() {
-      try {
-        localStorage.setItem(STORE, JSON.stringify({
-          x: Math.round(pos.x), y: Math.round(pos.y), size: Math.round(size)
-        }));
-      } catch (e) {}
-    }
-
-    function clamp() {
-      var maxX = Math.max(0, window.innerWidth - size);
-      var maxY = Math.max(0, window.innerHeight - size);
-      pos.x = Math.max(0, Math.min(maxX, pos.x));
-      pos.y = Math.max(0, Math.min(maxY, pos.y));
-      target.x = Math.max(0, Math.min(maxX, target.x));
-      target.y = Math.max(0, Math.min(maxY, target.y));
-    }
-
-    function place() {
-      canvas.style.width = size + 'px';
-      canvas.style.height = size + 'px';
-      canvas.style.left = pos.x + 'px';
-      canvas.style.top = pos.y + 'px';
-      /* sprite pixels per css pixel, so a 200px frame fills the box crisply */
-      var dpr = Math.min(2, window.devicePixelRatio || 1);
-      var backing = Math.round(size * dpr);
-      if (canvas.width !== backing) {
-        canvas.width = backing;
-        canvas.height = backing;
-      }
-    }
-
-    function setState(name, silent) {
-      if (!STATES[name]) return;
-      state = name;
-      frame = 0;
-      frameClock = 0;
-      if (name === 'sleep') sleepAt = 0;
-      else sleepAt = performance.now() + 75000;
-      Array.prototype.forEach.call(document.querySelectorAll('.petctrl__btn'), function (button) {
+    function reflect(name) {
+      buttons.forEach(function (button) {
         button.classList.toggle('is-on', button.dataset.state === name);
       });
-      if (!silent && name === 'happy') say();
     }
 
-    function say() {
-      var line = LINES[Math.floor(Math.random() * LINES.length)];
-      bubbleEn.textContent = line.en;
-      bubbleCn.textContent = line.cn;
-      bubble.hidden = false;
-      placeBubble();
-      clearTimeout(bubbleTimer);
-      bubbleTimer = setTimeout(function () { bubble.hidden = true; }, 2600);
-    }
+    reflect(pet.state());
+    if (pet.onChange) pet.onChange(reflect);
 
-    function placeBubble() {
-      var width = bubble.offsetWidth || 180;
-      var left = Math.max(8, Math.min(window.innerWidth - width - 8, pos.x + size / 2 - width / 2));
-      var top = Math.max(8, pos.y - bubble.offsetHeight - 10);
-      bubble.style.left = left + 'px';
-      bubble.style.top = top + 'px';
-    }
-
-    function wander() {
-      var maxX = Math.max(0, window.innerWidth - size);
-      var maxY = Math.max(0, window.innerHeight - size);
-      var span = size * 5;
-      target.x = Math.max(0, Math.min(maxX, pos.x + (Math.random() - 0.5) * span));
-      target.y = Math.max(0, Math.min(maxY, pos.y + (Math.random() - 0.5) * span * 0.45));
-      nextWanderAt = performance.now() + 3200 + Math.random() * 5400;
-    }
-
-    function draw() {
-      var sheet = SHEETS[state];
-      if (!sheet) return;
-      var w = canvas.width;
-      var h = canvas.height;
-      ctx.setTransform(1, 0, 0, 1, 0, 0);
-      ctx.clearRect(0, 0, w, h);
-      ctx.save();
-      /* mirror in place, then stretch the one frame onto the whole canvas, so
-         any size shows the whole character instead of a corner of it */
-      if (facing < 0) {
-        ctx.translate(w, 0);
-        ctx.scale(-1, 1);
-      }
-      ctx.drawImage(sheet, frame * FRAME, 0, FRAME, FRAME, 0, 0, w, h);
-      ctx.restore();
-    }
-
-    function tick(now) {
-      var dt = Math.min(64, now - last);
-      last = now;
-
-      var def = STATES[state];
-      frameClock += dt;
-      var step = 1000 / def.fps;
-      while (frameClock >= step) {
-        frameClock -= step;
-        frame += 1;
-        if (frame >= def.frames) {
-          if (def.loop) frame = 0;
-          else { setState(def.next || 'idle', true); break; }
-        }
-      }
-
-      /* hop towards the target */
-      if (!dragging && !still && state !== 'sleep') {
-        var dx = target.x - pos.x;
-        var dy = target.y - pos.y;
-        if (Math.abs(dx) > 2 || Math.abs(dy) > 2) {
-          var rate = 0.032 * dt;
-          pos.x += dx * Math.min(1, rate);
-          pos.y += dy * Math.min(1, rate);
-          if (Math.abs(dx) > 4) facing = dx > 0 ? 1 : -1;
-        } else if (now > nextWanderAt) {
-          wander();
-        }
-      }
-
-      /* fall asleep on its own when nothing happens */
-      if (!still && state !== 'sleep' && sleepAt && now > sleepAt) setState('sleep', true);
-
-      place();
-      draw();
-      if (!bubble.hidden) placeBubble();
-      requestAnimationFrame(tick);
-    }
-
-    /* ---------- pointer ---------- */
-    canvas.addEventListener('pointerdown', function (event) {
-      dragging = true;
-      movedWhileDown = 0;
-      canvas.setPointerCapture(event.pointerId);
-      canvas.classList.add('is-dragging');
-      dragOffset.x = event.clientX - pos.x;
-      dragOffset.y = event.clientY - pos.y;
-      downAt = { x: event.clientX, y: event.clientY, time: performance.now() };
-      if (state === 'sleep') { setState('happy', true); }
-      sleepAt = performance.now() + 75000;
-    });
-
-    canvas.addEventListener('pointermove', function (event) {
-      if (!dragging) return;
-      movedWhileDown += Math.abs(event.movementX || 0) + Math.abs(event.movementY || 0);
-      pos.x = event.clientX - dragOffset.x;
-      pos.y = event.clientY - dragOffset.y;
-      clamp();
-      place();
-    });
-
-    canvas.addEventListener('pointerup', function (event) {
-      if (!dragging) return;
-      dragging = false;
-      canvas.classList.remove('is-dragging');
-      persist();
-      if (movedWhileDown < 6) setState('happy');
-      target.x = pos.x;
-      target.y = pos.y;
-      nextWanderAt = performance.now() + 3600;
-    });
-
-    canvas.addEventListener('dblclick', function () { setState('play'); });
-
-    canvas.addEventListener('wheel', function (event) {
-      event.preventDefault();
-      resize(size + (event.deltaY < 0 ? 14 : -14));
-    }, { passive: false });
-
-    canvas.addEventListener('contextmenu', function (event) {
-      event.preventDefault();
-      menu.hidden = false;
-      var left = Math.min(event.clientX, window.innerWidth - menu.offsetWidth - 8);
-      var top = Math.min(event.clientY, window.innerHeight - menu.offsetHeight - 8);
-      menu.style.left = left + 'px';
-      menu.style.top = top + 'px';
-    });
-
-    document.addEventListener('click', function (event) {
-      if (!menu.hidden && !menu.contains(event.target)) menu.hidden = true;
-    });
-
-    menu.addEventListener('click', function (event) {
-      var button = event.target.closest('[data-act]');
-      if (!button) return;
-      menu.hidden = true;
-      var act = button.dataset.act;
-      if (act === 'wander') { setState('idle'); wander(); }
-      if (act === 'sleep') setState('sleep');
-      if (act === 'bigger') resize(size + 20);
-      if (act === 'smaller') resize(size - 20);
-      if (act === 'corner') goHome();
-    });
-
-    function resize(next) {
-      size = Math.max(90, Math.min(300, next));
-      if (sizeInput) sizeInput.value = String(size);
-      clamp();
-      place();
-      persist();
-    }
-
-    function goHome() {
-      pos.x = Math.max(0, window.innerWidth - size - 48);
-      pos.y = Math.max(0, window.innerHeight - size - 48);
-      target.x = pos.x;
-      target.y = pos.y;
-      facing = -1;
-      clamp();
-      place();
-      persist();
-    }
-
-    Array.prototype.forEach.call(document.querySelectorAll('.petctrl__btn'), function (button) {
-      button.addEventListener('click', function () {
-        setState(button.dataset.state);
-        if (button.dataset.state === 'idle') wander();
-      });
+    buttons.forEach(function (button) {
+      button.addEventListener('click', function () { pet.setState(button.dataset.state); });
     });
 
     if (sizeInput) {
-      sizeInput.addEventListener('input', function () { resize(Number(sizeInput.value)); });
+      sizeInput.value = String(pet.size());
+      sizeInput.addEventListener('input', function () { pet.resize(Number(sizeInput.value)); });
     }
-    if (homeBtn) homeBtn.addEventListener('click', goHome);
-
-    window.addEventListener('resize', function () { clamp(); place(); });
-
-    /* wake it when the tab comes back */
-    document.addEventListener('visibilitychange', function () {
-      if (!document.hidden) { last = performance.now(); }
-    });
-
-    /* ---------- load the sheets, then start ---------- */
-    load();
-    if (sizeInput) sizeInput.value = String(size);
-
-    if (!pos.x && !pos.y) {
-      pos.x = Math.max(0, window.innerWidth - size - 48);
-      pos.y = Math.max(0, window.innerHeight - size - 48);
-    }
-    target.x = pos.x;
-    target.y = pos.y;
-    clamp();
-    place();
-
-    var names = ['idle', 'happy', 'play', 'sleep'];
-    var loaded = 0;
-    names.forEach(function (name) {
-      var image = new Image();
-      image.onload = function () {
-        SHEETS[name] = image;
-        loaded += 1;
-        if (loaded === names.length) {
-          setState('idle', true);
-          requestAnimationFrame(tick);
-        }
-      };
-      image.onerror = function () {
-        loaded += 1;
-      };
-      image.src = 'Images/pet/' + name + '.png?v=69';
-    });
-
-    if (still) { nextWanderAt = Infinity; }
-  })();
+    if (homeBtn) homeBtn.addEventListener('click', function () { pet.goHome(); });
+  });
 </script>
 </body>
 </html>
