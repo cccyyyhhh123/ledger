@@ -1488,6 +1488,33 @@ html[data-wallpaper-live] .nav__links a { color: #f2f2f7; }
 .wpmenu__item:hover { background: var(--hover); }
 .wpmenu__item b { font-size: 0.82rem; font-weight: 600; }
 .wpmenu__item span { font-size: 0.72rem; color: var(--muted); line-height: 1.35; }
+/* ---------- a video wallpaper is expensive to composite ----------
+   backdrop-filter has to be recomputed for every video frame and is by far the
+   biggest cost on this page: with a moving picture behind them the panels go
+   flat, which nobody can see anyway because the picture itself carries the
+   depth. */
+html[data-wallpaper-live="ready"] .panel,
+html[data-wallpaper-live="ready"] .rail__block,
+html[data-wallpaper-live="ready"] .scard,
+html[data-wallpaper-live="ready"] .metric,
+html[data-wallpaper-live="ready"] .exam,
+html[data-wallpaper-live="ready"] .subject,
+html[data-wallpaper-live="ready"] .project,
+html[data-wallpaper-live="ready"] .cw,
+html[data-wallpaper-live="ready"] .wxcard,
+html[data-wallpaper-live="ready"] .affirm,
+html[data-wallpaper-live="ready"] .btn {
+  -webkit-backdrop-filter: none !important;
+  backdrop-filter: none !important;
+}
+html[data-wallpaper-live="ready"] .panel,
+html[data-wallpaper-live="ready"] .rail__block {
+  background: rgba(16, 16, 22, 0.74);
+}
+html[data-wallpaper-live="ready"] .wp-live {
+  will-change: transform;
+  transform: translateZ(0);
+}
 /* ---------- wallpaper strip in the rail ---------- */
 .wppick { display: grid; gap: 6px; margin-top: 14px; }
 .wppick[hidden] { display: none !important; }

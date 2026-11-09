@@ -39,9 +39,10 @@
         document.documentElement.setAttribute('data-wallpaper-live', '1');
 
         function sync() {
-          var wanted = !document.hidden && !document.documentElement.hasAttribute('data-paused');
-          if (wanted) video.play().catch(function () {});
-          else video.pause();
+          /* only a hidden tab stops the loop: dropping frames because another
+             window took focus is exactly what made this look like low fps */
+          if (document.hidden) video.pause();
+          else video.play().catch(function () {});
         }
 
         video.addEventListener('canplay', function () {
@@ -54,8 +55,6 @@
           scrim.remove();
         });
         document.addEventListener('visibilitychange', sync);
-        window.addEventListener('blur', sync);
-        window.addEventListener('focus', sync);
       })
       .catch(function () { /* no service: the still wallpaper stays */ });
   }
