@@ -1,3 +1,43 @@
+/* ---------- make the next page arrive faster ----------
+ * A static site pays a full document fetch on every click. Warming the other
+ * pages while the pointer is already moving (or while the page sits idle) takes
+ * that out of the click, and the view transition can start immediately.
+ */
+(function () {
+  var known = {};
+  var bar = document.querySelector('.nav__links');
+  if (!bar) return;
+
+  function warm(href) {
+    if (!href || known[href]) return;
+    if (href === location.pathname.split('/').pop()) return;
+    known[href] = true;
+    var link = document.createElement('link');
+    link.rel = 'prefetch';
+    link.href = href;
+    link.as = 'document';
+    document.head.appendChild(link);
+  }
+
+  function warmAll() {
+    Array.prototype.forEach.call(bar.querySelectorAll('a'), function (a) {
+      warm(a.getAttribute('href'));
+    });
+  }
+
+  bar.addEventListener('pointerover', function (event) {
+    var link = event.target.closest('a');
+    if (link) warm(link.getAttribute('href'));
+  });
+  bar.addEventListener('focusin', function (event) {
+    var link = event.target.closest('a');
+    if (link) warm(link.getAttribute('href'));
+  });
+
+  if ('requestIdleCallback' in window) requestIdleCallback(warmAll, { timeout: 2500 });
+  else setTimeout(warmAll, 1800);
+})();
+
 /* nav.js — one frosted highlight for the whole menu.
  *
  * The menu lives on six separate pages, so a highlight that slides "from the

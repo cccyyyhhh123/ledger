@@ -1338,6 +1338,52 @@ body, .nav, .panel, .card, .metric, .rail__block, .watch, .stat,
   }
   }
 
+/* ---------- moving between pages ----------
+   The site is plain HTML, so every link is a full document swap. The View
+   Transitions API turns that swap into a cross-fade the browser does itself;
+   where it is missing, the content still fades in on load (see below). */
+@view-transition { navigation: auto; }
+
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation-duration: 260ms;
+  animation-timing-function: cubic-bezier(0.22, 0.61, 0.36, 1);
+}
+::view-transition-old(root) {
+  animation-name: fade-out-page;
+  animation-duration: 140ms;
+}
+::view-transition-new(root) {
+  animation-name: fade-in-page;
+  animation-duration: 260ms;
+}
+
+@keyframes fade-out-page {
+  to { opacity: 0; }
+}
+@keyframes fade-in-page {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: none; }
+}
+
+/* the pet is the same creature on both sides, so it holds still instead of
+   fading with the content; the bar cross-fades so its sliding pill stays visible */
+.petcanvas { view-transition-name: pet; }
+
+@media (prefers-reduced-motion: reduce) {
+  @view-transition { navigation: none; }
+  ::view-transition-old(root),
+  ::view-transition-new(root) { animation: none; }
+}
+
+/* browsers without cross-document transitions get a short entrance instead */
+@supports not (view-transition-name: nav) {
+  main { animation: fade-in-page 260ms ease-out both; }
+  @media (prefers-reduced-motion: reduce) {
+    main { animation: none; }
+  }
+}
+
 /* ---------- the desk pet ---------- */
 .petcanvas {
   position: fixed; z-index: 60; left: 0; top: 0;
