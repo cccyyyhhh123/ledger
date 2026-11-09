@@ -980,9 +980,9 @@ body, .nav, .panel, .card, .metric, .rail__block, .watch, .stat,
   display: flex; align-items: baseline;
   /* a lock-screen clock: large, rounded, tight — the numbers are the first
      thing the eye lands on, so their shape carries the page */
-  font-family: 'Nunito', 'Inter', system-ui, sans-serif;
+  font-family: 'Bricolage Grotesque', 'Inter', system-ui, sans-serif;
   font-size: clamp(3.6rem, 9.6vw, 7.2rem); line-height: 0.9;
-  font-weight: 800; letter-spacing: -0.02em;
+  font-weight: 800; letter-spacing: -0.03em;
   font-variant-numeric: tabular-nums;
   /* the clock wears the colour the reader picked, softened towards the page:
      at full strength a saturated accent is louder than the time deserves */
