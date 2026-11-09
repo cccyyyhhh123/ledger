@@ -11,8 +11,8 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-<script src="theme.js?v=41"></script>
-<link rel="stylesheet" href="style.css?v=41">
+<script src="theme.js?v=42"></script>
+<link rel="stylesheet" href="style.css?v=42">
 </head>
 <body>
 
@@ -36,6 +36,34 @@
     <p>Search QQ Music by song name. Pick a result and their own player loads right here —
        it only appears once you have chosen a song, so the page starts as a search box and nothing else.</p>
   </header>
+
+  <section class="panel bridge" id="bridgePanel">
+    <div class="bridge__head">
+      <h2>On this computer</h2>
+      <span class="bridge__state" id="bridgeState">connecting…</span>
+    </div>
+
+    <div class="bridge__now">
+      <div class="bridge__art" aria-hidden="true">♪</div>
+      <div class="bridge__meta">
+        <p class="bridge__title" id="bridgeTitle">—</p>
+        <p class="bridge__artist" id="bridgeArtist">—</p>
+      </div>
+      <div class="bridge__controls">
+        <button class="btn bridge__btn" id="bridgePrev" type="button" aria-label="Previous track">⏮</button>
+        <button class="btn btn--primary bridge__btn" id="bridgeToggle" type="button" aria-label="Play or pause">▶</button>
+        <button class="btn bridge__btn" id="bridgeNext" type="button" aria-label="Next track">⏭</button>
+      </div>
+    </div>
+
+    <div class="bridge__bar"><i id="bridgeFill"></i></div>
+    <div class="bridge__times"><span id="bridgePos">0:00</span><span id="bridgeDur">0:00</span></div>
+
+    <p class="small muted" id="bridgeHint">
+      Reads whatever the desktop player is playing, through the local service on
+      <span class="mono">127.0.0.1:8787</span>.
+    </p>
+  </section>
 
   <section class="panel">
     <h2>QQ Music</h2>
@@ -75,9 +103,9 @@
   </section>
 </main>
 
-<script>window.__DESK_BUILD__ = 'v41';</script>
-<script src="elastic-slider.js?v=41"></script>
-<script src="nav.js?v=41"></script>
+<script>window.__DESK_BUILD__ = 'v42';</script>
+<script src="elastic-slider.js?v=42"></script>
+<script src="nav.js?v=42"></script>
 <script>
   /* ---------- QQ Music search ----------
      Their search endpoint answers JSONP, which a <script> tag can load from
@@ -330,6 +358,121 @@
     /* the same chime when a song is chosen from the results */
     window.__deskChime = chime;
     window.__deskSlider = slider;
+  })();
+
+  /* ---------- what this computer is playing ----------
+     A page cannot ask another program what it is playing, so a small local
+     service does: music-bridge.ps1 listens on 127.0.0.1:8787 and answers with
+     the current session from Windows. When it is not running the panel says
+     so and nothing else changes. */
+  (function () {
+    var BRIDGE = 'http://127.0.0.1:8787';
+    var el = {
+      state: document.getElementById('bridgeState'),
+      title: document.getElementById('bridgeTitle'),
+      artist: document.getElementById('bridgeArtist'),
+      fill: document.getElementById('bridgeFill'),
+      pos: document.getElementById('bridgePos'),
+      dur: document.getElementById('bridgeDur'),
+      hint: document.getElementById('bridgeHint'),
+      toggle: document.getElementById('bridgeToggle'),
+      next: document.getElementById('bridgeNext'),
+      prev: document.getElementById('bridgePrev')
+    };
+    if (!el.state) return;
+
+    var timer = 0;
+    var online = false;
+
+    function clock(seconds) {
+      if (!isFinite(seconds) || seconds < 0) return '0:00';
+      var m = Math.floor(seconds / 60);
+      var s = Math.floor(seconds % 60);
+      return m + ':' + (s < 10 ? '0' : '') + s;
+    }
+
+    function offline() {
+      online = false;
+      el.state.textContent = 'not connected';
+      el.state.className = 'bridge__state';
+      el.title.textContent = 'No desktop player';
+      el.artist.textContent = 'The local service is not running';
+      el.fill.style.width = '0%';
+      el.pos.textContent = '0:00';
+      el.dur.textContent = '0:00';
+      el.toggle.disabled = true;
+      el.next.disabled = true;
+      el.prev.disabled = true;
+      el.hint.innerHTML = 'Double-click <span class="mono">_tools\\启动音乐台.bat</span> to start it — ' +
+        'this panel then follows whatever the desktop player does.';
+    }
+
+    function paint(data) {
+      online = true;
+      el.toggle.disabled = false;
+      el.next.disabled = !data.canNext;
+      el.prev.disabled = !data.canPrev;
+
+      if (!data.connected) {
+        el.state.textContent = 'player closed';
+        el.state.className = 'bridge__state';
+        el.title.textContent = 'Nothing playing';
+        el.artist.textContent = 'Open QQ Music and press play';
+        el.hint.innerHTML = 'The service is running — start a track and it appears here.';
+        return;
+      }
+
+      el.state.textContent = data.playing ? 'playing' : 'paused';
+      el.state.className = 'bridge__state' + (data.playing ? ' is-live' : '');
+      el.title.textContent = data.title || '—';
+      el.artist.textContent = data.artist ? data.artist : (data.album || '');
+      el.toggle.textContent = data.playing ? '❚❚' : '▶';
+
+      var total = Number(data.duration) || 0;
+      var pos = Number(data.position) || 0;
+      el.fill.style.width = total ? Math.min(100, pos / total * 100).toFixed(1) + '%' : '0%';
+      el.pos.textContent = clock(pos);
+      el.dur.textContent = clock(total);
+      el.hint.innerHTML = 'Synced from <span class="mono">127.0.0.1:8787</span> · ' +
+        (data.appName || data.app || 'desktop player');
+    }
+
+    function poll() {
+      var controller = new AbortController();
+      var guard = setTimeout(function () { controller.abort(); }, 2500);
+
+      fetch(BRIDGE + '/state', { cache: 'no-store', signal: controller.signal })
+        .then(function (response) {
+          if (!response.ok) throw new Error('http ' + response.status);
+          return response.json();
+        })
+        .then(paint)
+        .catch(function () { if (!online) offline(); else offline(); })
+        .then(function () { clearTimeout(guard); });
+    }
+
+    function act(name) {
+      fetch(BRIDGE + '/action?name=' + name, { cache: 'no-store' })
+        .catch(function () {})
+        .then(function () { setTimeout(poll, 260); });
+    }
+
+    el.toggle.addEventListener('click', function () { act('toggle'); });
+    el.next.addEventListener('click', function () { act('next'); });
+    el.prev.addEventListener('click', function () { act('prev'); });
+
+    poll();
+    timer = setInterval(poll, 2000);
+
+    document.addEventListener('visibilitychange', function () {
+      if (document.hidden) {
+        clearInterval(timer);
+        timer = 0;
+      } else if (!timer) {
+        poll();
+        timer = setInterval(poll, 2000);
+      }
+    });
   })();
 </script>
 </body>

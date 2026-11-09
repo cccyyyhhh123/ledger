@@ -24,3 +24,6 @@ _submit/
 
 # a separate 3D project, not part of this site
 ovo/
+
+# inspector output
+_[a-z][0-9]*/
