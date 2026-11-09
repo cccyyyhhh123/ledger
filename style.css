@@ -871,6 +871,22 @@ body, .nav, .panel, .card, .metric, .rail__block, .watch, .stat,
   gap: 0.19em; align-self: center; font-size: 1em; line-height: 1;
   padding: 0 0.07em; color: var(--ink); transform: translateY(0.03em);
 }
+/* the seconds sit a step smaller, so the hour and minute still lead */
+.anchor__sec {
+  font-size: 0.56em; color: var(--muted); letter-spacing: -0.02em;
+  margin-left: 0.04em;
+}
+.anchor__sec .ct__col { width: 0.62em; height: 1.14em; }
+.anchor__sec .ct__digit { height: 1.14em; }
+/* the seconds colon is a text colon at the seconds' size, so it lands on the
+   same baseline as the small digits without any hand-tuning */
+.ct__sep--text {
+  font-size: 0.56em; color: var(--muted-2);
+  margin: 0 0.06em 0 0.1em; padding: 0;
+  align-self: center; line-height: 1;
+  transform: translateY(0.02em);
+}
+
 .anchor__value .ct__sep i {
   width: 0.105em; height: 0.105em; border-radius: 50%;
   background: currentColor; opacity: 0.8;

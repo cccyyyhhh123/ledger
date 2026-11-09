@@ -11,8 +11,8 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="style.css?v=55">
-<script src="theme.js?v=55"></script>
+<link rel="stylesheet" href="style.css?v=56">
+<script src="theme.js?v=56"></script>
 </head>
 <body>
 
@@ -34,7 +34,7 @@
 
     <div class="anchor">
       <p class="anchor__value">
-        <span id="hourTiles"></span><span class="ct__sep" aria-hidden="true"><i></i><i></i></span><span id="minTiles"></span>
+        <span id="hourTiles"></span><span class="ct__sep" aria-hidden="true"><i></i><i></i></span><span id="minTiles"></span><span class="ct__sep--text" aria-hidden="true">:</span><span class="anchor__sec" id="secTiles"></span>
       </p>
       <p class="anchor__meta">
         <b id="stripDate">—</b>
@@ -113,8 +113,8 @@
   </aside>
 </main>
 
-<script src="counter.js?v=55"></script>
-<script src="nav.js?v=55"></script>
+<script src="counter.js?v=56"></script>
+<script src="nav.js?v=56"></script>
 <script>
   (function () {
     var hour = new Date().getHours();
@@ -126,6 +126,8 @@
     var minHost = document.getElementById('minTiles');
     var hours = (window.Counter && hourHost) ? window.Counter.mount(hourHost, { digits: 2 }) : null;
     var minutes = (window.Counter && minHost) ? window.Counter.mount(minHost, { digits: 2 }) : null;
+    var secHost = document.getElementById('secTiles');
+    var seconds = (window.Counter && secHost) ? window.Counter.mount(secHost, { digits: 2 }) : null;
 
     var dateEl = document.getElementById('stripDate');
     function tick() {
@@ -133,8 +135,12 @@
       dateEl.textContent = now.toLocaleDateString('en-GB', { weekday: 'short', day: 'numeric', month: 'short' });
       var hh = String(now.getHours()).padStart(2, '0');
       var mm = String(now.getMinutes()).padStart(2, '0');
-      if (hours && minutes) { hours.set(hh); minutes.set(mm); }
-      else if (hourHost && minHost) { hourHost.textContent = hh; minHost.textContent = mm; }
+      var ss = String(now.getSeconds()).padStart(2, '0');
+      if (hours && minutes && seconds) { hours.set(hh); minutes.set(mm); seconds.set(ss); }
+      else if (hourHost && minHost) {
+        hourHost.textContent = hh; minHost.textContent = mm;
+        if (secHost) secHost.textContent = ss;
+      }
     }
     tick();
     setInterval(tick, 1000);
