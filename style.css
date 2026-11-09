@@ -988,7 +988,9 @@ body, .nav, .panel, .card, .metric, .rail__block, .watch, .stat,
 /* hours, minutes and seconds are one size; the seconds only sit a shade
    quieter so the eye still lands on the time first */
 .anchor__sec {
-  font-size: 1em; color: var(--muted); margin-left: 0.02em;
+  /* the same ink as the rest of the clock: a dimmed pair of digits read as a
+     rendering fault once a photo sat behind them */
+  font-size: 1em; color: inherit; margin-left: 0.02em;
 }
 
 .anchor__value .ct__sep i {
