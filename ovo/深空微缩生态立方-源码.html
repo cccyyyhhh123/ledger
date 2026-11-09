@@ -4,6 +4,16 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>深空微缩生态立方 · 3D Diorama</title>
+<!--
+  3D 模型来源（通过 poly.pizza 获取，已烘成顶点色内嵌）：
+  · 松树丛 / 岩石  — CC0 / Public Domain — Quaternius — https://poly.pizza/u/Quaternius
+  · 阔叶树        — CC BY 3.0 — Marc Solà — https://poly.pizza/m/6Yjt8nIwLsD
+  · 绵羊          — CC BY 3.0 — Pixel — https://poly.pizza/m/8jHkcfv4tH
+  · 老鹰          — CC BY 3.0 — Poly by Google — https://poly.pizza/m/8Ph79kHbt9s
+  · 低多边雪山（未启用） — CC BY 3.0 — jeremy — https://poly.pizza/m/0Fl55ZzsVzT
+  其余（地形、水、云、玻璃、粒子、后期）为程序化生成。
+  CC BY 3.0：保留署名即可商用/修改，详见 https://creativecommons.org/licenses/by/3.0/
+-->
 <style>
   *{margin:0;padding:0;box-sizing:border-box}
   html,body{height:100%}
@@ -38,6 +48,7 @@
 <div id="err"></div>
 
 <script src="../vendor/three.min.js"></script>
+<script id="model-data" type="application/json">__MODEL_DATA__</script>
 <script>
 (() => {
   'use strict';
@@ -71,6 +82,83 @@
     };
   }
   const rnd = mulberry32(20261108);
+
+  /* ================= 外部低模（poly.pizza CC0/CC-BY，已烘成顶点色） ================= */
+  const MODEL_DATA = (() => {
+    try { return JSON.parse(document.getElementById('model-data').textContent || '{}'); }
+    catch (e) { console.warn('model data parse failed', e); return {}; }
+  })();
+
+  function buildModel(key, opts) {
+    opts = opts || {};
+    const src = MODEL_DATA[key];
+    const g = new THREE.Group();
+    if (!src) return g;
+    const mat = new THREE.MeshStandardMaterial({
+      vertexColors: true, roughness: opts.roughness != null ? opts.roughness : 0.88,
+      metalness: 0.0, envMapIntensity: 0.35,
+      color: opts.tint || 0xffffff
+    });
+    for (const part of src.parts) {
+      const geo = new THREE.BufferGeometry();
+      geo.setAttribute('position', new THREE.Float32BufferAttribute(part.p, 3));
+      if (part.n) geo.setAttribute('normal', new THREE.Float32BufferAttribute(part.n, 3));
+      geo.setAttribute('color', new THREE.Float32BufferAttribute(part.c, 3));
+      if (part.i) geo.setIndex(part.i);
+      if (!part.n) geo.computeVertexNormals();
+      const mesh = new THREE.Mesh(geo, mat);
+      mesh.castShadow = true;
+      mesh.receiveShadow = true;
+      g.add(mesh);
+    }
+    if (opts.scale) g.scale.setScalar(opts.scale);
+    return g;
+  }
+
+  // 老鹰：模型翅膀沿 Y，转成沿 Z；带翼展权重，用顶点着色器扑翼
+  function buildEagle() {
+    const src = MODEL_DATA.eagle;
+    const g = new THREE.Group();
+    if (!src) return g;
+    const flap = { value: 0 };
+    for (const part of src.parts) {
+      const geo = new THREE.BufferGeometry();
+      geo.setAttribute('position', new THREE.Float32BufferAttribute(part.p, 3));
+      if (part.n) geo.setAttribute('normal', new THREE.Float32BufferAttribute(part.n, 3));
+      geo.setAttribute('color', new THREE.Float32BufferAttribute(part.c, 3));
+      if (part.i) geo.setIndex(part.i);
+      geo.rotateX(-Math.PI / 2);
+      const pos = geo.attributes.position;
+      let maxZ = 0.0001;
+      for (let i = 0; i < pos.count; i++) maxZ = Math.max(maxZ, Math.abs(pos.getZ(i)));
+      const aw = new Float32Array(pos.count);
+      for (let i = 0; i < pos.count; i++) {
+        const z = pos.getZ(i);
+        const w = Math.min(1, Math.abs(z) / (maxZ * 0.72));
+        aw[i] = Math.sign(z) * w * w;
+      }
+      geo.setAttribute('aWing', new THREE.BufferAttribute(aw, 1));
+      if (!part.n) geo.computeVertexNormals();
+      const mat = new THREE.MeshStandardMaterial({ vertexColors: false, color: 0x6d5c4a, roughness: 0.85, metalness: 0.0, envMapIntensity: 0.3 });
+      mat.onBeforeCompile = sh => {
+        sh.uniforms.uFlap = flap;
+        sh.vertexShader = 'uniform float uFlap;\nattribute float aWing;\n' + sh.vertexShader.replace(
+          '#include <begin_vertex>',
+          ['#include <begin_vertex>',
+            'float ang = uFlap * aWing;',
+            'float ca = cos(ang), sa = sin(ang);',
+            'vec3 tv = transformed;',
+            'transformed.y = tv.y * ca - tv.z * sa;',
+            'transformed.z = tv.y * sa + tv.z * ca;'].join('\n')
+        );
+      };
+      const mesh = new THREE.Mesh(geo, mat);
+      mesh.castShadow = true;
+      g.add(mesh);
+    }
+    g.userData.flap = flap;
+    return g;
+  }
 
   /* ================= 渲染器 / 场景 / 相机 ================= */
   const container = document.getElementById('container');
@@ -240,6 +328,7 @@
       const r = 14 + rnd() * 26, a = rnd() * Math.PI * 2;
       sp.position.set(Math.cos(a) * r, -6 + rnd() * 18, Math.sin(a) * r - 8);
       sp.scale.set(s, s, 1);
+      sp.userData = { base: sp.position.clone() };
       bgGroup.add(sp);
       bokehSprites.push(sp);
     }
@@ -452,7 +541,7 @@
   [[-0.52, 1.68, 0.20], [-0.34, 1.48, 0.16], [-0.30, 1.56, 0.13]].forEach(([x, z, s], k) => {
     const m = new THREE.Mesh(springGeo, springMat);
     m.scale.set(s, s * 0.75, s);
-    m.position.set(x + (k % 2 ? 0.12 : -0.12), heightAt(x, z) + 0.04, z + (k % 2 ? -0.10 : 0.10));
+    m.position.set(x + (k % 2 ? 0.12 : -0.12), heightAt(x, z) - 0.06, z + (k % 2 ? -0.10 : 0.10));
     m.rotation.set(rnd() * 0.6, rnd() * 3, rnd() * 0.6);
     world.add(m);
   });
@@ -602,36 +691,17 @@
     return best;
   }
 
+  // 树木：改用外部低模（松树丛 / 阔叶树），随机朝向与缩放
   function createTree(x, z, s) {
-    const g = new THREE.Group();
-    const trunk = new THREE.Mesh(treeGeoTrunk, treeTrunkMat);
-    trunk.position.y = 0.25 * s;
-    trunk.scale.setScalar(s);
-    g.add(trunk);
-    const leafMat = rnd() > 0.55 ? treeLeafMatB : treeLeafMatA;
-    for (let i = 0; i < 3; i++) {
-      const c = new THREE.Mesh(treeGeoCrown, leafMat);
-      c.scale.setScalar(s * (1 - i * 0.26));
-      c.position.y = (0.62 + i * 0.33) * s;
-      c.rotation.y = i * 1.1 + x;
-      g.add(c);
-    }
-    g.position.set(x, heightAt(x, z) - 0.03, z);
+    const g = buildModel('pine', { scale: s * 0.52, tint: 0xb9c4ab });
+    g.position.set(x, heightAt(x, z) - 0.04, z);
+    g.rotation.y = rnd() * 6.28;
     return g;
   }
   function createBroadTree(x, z, s) {
-    const g = new THREE.Group();
-    const trunk = new THREE.Mesh(treeGeoTrunk, treeTrunkMat);
-    trunk.position.y = 0.22 * s;
-    trunk.scale.setScalar(s * 1.1);
-    g.add(trunk);
-    for (let i = 0; i < 4; i++) {
-      const b = new THREE.Mesh(treeGeoBlob, rnd() > 0.5 ? treeLeafMatA : treeLeafMatB);
-      b.position.set((rnd() - 0.5) * 0.4 * s, (0.55 + rnd() * 0.22) * s, (rnd() - 0.5) * 0.4 * s);
-      b.scale.setScalar(s * (0.75 + rnd() * 0.45));
-      g.add(b);
-    }
-    g.position.set(x, heightAt(x, z) - 0.03, z);
+    const g = buildModel('broadleaf', { scale: s * 0.85, tint: 0xc2cdb4 });
+    g.position.set(x, heightAt(x, z) - 0.04, z);
+    g.rotation.y = rnd() * 6.28;
     return g;
   }
 
@@ -639,7 +709,7 @@
   const forestGroup = new THREE.Group();
   world.add(forestGroup);
   let placed = 0, tries = 0;
-  while (placed < 30 && tries < 900) {
+  while (placed < 16 && tries < 900) {
     tries++;
     const x = (rnd() - 0.5) * 6.6;
     const z = (rnd() - 0.5) * 6.6;
@@ -650,7 +720,7 @@
     if (Math.hypot(x - TARN.x, z - TARN.z) < TARN.r + 0.28) continue;
     if (distToRiver(x, z) < 0.34) continue;
     if (Math.hypot(x - FALL.x, z - FALL.z) < 0.55) continue;
-    const s = 0.60 + rnd() * 0.55;
+    const s = 0.85 + rnd() * 0.45;
     forestGroup.add(rnd() > 0.62 ? createBroadTree(x, z, s) : createTree(x, z, s));
     placed++;
   }
@@ -730,65 +800,36 @@
   })();
 
   /* ================= 动物：小鹿 + 飞鸟 ================= */
-  const deerMat = clayMat(0xc99a72, { roughness: 0.9 });
-  const deer = (() => {
-    const g = new THREE.Group();
-    const body = new THREE.Mesh(new THREE.CapsuleGeometry(0.115, 0.26, 4, 10), deerMat);
-    body.rotation.z = Math.PI / 2;
-    body.position.y = 0.25;
-    g.add(body);
-    const head = new THREE.Mesh(new THREE.SphereGeometry(0.095, 12, 10), deerMat);
-    head.position.set(0.24, 0.34, 0);
-    g.add(head);
-    const snout = new THREE.Mesh(new THREE.SphereGeometry(0.05, 8, 8), deerMat);
-    snout.position.set(0.32, 0.31, 0);
-    g.add(snout);
-    const earMat = clayMat(0xb08259);
-    [-0.055, 0.055].forEach(zz => {
-      const ear = new THREE.Mesh(new THREE.ConeGeometry(0.028, 0.11, 6), earMat);
-      ear.position.set(0.18, 0.43, zz);
-      ear.rotation.z = -0.3;
-      g.add(ear);
-    });
-    const legGeo = new THREE.CylinderGeometry(0.019, 0.019, 0.22, 6);
-    [[-0.12, 0.082], [-0.12, -0.082], [0.11, 0.082], [0.11, -0.082]].forEach(([lx, lz]) => {
-      const leg = new THREE.Mesh(legGeo, deerMat);
-      leg.position.set(lx, 0.11, lz);
-      g.add(leg);
-    });
-    const antlerMat = clayMat(0xe3d7bd, { roughness: 0.7 });
-    [-0.05, 0.05].forEach(zz => {
-      const a = new THREE.Mesh(new THREE.CylinderGeometry(0.007, 0.012, 0.15, 5), antlerMat);
-      a.position.set(0.22, 0.47, zz);
-      a.rotation.z = -0.45;
-      g.add(a);
-    });
-    const dx = 1.32, dz = 1.86;
-    g.position.set(dx, heightAt(dx, dz) + 0.01, dz);
-    g.rotation.y = -1.15;
-    g.scale.setScalar(1.35);
+  // 小鹿：外部低模（带鹿角），站在湖岸草地上
+  (function deer() {
+    const g = buildModel('deer', { scale: 0.80 });
+    const dx = 0.30, dz = 1.74;
+    g.position.set(dx, heightAt(dx, dz) - 0.01, dz);
+    g.rotation.y = -2.2;
     world.add(g);
-    return g;
   })();
+
+  const BIRD_UP = new THREE.Vector3(0, 1, 0);
+  const BIRD_FWD = new THREE.Vector3(1, 0, 0);
+  const BIRD_ROLL = new THREE.Quaternion();
+  // 小羊：外部低模（带脸和腿），站在湖岸草地上
+  [[1.75, 1.15, 0.44, 2.3], [1.32, 0.52, 0.41, 0.9], [2.12, 0.95, 0.38, 3.9]].forEach(([x, z, s, ry]) => {
+    const g = buildModel('sheep', { scale: s, tint: 0xfff1dd });
+    g.position.set(x, heightAt(x, z) - 0.01, z);
+    g.rotation.y = ry;
+    world.add(g);
+  });
 
   const birds = [];
   (function createBirds() {
-    const birdMat = clayMat(0x3d4552, { roughness: 0.8 });
     for (let i = 0; i < 3; i++) {
-      const g = new THREE.Group();
-      const body = new THREE.Mesh(new THREE.CapsuleGeometry(0.035, 0.13, 3, 6), birdMat);
-      body.rotation.z = Math.PI / 2;
-      g.add(body);
-      const wingGeo = new THREE.PlaneGeometry(0.26, 0.10);
-      const wingMat = new THREE.MeshBasicMaterial({
-        color: 0x4a5567, side: THREE.DoubleSide, transparent: true, opacity: 0.95
-      });
-      const lw = new THREE.Mesh(wingGeo, wingMat);
-      const rw = new THREE.Mesh(wingGeo, wingMat);
-      lw.position.set(0, 0, 0.08); rw.position.set(0, 0, -0.08);
-      lw.rotation.x = -0.2; rw.rotation.x = 0.2;
-      g.add(lw); g.add(rw);
-      g.userData = { lw, rw, phase: i * 2.1, radius: 1.9 + i * 0.5, speed: 0.22 + i * 0.05, y: 3.25 + i * 0.18 };
+      const g = buildEagle();
+      const flapU = g.userData.flap;
+      g.scale.setScalar(0.60);
+      g.userData = {
+        flapU, phase: i * 2.1, radius: 1.9 + i * 0.5,
+        speed: 0.20 + i * 0.05, y: 3.25 + i * 0.18
+      };
       world.add(g);
       birds.push(g);
     }
@@ -814,6 +855,7 @@
     g.position.set(x, y, z);
     g.scale.setScalar(sc);
     world.add(g);
+    g.userData = { base: g.position.clone(), phase: rnd() * 6.28 };
     clouds.push(g);
   });
 
@@ -1312,7 +1354,7 @@
     bokehSprites.forEach((sp, i) => {
       const b = sp.material;
       b.opacity = (0.03 + (i % 5) * 0.012) * (0.5 + night * 0.8);
-      sp.position.y += Math.sin(t * 0.12 + i) * 0.0016;
+      sp.position.y = sp.userData.base.y + Math.sin(t * 0.12 + i) * 0.12;
     });
 
     // 玻璃
@@ -1324,10 +1366,11 @@
 
     // 云 / 雾 / 精灵
     clouds.forEach((c, i) => {
-      c.position.x += Math.sin(t * 0.10 + i) * 0.0016;
-      c.position.y += Math.sin(t * 0.17 + i * 2.0) * 0.0009;
+      const u = c.userData;
+      c.position.x = u.base.x + Math.sin(t * 0.10 + u.phase) * 0.20;
+      c.position.z = u.base.z + Math.cos(t * 0.08 + u.phase * 1.7) * 0.16;
+      c.position.y = u.base.y + Math.sin(t * 0.17 + u.phase * 2.3) * 0.09;
       c.rotation.y = t * 0.012 + i;
-      c.children.forEach(ch => { });
     });
     mists.forEach((sp, i) => {
       const u = sp.userData;
@@ -1370,10 +1413,12 @@
       const u = b.userData;
       const a = t * u.speed + u.phase;
       b.position.set(Math.cos(a) * u.radius, u.y + Math.sin(t * 0.7 + i) * 0.12, Math.sin(a) * u.radius);
-      b.rotation.y = -a + Math.PI / 2;
-      const flap = Math.sin(t * 7.5 + i * 2.0) * 0.55;
-      u.lw.rotation.x = -0.2 - flap;
-      u.rw.rotation.x = 0.2 + flap;
+      // 鸟头朝局部 +X；速度方向 = (-sin a, 0, cos a)，据此求偏航
+      const yaw = Math.atan2(-Math.cos(a), -Math.sin(a));
+      b.quaternion.setFromAxisAngle(BIRD_UP, yaw).multiply(
+        BIRD_ROLL.setFromAxisAngle(BIRD_FWD, 0.36)          // 向圆心侧倾
+      );
+      u.flapU.value = Math.sin(t * 6.0 + i * 2.1) * 0.55;
     });
 
     // 呼吸

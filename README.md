@@ -13,7 +13,6 @@ leaves the browser.
 | File | What it is |
 | --- | --- |
 | `index.html` | Home: dark hero over a video glow, a mockup of the ledger screen, four steps |
-| `pricing.html` | Pricing: three plans in an accordion, each one driving the preview panel; comparison table and five questions |
 | `contact.html` | Contact: one field and one button, the facts about the book, three columns of links |
 | `book.html` | The ledger screen: add a line, filter by month or type, delete a mistake |
 
@@ -30,7 +29,7 @@ the ledger opens with it.
 
 ## The look
 
-One system across the four pages, kept in each file's own `<style>` block so
+One system across the three pages, kept in each file's own `<style>` block so
 every page stands alone:
 
 - ground `#0d0d12`, panels `#0f0f15`, hairlines `rgba(255,255,255,0.07)`
@@ -41,7 +40,6 @@ every page stands alone:
 ## Motion
 
 - `index.html` — the balance in the mockup counts up once, when it scrolls into view
-- `pricing.html` — picking a plan swaps the preview and grows the three usage meters
 - `contact.html` — the rows fade up in a stagger; the form says “Sent!” for 3 s, then resets
 - `book.html` — the balance counts from its old value to the new one on every change
 
@@ -50,7 +48,7 @@ All of it is shortened or skipped under `prefers-reduced-motion: reduce`.
 ## Files
 
 ```
-index.html  pricing.html  contact.html  book.html
+index.html  contact.html  book.html
 images/     favicon, icons, OG image, screenshots
 vendor/     anime.min.js (3.2.2, MIT) — self-hosted, so the CDN cannot fail
 ```
