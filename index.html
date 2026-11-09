@@ -11,11 +11,11 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="style.css?v=100">
+<link rel="stylesheet" href="style.css?v=101">
 <!-- clock ink: kept here as well, so a cached style.css cannot leave the
      seconds a different colour from the hours -->
 <style>.anchor__sec { color: inherit !important; }</style>
-<script src="theme.js?v=100"></script>
+<script src="theme.js?v=101"></script>
 </head>
 <body>
 
@@ -487,6 +487,11 @@
           offerLaunch();
         }
 
+        /* the published copy lives on github.io, where /api/version is just a
+           404: the library only exists on this machine, so say so at once
+           instead of waiting for something that cannot arrive */
+        var local = /^(127\.0\.0\.1|localhost|\[::1\])$/.test(location.hostname);
+
         var tries = 0;
         function probe() {
           tries += 1;
@@ -501,13 +506,24 @@
               if (strip) strip.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
             })
             .catch(function () {
-              if (tries === 1) {
-                maybeLaunch();
-              }
-              if (tries < 15) {
+              if (!local) {
                 if (hint) {
-                  hint.textContent = 'Waiting for the service… (' + tries + ')';
+                  hint.textContent = 'This is the published copy: the wallpaper library only exists on this machine. ';
+                  var local_button = document.createElement('button');
+                  local_button.type = 'button';
+                  local_button.className = 'wppick__launch';
+                  local_button.textContent = 'Start it';
+                  local_button.addEventListener('click', wake);
+                  hint.appendChild(local_button);
+                  var note = document.createElement('span');
+                  note.textContent = ' — it starts the service and opens the page it serves (127.0.0.1:8788), where the library is.';
+                  hint.appendChild(note);
                 }
+                return;
+              }
+              if (tries === 1) maybeLaunch();
+              if (tries < 15) {
+                if (hint) hint.textContent = 'Waiting for the service… (' + tries + ')';
                 setTimeout(probe, 1500);
               } else if (hint) {
                 hint.textContent = 'The service is not running. Double-click _tools\\启动壁纸台.bat — ' +
@@ -1089,8 +1105,8 @@
     window.DeskCrop = { open: open };
   })();
 </script>
-<script src="wallpaper-pick.js?v=100"></script>
-<script src="wallpaper-live.js?v=100"></script>
+<script src="wallpaper-pick.js?v=101"></script>
+<script src="wallpaper-live.js?v=101"></script>
 <script src="pet.js?v=100"></script>
 </body>
 </html>
