@@ -41,7 +41,7 @@
   function draw(theme, source, width, height, title, done) {
     if (!width || !height || width < 8 || height < 8) { done(null); return; }
 
-    var scale = Math.min(1, 2200 / Math.max(width, height));
+    var scale = Math.min(1, 2560 / Math.max(width, height));
     var canvas = document.createElement('canvas');
     canvas.width = Math.max(8, Math.round(width * scale));
     canvas.height = Math.max(8, Math.round(height * scale));
@@ -58,7 +58,7 @@
       sum += (0.2126 * data[i] + 0.7152 * data[i + 1] + 0.0722 * data[i + 2]) / 255;
     }
     var lum = sum / (data.length / 4);
-    var url = canvas.toDataURL('image/jpeg', 0.72);
+    var url = canvas.toDataURL('image/jpeg', 0.9);
 
     /* a black frame means the wrong moment was grabbed — several previews open
        on a black frame, and publishing it would hide the page */

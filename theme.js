@@ -384,7 +384,7 @@
         var image = new Image();
         image.onload = function () {
           try {
-            var max = 2200;
+            var max = 2560;
             var scale = Math.min(1, max / Math.max(image.width, image.height));
             var canvas = document.createElement('canvas');
             canvas.width = Math.round(image.width * scale);
@@ -406,7 +406,7 @@
             }
             var lum = sum / (px.length / 4);
 
-            resolve({ url: canvas.toDataURL('image/jpeg', 0.72), lum: lum });
+            resolve({ url: canvas.toDataURL('image/jpeg', 0.9), lum: lum });
           } catch (e) { reject(e); }
         };
         image.onerror = reject;

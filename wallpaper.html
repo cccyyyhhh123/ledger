@@ -10,8 +10,8 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="style.css?v=99">
-<script src="theme.js?v=96"></script>
+<link rel="stylesheet" href="style.css?v=100">
+<script src="theme.js?v=100"></script>
 </head>
 <body class="wp-body">
 
@@ -106,8 +106,8 @@
   </section>
 </main>
 
-<script>window.__DESK_BUILD__ = 'v99';</script>
-<script src="nav.js?v=96"></script>
+<script>window.__DESK_BUILD__ = 'v100';</script>
+<script src="nav.js?v=100"></script>
 <script>
   /* ---------- the wallpaper library ----------
      Everything comes from the local service: /api/wallpapers lists what is
@@ -217,7 +217,7 @@
 
       function draw(source, width, height) {
         if (!width || !height || width < 8 || height < 8) { finish(null); return; }
-        var scale = Math.min(1, 2200 / Math.max(width, height));
+        var scale = Math.min(1, 2560 / Math.max(width, height));
         var canvas = document.createElement('canvas');
         canvas.width = Math.max(8, Math.round(width * scale));
         canvas.height = Math.max(8, Math.round(height * scale));
@@ -233,7 +233,7 @@
           sum += (0.2126 * data[i] + 0.7152 * data[i + 1] + 0.0722 * data[i + 2]) / 255;
         }
         var lum = sum / (data.length / 4);
-        var url = canvas.toDataURL('image/jpeg', 0.72);
+        var url = canvas.toDataURL('image/jpeg', 0.9);
 
         /* a black frame means we grabbed the wrong moment (several previews
            open on a black frame); publishing it would hide the page */
@@ -507,6 +507,6 @@
     });
   })();
 </script>
-<script src="pet.js?v=96"></script>
+<script src="pet.js?v=100"></script>
 </body>
 </html>
