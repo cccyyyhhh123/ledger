@@ -1461,6 +1461,25 @@ html[data-wallpaper-live] .anchor__meta,
 html[data-wallpaper-live] .affirm__cn { color: rgba(242, 242, 247, 0.78); }
 html[data-wallpaper-live] .nav__brand,
 html[data-wallpaper-live] .nav__links a { color: #f2f2f7; }
+/* ---------- the wallpaper menu ---------- */
+.wpmenu { position: relative; display: inline-block; }
+.wpmenu__panel {
+  position: absolute; left: 0; top: calc(100% + 6px); z-index: 40;
+  width: 17rem; display: grid; gap: 4px; padding: 6px;
+  border-radius: 14px; background: var(--panel-2);
+  border: 1px solid var(--line-2);
+  box-shadow: 0 18px 40px rgba(0, 0, 0, 0.45);
+  -webkit-backdrop-filter: blur(14px); backdrop-filter: blur(14px);
+}
+.wpmenu__panel[hidden] { display: none !important; }
+.wpmenu__item {
+  display: grid; gap: 2px; text-align: left; width: 100%;
+  padding: 9px 11px; border-radius: 10px; border: 0; cursor: pointer;
+  background: transparent; color: var(--ink);
+}
+.wpmenu__item:hover { background: var(--hover); }
+.wpmenu__item b { font-size: 0.82rem; font-weight: 600; }
+.wpmenu__item span { font-size: 0.72rem; color: var(--muted); line-height: 1.35; }
 /* ---------- wallpaper strip in the rail ---------- */
 .wppick { display: grid; gap: 6px; margin-top: 14px; }
 .wppick[hidden] { display: none !important; }

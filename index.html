@@ -11,11 +11,11 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="style.css?v=92">
+<link rel="stylesheet" href="style.css?v=93">
 <!-- clock ink: kept here as well, so a cached style.css cannot leave the
      seconds a different colour from the hours -->
 <style>.anchor__sec { color: inherit !important; }</style>
-<script src="theme.js?v=92"></script>
+<script src="theme.js?v=93"></script>
 </head>
 <body>
 
@@ -118,7 +118,19 @@
         <input type="color" id="customColor" value="#a78bfa" aria-label="Your own accent colour">
       </button>
       <div class="row" style="gap:8px; margin-top:12px; flex-wrap:wrap">
-        <label class="btn btn--primary" for="wallpaper" style="padding:7px 12px; font-size:0.8rem">Match wallpaper</label>
+        <div class="wpmenu" id="wpMenu">
+          <button class="btn btn--primary" id="wpMenuBtn" type="button" aria-expanded="false" aria-haspopup="true" style="padding:7px 12px; font-size:0.8rem">Choose wallpaper</button>
+          <div class="wpmenu__panel" id="wpMenuPanel" hidden>
+            <button class="wpmenu__item" id="wpFromFile" type="button">
+              <b>A picture on this computer</b>
+              <span>Upload, then frame the part you want</span>
+            </button>
+            <button class="wpmenu__item" id="wpFromEngine" type="button">
+              <b>From Wallpaper Engine</b>
+              <span>Reads the installed library; starts the local service</span>
+            </button>
+          </div>
+        </div>
         <input id="wallpaper" type="file" accept="image/*" hidden>
         <button class="btn btn--ghost" id="themeClearWallpaper" type="button" style="padding:7px 12px; font-size:0.8rem" hidden>Remove wallpaper</button>
         <button class="btn btn--ghost" id="themeReset" type="button" style="padding:7px 12px; font-size:0.8rem">Reset</button>
@@ -157,8 +169,8 @@
   </div>
 </div>
 
-<script src="counter.js?v=92"></script>
-<script src="nav.js?v=92"></script>
+<script src="counter.js?v=93"></script>
+<script src="nav.js?v=93"></script>
 <script>
   (function () {
     var hour = new Date().getHours();
@@ -389,6 +401,86 @@
       var swatches = document.getElementById('swatches');
       var status = document.getElementById('themeStatus');
       var input = document.getElementById('wallpaper');
+
+/* ---------- the wallpaper menu ----------
+     One button, two sources: a picture the reader owns, or the Wallpaper Engine
+     library on this machine. The library needs the small service, which a web
+     page is not allowed to launch by itself, so the page wakes it by trying,
+     reports honestly when nothing answers, and keeps trying. */
+  (function () {
+    var menu = document.getElementById('wpMenu');
+    var button = document.getElementById('wpMenuBtn');
+    var panel = document.getElementById('wpMenuPanel');
+    var fromFile = document.getElementById('wpFromFile');
+    var fromEngine = document.getElementById('wpFromEngine');
+    var fileInput = document.getElementById('wallpaper');
+    var strip = document.getElementById('wallpaperPick');
+    var hint = document.getElementById('wallpaperPickHint');
+    if (!menu || !button || !panel) return;
+
+    function open() {
+      panel.hidden = false;
+      button.setAttribute('aria-expanded', 'true');
+    }
+    function close() {
+      panel.hidden = true;
+      button.setAttribute('aria-expanded', 'false');
+    }
+
+    button.addEventListener('click', function (event) {
+      event.stopPropagation();
+      if (panel.hidden) open(); else close();
+    });
+    document.addEventListener('click', function (event) {
+      if (!menu.contains(event.target)) close();
+    });
+    document.addEventListener('keydown', function (event) {
+      if (event.key === 'Escape') close();
+    });
+
+    if (fromFile) {
+      fromFile.addEventListener('click', function () {
+        close();
+        if (fileInput) fileInput.click();
+      });
+    }
+
+    if (fromEngine) {
+      fromEngine.addEventListener('click', function () {
+        close();
+        if (strip) strip.hidden = false;
+        if (hint) hint.textContent = 'Looking for the local service…';
+
+        var tries = 0;
+        function probe() {
+          tries += 1;
+          fetch('/api/version', { cache: 'no-store' })
+            .then(function (response) { return response.ok ? response.json() : null; })
+            .then(function (info) {
+              if (!info || !info.ok) throw new Error('no service');
+              if (hint) {
+                hint.textContent = 'Service is up (' + info.build + ') — pick a thumbnail below.';
+              }
+              window.dispatchEvent(new CustomEvent('deskwallpaper:reload'));
+              if (strip) strip.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+            })
+            .catch(function () {
+              if (tries < 15) {
+                if (hint) {
+                  hint.textContent = 'Waiting for the service to come up… (' + tries + ') ' +
+                    'If it never appears, double-click _tools\\启动壁纸台.bat once.';
+                }
+                setTimeout(probe, 2000);
+              } else if (hint) {
+                hint.textContent = 'The service is not running. Double-click _tools\\启动壁纸台.bat — ' +
+                  'it also installs itself to start with Windows, so this is a one-time step.';
+              }
+            });
+        }
+        probe();
+      });
+    }
+  })();
 
   /* ---------- picking a wallpaper from this computer ----------
      The library behind 127.0.0.1:8788 is only reachable when the page itself
@@ -957,8 +1049,8 @@
     window.DeskCrop = { open: open };
   })();
 </script>
-<script src="wallpaper-pick.js?v=92"></script>
-<script src="wallpaper-live.js?v=92"></script>
-<script src="pet.js?v=92"></script>
+<script src="wallpaper-pick.js?v=93"></script>
+<script src="wallpaper-live.js?v=93"></script>
+<script src="pet.js?v=93"></script>
 </body>
 </html>
