@@ -158,9 +158,17 @@ try { $listener.Start() } catch {
   exit 1
 }
 
+if (-not (Test-Path (Join-Path $Root 'wallpaper.html'))) {
+  Write-Host "  cannot find wallpaper.html under $Root" -ForegroundColor Red
+  Write-Host "  this script has to sit in <site>\_tools\" -ForegroundColor Red
+  Start-Sleep -Seconds 8
+  exit 1
+}
+
 Write-Host ""
-Write-Host "  wallpapers are being served from http://127.0.0.1:$Port/" -ForegroundColor Green
-Write-Host "  open  http://127.0.0.1:$Port/wallpaper.html" -ForegroundColor Gray
+Write-Host "  serving  $Root" -ForegroundColor DarkGray
+Write-Host "  open     http://127.0.0.1:$Port/wallpaper.html" -ForegroundColor Green
+Write-Host "  close this window to stop" -ForegroundColor DarkGray
 Write-Host ""
 
 $manifestCache = $null
