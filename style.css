@@ -508,14 +508,16 @@ img, svg, canvas { display: block; max-width: 100%; }
 
 .exams { display: grid; gap: 8px; margin-top: 14px; }
 .exam {
-  display: grid; grid-template-columns: minmax(0, 1fr) 10rem 8rem;
-  align-items: center; gap: 12px;
+  /* the code, the date and the countdown, in the narrow exam card: the name
+     keeps its width, the date takes what is left, the countdown never wraps */
+  display: grid; grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center; gap: 10px;
   padding: 9px 12px; border-radius: var(--r-sm);
   background: var(--panel-2); border: 1px solid var(--line);
 }
-.exam__name { font-size: 0.92rem; color: var(--ink-2); }
-.exam__input { padding: 7px 10px; font-size: 0.88rem; }
-.exam__when { font-size: 0.8rem; color: var(--muted-2); text-align: right; }
+.exam__name { font-size: 0.8rem; color: var(--ink-2); white-space: nowrap; }
+.exam__input { width: 100%; min-width: 0; padding: 7px 9px; font-size: 0.84rem; }
+.exam__when { font-size: 0.78rem; color: var(--muted-2); text-align: right; white-space: nowrap; }
 .exam__when.is-soon { color: var(--warn); }
 .exam__when.is-past { color: var(--muted-2); text-decoration: line-through; }
 
