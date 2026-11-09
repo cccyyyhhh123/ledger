@@ -11,11 +11,11 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="style.css?v=94">
+<link rel="stylesheet" href="style.css?v=95">
 <!-- clock ink: kept here as well, so a cached style.css cannot leave the
      seconds a different colour from the hours -->
 <style>.anchor__sec { color: inherit !important; }</style>
-<script src="theme.js?v=94"></script>
+<script src="theme.js?v=95"></script>
 </head>
 <body>
 
@@ -169,8 +169,8 @@
   </div>
 </div>
 
-<script src="counter.js?v=94"></script>
-<script src="nav.js?v=94"></script>
+<script src="counter.js?v=95"></script>
+<script src="nav.js?v=95"></script>
 <script>
   (function () {
     var hour = new Date().getHours();
@@ -449,7 +449,15 @@
       fromEngine.addEventListener('click', function () {
         close();
         if (strip) strip.hidden = false;
-        if (hint) hint.textContent = 'Looking for the local service…';
+
+        /* A page may not run a program, but Windows lets a registered address
+           do it: deskwallpaper: is wired to the launcher, so this click can
+           really start the service. Only tried while the click is still fresh,
+           because browsers drop the permission once it is not. */
+        if (hint) hint.textContent = 'Checking the local service…';
+        function wake() {
+          try { window.location.href = 'deskwallpaper:start'; } catch (e) { /* not registered */ }
+        }
 
         var tries = 0;
         function probe() {
@@ -465,12 +473,16 @@
               if (strip) strip.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
             })
             .catch(function () {
+              if (tries === 1) {
+                if (hint) hint.textContent = 'Starting the local service…';
+                wake();
+              }
               if (tries < 15) {
                 if (hint) {
                   hint.textContent = 'Waiting for the service to come up… (' + tries + ') ' +
-                    'If it never appears, double-click _tools\\启动壁纸台.bat once.';
+                    'If a prompt asks to open Desk Wallpaper Service, say yes.';
                 }
-                setTimeout(probe, 2000);
+                setTimeout(probe, 1500);
               } else if (hint) {
                 hint.textContent = 'The service is not running. Double-click _tools\\启动壁纸台.bat — ' +
                   'it also installs itself to start with Windows, so this is a one-time step.';
@@ -1049,8 +1061,8 @@
     window.DeskCrop = { open: open };
   })();
 </script>
-<script src="wallpaper-pick.js?v=94"></script>
-<script src="wallpaper-live.js?v=94"></script>
-<script src="pet.js?v=94"></script>
+<script src="wallpaper-pick.js?v=95"></script>
+<script src="wallpaper-live.js?v=95"></script>
+<script src="pet.js?v=95"></script>
 </body>
 </html>
