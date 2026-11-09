@@ -27,3 +27,4 @@ ovo/
 
 # inspector output
 _[a-z][0-9]*/
+_live*

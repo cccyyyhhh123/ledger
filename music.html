@@ -37,7 +37,12 @@
        it only appears once you have chosen a song, so the page starts as a search box and nothing else.</p>
   </header>
 
-  <section class="panel bridge" id="bridgePanel">
+  <p class="bridge-help small muted" id="bridgeHelp">
+    Desktop player not connected. Double-click <span class="mono">_tools\启动音乐台.bat</span> —
+    it starts the bridge and opens this page from disk, which is what lets a page read the player.
+  </p>
+
+  <section class="panel bridge" id="bridgePanel" hidden>
     <div class="bridge__head">
       <h2>On this computer</h2>
       <span class="bridge__state" id="bridgeState">connecting…</span>
@@ -446,8 +451,17 @@
           if (!response.ok) throw new Error('http ' + response.status);
           return response.json();
         })
-        .then(paint)
-        .catch(function () { if (!online) offline(); else offline(); })
+        .then(function (data) {
+          document.getElementById('bridgePanel').hidden = false;
+          document.getElementById('bridgeHelp').hidden = true;
+          paint(data);
+        })
+        .catch(function () {
+          online = false;
+          /* no service: keep the panel out of the way rather than showing a dead one */
+          document.getElementById('bridgePanel').hidden = true;
+          document.getElementById('bridgeHelp').hidden = false;
+        })
         .then(function () { clearTimeout(guard); });
     }
 
