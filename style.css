@@ -1235,6 +1235,12 @@ body, .nav, .panel, .card, .metric, .rail__block, .watch, .stat,
   width: 7.5rem; letter-spacing: 0.28em; text-align: center;
   font-variant-numeric: tabular-nums; font-size: 0.95rem;
 }
+@media (max-width: 680px) {
+  .keyopen { min-width: 0; width: 100%; }
+  .keyopen .row { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+  .keyopen__input { grid-column: 1 / -1; width: 100%; }
+  .keyopen .row .btn { width: 100%; }
+}
 
 /* ---------- practice questions ---------- */
 /* these blocks set their own display, which would beat the hidden attribute */

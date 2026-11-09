@@ -37,7 +37,10 @@
   var last = 0;
   var still = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-  var size = 150;
+  /* a phone gets a smaller creature: at 150px it sits on top of half the page */
+  function narrow() { return window.innerWidth < 640; }
+  var size = narrow() ? 96 : 150;
+  function maxSize() { return narrow() ? 150 : 300; }
   var pos = { x: 0, y: 0 };
   var target = { x: 0, y: 0 };
   var facing = 1;
@@ -73,7 +76,8 @@
     ['sleep', 'Sleep'],
     ['bigger', 'Bigger'],
     ['smaller', 'Smaller'],
-    ['corner', 'Back to the corner']
+    ['corner', 'Back to the corner'],
+    ['hide', 'Put it away']
   ].forEach(function (item) {
     var button = document.createElement('button');
     button.type = 'button';
@@ -92,8 +96,8 @@
 
     load();
     if (!pos.x && !pos.y) {
-      pos.x = 24;
-      pos.y = Math.max(0, window.innerHeight - size - 24);
+      pos.x = narrow() ? 12 : 24;
+      pos.y = Math.max(0, window.innerHeight - size - (narrow() ? 12 : 24));
     }
     target.x = pos.x;
     target.y = pos.y;
@@ -127,7 +131,7 @@
     try {
       var saved = JSON.parse(localStorage.getItem(STORE));
       if (!saved) return;
-      if (typeof saved.size === 'number') size = Math.max(90, Math.min(300, saved.size));
+      if (typeof saved.size === 'number') size = Math.max(90, Math.min(maxSize(), saved.size));
       if (typeof saved.x === 'number' && typeof saved.y === 'number') {
         pos.x = saved.x; pos.y = saved.y;
       }
@@ -207,15 +211,15 @@
   }
 
   function resize(next) {
-    size = Math.max(90, Math.min(300, next));
+    size = Math.max(90, Math.min(maxSize(), next));
     clamp();
     place();
     persist();
   }
 
   function goHome() {
-    pos.x = 24;
-    pos.y = Math.max(0, window.innerHeight - size - 24);
+    pos.x = narrow() ? 12 : 24;
+    pos.y = Math.max(0, window.innerHeight - size - (narrow() ? 12 : 24));
     target.x = pos.x;
     target.y = pos.y;
     facing = -1;
@@ -341,12 +345,29 @@
       if (act === 'bigger') resize(size + 20);
       if (act === 'smaller') resize(size - 20);
       if (act === 'corner') goHome();
+      if (act === 'hide') hide();
     });
 
-    window.addEventListener('resize', function () { clamp(); place(); });
+    window.addEventListener('resize', function () {
+      if (size > maxSize()) size = maxSize();
+      clamp();
+      place();
+    });
     document.addEventListener('visibilitychange', function () {
       if (!document.hidden) last = performance.now();
     });
+  }
+
+  function hide() {
+    try { localStorage.setItem('deskPetHidden', '1'); } catch (e) {}
+    canvas.remove();
+    bubble.remove();
+    menu.remove();
+  }
+
+  function show() {
+    try { localStorage.removeItem('deskPetHidden'); } catch (e) {}
+    if (!document.getElementById('pet')) mount();
   }
 
   /* ---------- the handle other pages use ---------- */
@@ -356,9 +377,19 @@
     setState: function (name) { setState(name); if (name === 'idle') wander(); },
     resize: function (value) { resize(value); },
     goHome: goHome,
+    show: show,
+    hide: hide,
+    hidden: function () {
+      try { return localStorage.getItem('deskPetHidden') === '1'; } catch (e) { return false; }
+    },
     onChange: function (fn) { if (typeof fn === 'function') listeners.push(fn); }
   };
 
-  if (document.body) mount();
-  else document.addEventListener('DOMContentLoaded', mount);
+  var putAway = false;
+  try { putAway = localStorage.getItem('deskPetHidden') === '1'; } catch (e) {}
+
+  if (!putAway) {
+    if (document.body) mount();
+    else document.addEventListener('DOMContentLoaded', mount);
+  }
 })();
