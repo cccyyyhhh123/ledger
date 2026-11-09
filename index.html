@@ -11,8 +11,8 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="style.css?v=81">
-<script src="theme.js?v=81"></script>
+<link rel="stylesheet" href="style.css?v=82">
+<script src="theme.js?v=82"></script>
 </head>
 <body>
 
@@ -126,8 +126,28 @@
   </aside>
 </main>
 
-<script src="counter.js?v=81"></script>
-<script src="nav.js?v=81"></script>
+<div class="crop" id="crop" hidden>
+  <div class="crop__sheet" role="dialog" aria-modal="true" aria-label="Choose the part of the picture to use">
+    <p class="crop__title">Drag the box over the part you want</p>
+    <p class="crop__hint">The box keeps the shape of the window, so what you frame is what the page shows.</p>
+    <div class="crop__stage" id="cropStage">
+      <img id="cropImg" alt="">
+      <div class="crop__sel" id="cropSel">
+        <span class="crop__handle" data-h="nw"></span>
+        <span class="crop__handle" data-h="ne"></span>
+        <span class="crop__handle" data-h="sw"></span>
+        <span class="crop__handle" data-h="se"></span>
+      </div>
+    </div>
+    <div class="crop__actions">
+      <button class="btn btn--ghost" id="cropCancel" type="button">Cancel</button>
+      <button class="btn btn--primary" id="cropApply" type="button">Use this area</button>
+    </div>
+  </div>
+</div>
+
+<script src="counter.js?v=82"></script>
+<script src="nav.js?v=82"></script>
 <script>
   (function () {
     var hour = new Date().getHours();
@@ -425,21 +445,19 @@
         input.addEventListener('change', function () {
           var file = input.files && input.files[0];
           if (!file) return;
-          status.textContent = 'Reading the colours…';
-
-          /* two things happen: a palette is taken from the image, and the image
-             itself is kept as the page wallpaper */
-          Promise.all([DeskTheme.extract(file), DeskTheme.prepareWallpaper(file)])
-            .then(function (results) {
-              DeskTheme.save(results[0]);
-              DeskTheme.setWallpaper(results[1].url, file.name, results[1].lum);
+          /* the picture is not used whole: the chooser lets the reader frame the
+             part that will actually be seen, then that crop becomes the wallpaper */
+          if (window.DeskCrop) {
+            window.DeskCrop.open(file, function (result) {
+              DeskTheme.save(result.theme);
+              DeskTheme.setWallpaper(result.url, file.name, result.lum);
               paintSwatches(null);
               status.textContent = 'Wallpaper and palette set from ' + file.name + '.';
               if (clearWallpaperBtn) clearWallpaperBtn.hidden = false;
-            })
-            .catch(function () {
-              status.textContent = 'That image could not be read.';
             });
+          } else {
+            status.textContent = 'This browser cannot frame the picture.';
+          }
           input.value = '';
         });
       }
@@ -694,6 +712,171 @@
     });
   })();
 </script>
-<script src="pet.js?v=81"></script>
+<script>
+  /* ---------- framing the wallpaper ----------
+     A photo is rarely the right shape for a window, so the whole picture is
+     never used as it is: this lays it out, puts a frame on it with the window's
+     proportions, and only the part inside that frame is kept. */
+  (function () {
+    var modal = document.getElementById('crop');
+    if (!modal) return;
+
+    var stage = document.getElementById('cropStage');
+    var img = document.getElementById('cropImg');
+    var sel = document.getElementById('cropSel');
+    var applyBtn = document.getElementById('cropApply');
+    var cancelBtn = document.getElementById('cropCancel');
+
+    var pending = null;
+    var rect = { x: 0, y: 0, w: 0, h: 0 };
+    var stageSize = { w: 1, h: 1 };
+    var aspect = 1.6;
+    var onDone = null;
+    var drag = null;
+
+    function paint() {
+      sel.style.left = rect.x + 'px';
+      sel.style.top = rect.y + 'px';
+      sel.style.width = rect.w + 'px';
+      sel.style.height = rect.h + 'px';
+    }
+
+    function layout() {
+      var maxW = Math.min(window.innerWidth - 72, 880);
+      var maxH = Math.min(window.innerHeight * 0.56, 520);
+      var scale = Math.min(maxW / pending.w, maxH / pending.h, 1);
+      stageSize.w = Math.round(pending.w * scale);
+      stageSize.h = Math.round(pending.h * scale);
+      stage.style.width = stageSize.w + 'px';
+      stage.style.height = stageSize.h + 'px';
+
+      var w = Math.min(stageSize.w, stageSize.h * aspect);
+      var h = w / aspect;
+      rect = { x: (stageSize.w - w) / 2, y: (stageSize.h - h) / 2, w: w, h: h };
+      paint();
+    }
+
+    function open(file, done) {
+      onDone = done;
+      var url = URL.createObjectURL(file);
+      img.onload = function () {
+        pending = { w: img.naturalWidth, h: img.naturalHeight };
+        aspect = Math.max(0.5, Math.min(3, window.innerWidth / Math.max(1, window.innerHeight)));
+        modal.hidden = false;
+        document.documentElement.style.overflow = 'hidden';
+        layout();
+      };
+      img.onerror = function () { URL.revokeObjectURL(url); };
+      img.src = url;
+    }
+
+    function close() {
+      modal.hidden = true;
+      document.documentElement.style.overflow = '';
+      if (img.src.indexOf('blob:') === 0) URL.revokeObjectURL(img.src);
+      img.removeAttribute('src');
+      pending = null;
+      drag = null;
+    }
+
+    sel.addEventListener('pointerdown', function (event) {
+      var handle = event.target.getAttribute('data-h');
+      drag = {
+        mode: handle || 'move',
+        x: event.clientX,
+        y: event.clientY,
+        from: { x: rect.x, y: rect.y, w: rect.w, h: rect.h }
+      };
+      sel.setPointerCapture(event.pointerId);
+      event.preventDefault();
+    });
+
+    sel.addEventListener('pointermove', function (event) {
+      if (!drag) return;
+      var dx = event.clientX - drag.x;
+      var dy = event.clientY - drag.y;
+      var from = drag.from;
+
+      if (drag.mode === 'move') {
+        rect.x = Math.max(0, Math.min(stageSize.w - rect.w, from.x + dx));
+        rect.y = Math.max(0, Math.min(stageSize.h - rect.h, from.y + dy));
+        paint();
+        return;
+      }
+
+      var east = drag.mode.indexOf('e') >= 0;
+      var south = drag.mode.indexOf('s') >= 0;
+      var byX = east ? from.w + dx : from.w - dx;
+      var byY = (south ? from.h + dy : from.h - dy) * aspect;
+      var w = Math.max(90, (byX + byY) / 2);
+      var h = w / aspect;
+      var x = east ? from.x : from.x + from.w - w;
+      var y = south ? from.y : from.y + from.h - h;
+
+      if (x < 0) { w += x; h = w / aspect; x = 0; }
+      if (y < 0) { h += y; w = h * aspect; y = 0; }
+      if (x + w > stageSize.w) { w = stageSize.w - x; h = w / aspect; }
+      if (y + h > stageSize.h) { h = stageSize.h - y; w = h * aspect; }
+      if (w < 90) { w = 90; h = w / aspect; }
+
+      rect = { x: x, y: y, w: w, h: h };
+      paint();
+    });
+
+    sel.addEventListener('pointerup', function () { drag = null; });
+    sel.addEventListener('pointercancel', function () { drag = null; });
+
+    cancelBtn.addEventListener('click', close);
+    modal.addEventListener('click', function (event) { if (event.target === modal) close(); });
+    document.addEventListener('keydown', function (event) {
+      if (event.key === 'Escape' && !modal.hidden) close();
+    });
+
+    applyBtn.addEventListener('click', function () {
+      if (!pending) return;
+      var scale = pending.w / stageSize.w;
+      var sx = Math.round(rect.x * scale);
+      var sy = Math.round(rect.y * scale);
+      var sw = Math.max(1, Math.round(rect.w * scale));
+      var sh = Math.max(1, Math.round(rect.h * scale));
+
+      var outW = Math.min(sw, 1600);
+      var outH = Math.max(1, Math.round(sh * outW / sw));
+
+      var canvas = document.createElement('canvas');
+      canvas.width = outW;
+      canvas.height = outH;
+      canvas.getContext('2d').drawImage(img, sx, sy, sw, sh, 0, 0, outW, outH);
+
+      var probe = document.createElement('canvas');
+      probe.width = 24;
+      probe.height = 24;
+      var pctx = probe.getContext('2d', { willReadFrequently: true });
+      pctx.drawImage(canvas, 0, 0, 24, 24);
+      var data = pctx.getImageData(0, 0, 24, 24).data;
+      var sum = 0;
+      for (var i = 0; i < data.length; i += 4) {
+        sum += (0.2126 * data[i] + 0.7152 * data[i + 1] + 0.0722 * data[i + 2]) / 255;
+      }
+      var lum = sum / (data.length / 4);
+      var url = canvas.toDataURL('image/jpeg', 0.75);
+
+      canvas.toBlob(function (blob) {
+        function finish(theme) {
+          close();
+          if (onDone) onDone({ url: url, lum: lum, theme: theme });
+        }
+        if (window.DeskTheme && blob && window.DeskTheme.extract) {
+          window.DeskTheme.extract(blob).then(finish).catch(function () { finish(null); });
+        } else {
+          finish(null);
+        }
+      }, 'image/jpeg', 0.9);
+    });
+
+    window.DeskCrop = { open: open };
+  })();
+</script>
+<script src="pet.js?v=82"></script>
 </body>
 </html>

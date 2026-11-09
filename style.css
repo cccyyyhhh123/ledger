@@ -1338,6 +1338,53 @@ body, .nav, .panel, .card, .metric, .rail__block, .watch, .stat,
   }
   }
 
+/* ---------- framing a wallpaper ---------- */
+.crop {
+  position: fixed; inset: 0; z-index: 200;
+  display: grid; place-items: center; padding: 20px;
+  background: rgba(6, 6, 9, 0.72);
+  -webkit-backdrop-filter: blur(6px);
+  backdrop-filter: blur(6px);
+}
+.crop[hidden] { display: none !important; }
+
+.crop__sheet {
+  display: grid; gap: 8px; justify-items: center;
+  max-width: min(920px, 94vw);
+  padding: 18px; border-radius: 18px;
+  background: var(--panel); border: 1px solid var(--line-2);
+  box-shadow: 0 30px 70px rgba(0, 0, 0, 0.55);
+}
+.crop__title { font-size: 0.95rem; font-weight: 600; color: var(--ink); }
+.crop__hint { font-size: 0.76rem; color: var(--muted); text-align: center; max-width: 46ch; }
+
+.crop__stage {
+  position: relative; margin-top: 6px; border-radius: 12px; overflow: hidden;
+  background: #000; line-height: 0; touch-action: none;
+}
+.crop__stage img { display: block; width: 100%; height: 100%; object-fit: cover; }
+
+.crop__sel {
+  position: absolute; box-sizing: border-box;
+  border: 1.5px solid rgba(255, 255, 255, 0.9);
+  border-radius: 6px; cursor: move;
+  box-shadow: 0 0 0 9999px rgba(0, 0, 0, 0.55);
+}
+.crop__handle {
+  position: absolute; width: 14px; height: 14px; border-radius: 4px;
+  background: #fff; border: 1px solid rgba(0, 0, 0, 0.35);
+}
+.crop__handle[data-h="nw"] { left: -7px; top: -7px; cursor: nwse-resize; }
+.crop__handle[data-h="ne"] { right: -7px; top: -7px; cursor: nesw-resize; }
+.crop__handle[data-h="sw"] { left: -7px; bottom: -7px; cursor: nesw-resize; }
+.crop__handle[data-h="se"] { right: -7px; bottom: -7px; cursor: nwse-resize; }
+
+.crop__actions { display: flex; gap: 8px; justify-content: flex-end; width: 100%; margin-top: 10px; }
+@media (max-width: 680px) {
+  .crop__sheet { padding: 14px; }
+  .crop__actions .btn { flex: 1; }
+}
+
 /* ---------- moving between pages ----------
    The site is plain HTML, so every link is a full document swap. The View
    Transitions API turns that swap into a cross-fade the browser does itself;
