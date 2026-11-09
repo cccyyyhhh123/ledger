@@ -11,7 +11,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Bricolage+Grotesque:wght@700;800&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="style.css?v=136">
+<link rel="stylesheet" href="style.css?v=137">
 <!-- clock ink: kept here as well, so a cached style.css cannot leave the
      seconds a different colour from the hours -->
 <style>.anchor__sec { color: inherit !important; }</style>
@@ -939,6 +939,21 @@
       try { localStorage.setItem(UNDO_KEY, JSON.stringify(history)); } catch (e) {}
       if (step.slot) slot = step.slot;
       paint();
+      paintUndo();
+
+      /* say what came back, so an empty face is not mistaken for a failure */
+      var restored = step.previous === null
+        ? 'Undone — that entry is gone.'
+        : 'Undone — back to ' + (step.previous ? LABELS[step.previous - 1] : 'nothing') + '.';
+      say(restored);
+    }
+
+    var sayTimer = 0;
+    function say(text) {
+      if (!note) return;
+      note.textContent = text;
+      clearTimeout(sayTimer);
+      sayTimer = setTimeout(paintNote, 2600);
     }
 
     function face(level) {
@@ -1051,6 +1066,7 @@
       paintFaces();
       paintWeek();
       paintNote();
+      paintUndo();
     }
 
     slotsHost.addEventListener('click', function (event) {
