@@ -11,8 +11,8 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="style.css?v=71">
-<script src="theme.js?v=71"></script>
+<link rel="stylesheet" href="style.css?v=72">
+<script src="theme.js?v=72"></script>
 </head>
 <body>
 
@@ -89,8 +89,8 @@
 
 <canvas class="petcanvas" id="pet" width="400" height="400" aria-label="Desk pet"></canvas>
 
-<script>window.__DESK_BUILD__ = 'v71';</script>
-<script src="nav.js?v=71"></script>
+<script>window.__DESK_BUILD__ = 'v72';</script>
+<script src="nav.js?v=72"></script>
 <script>
   /* ---------- the desk pet ----------
      One canvas, four sprite sheets. Each state has its own frame count and
@@ -110,10 +110,11 @@
     var FRAME = 200;
     var SHEETS = {};
     var STATES = {
-      idle:  { frames: 24, fps: 12, loop: true },
-      happy: { frames: 12, fps: 18, loop: false, next: 'idle' },
-      play:  { frames: 12, fps: 14, loop: false, next: 'idle' },
-      sleep: { frames: 12, fps: 8, loop: true }
+      /* deliberately unhurried: a desk pet should not fidget */
+      idle:  { frames: 24, fps: 8, loop: true },
+      happy: { frames: 12, fps: 11, loop: false, next: 'idle' },
+      play:  { frames: 12, fps: 9, loop: false, next: 'idle' },
+      sleep: { frames: 12, fps: 5, loop: true }
     };
 
     var state = 'idle';
@@ -226,7 +227,7 @@
       var span = size * 5;
       target.x = Math.max(0, Math.min(maxX, pos.x + (Math.random() - 0.5) * span));
       target.y = Math.max(0, Math.min(maxY, pos.y + (Math.random() - 0.5) * span * 0.45));
-      nextWanderAt = performance.now() + 2200 + Math.random() * 4200;
+      nextWanderAt = performance.now() + 3200 + Math.random() * 5400;
     }
 
     function draw() {
@@ -268,7 +269,7 @@
         var dx = target.x - pos.x;
         var dy = target.y - pos.y;
         if (Math.abs(dx) > 2 || Math.abs(dy) > 2) {
-          var rate = 0.055 * dt;
+          var rate = 0.032 * dt;
           pos.x += dx * Math.min(1, rate);
           pos.y += dy * Math.min(1, rate);
           if (Math.abs(dx) > 4) facing = dx > 0 ? 1 : -1;
@@ -316,7 +317,7 @@
       if (movedWhileDown < 6) setState('happy');
       target.x = pos.x;
       target.y = pos.y;
-      nextWanderAt = performance.now() + 2600;
+      nextWanderAt = performance.now() + 3600;
     });
 
     canvas.addEventListener('dblclick', function () { setState('play'); });
