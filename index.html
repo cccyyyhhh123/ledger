@@ -11,8 +11,8 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="style.css?v=54">
-<script src="theme.js?v=54"></script>
+<link rel="stylesheet" href="style.css?v=55">
+<script src="theme.js?v=55"></script>
 </head>
 <body>
 
@@ -113,8 +113,8 @@
   </aside>
 </main>
 
-<script src="counter.js?v=54"></script>
-<script src="nav.js?v=54"></script>
+<script src="counter.js?v=55"></script>
+<script src="nav.js?v=55"></script>
 <script>
   (function () {
     var hour = new Date().getHours();
@@ -481,16 +481,26 @@
     }
 
     function paintWeek() {
-      var today = iso(new Date());
+      var today = new Date();
+      today.setHours(0, 0, 0, 0);
+      var todayKey = iso(today);
+
+      /* the strip is a calendar week, Monday first — not a rolling window */
+      var monday = new Date(today);
+      monday.setDate(today.getDate() - ((today.getDay() + 6) % 7));
+
       week.replaceChildren();
-      for (var back = 6; back >= 0; back--) {
-        var day = new Date();
-        day.setDate(day.getDate() - back);
+      var letters = ['M', 'T', 'W', 'T', 'F', 'S', 'S'];
+
+      for (var index = 0; index < 7; index++) {
+        var day = new Date(monday);
+        day.setDate(monday.getDate() + index);
         var key = iso(day);
         var entry = data[key] || {};
+        var future = day > today;
 
         var column = document.createElement('div');
-        column.className = 'mood__day' + (key === today ? ' is-today' : '');
+        column.className = 'mood__day' + (key === todayKey ? ' is-today' : '') + (future ? ' is-future' : '');
         column.title = key + ' — ' + SLOTS.map(function (item) {
           return item.label + ': ' + (entry[item.id] ? LABELS[entry[item.id] - 1] : '—');
         }).join(', ');
@@ -502,6 +512,11 @@
           if (value) cell.dataset.level = String(value);
           column.appendChild(cell);
         });
+
+        var label = document.createElement('span');
+        label.className = 'mood__letter' + (key === todayKey ? ' is-today' : '');
+        label.textContent = letters[index];
+        column.appendChild(label);
 
         week.appendChild(column);
       }
