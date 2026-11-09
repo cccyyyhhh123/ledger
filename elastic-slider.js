@@ -24,9 +24,11 @@
 
     /* the reference this follows has one badge on the left and nothing on the
        right, so the two speaker icons become optional */
-    var leftIcon = opts.single
-      ? '<span class="es__icon es__icon--badge" aria-hidden="true">' + iconMusic() + '</span>'
-      : '<span class="es__icon" aria-hidden="true">' + iconLow() + '</span>';
+    var leftIcon = opts.badge === false
+      ? ''
+      : (opts.single
+        ? '<span class="es__icon es__icon--badge" aria-hidden="true">' + iconMusic() + '</span>'
+        : '<span class="es__icon" aria-hidden="true">' + iconLow() + '</span>');
 
     root.innerHTML = leftIcon +
       '<span class="es__rail" role="slider" tabindex="0">' +
