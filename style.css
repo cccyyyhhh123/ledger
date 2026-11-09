@@ -1321,6 +1321,69 @@ body, .nav, .panel, .card, .metric, .rail__block, .watch, .stat,
   .wxcard { padding: 16px; }
 }
 
+/* ---------- the desk pet ---------- */
+.petcanvas {
+  position: fixed; z-index: 60; left: 0; top: 0;
+  cursor: grab; touch-action: none; user-select: none;
+  filter: drop-shadow(0 12px 18px rgba(0, 0, 0, 0.35));
+}
+.petcanvas.is-dragging { cursor: grabbing; }
+
+.petbubble {
+  position: fixed; z-index: 62; max-width: 15rem;
+  display: grid; gap: 2px; padding: 9px 13px;
+  border-radius: 14px; background: var(--panel);
+  border: 1px solid var(--line-2); box-shadow: var(--elevation);
+  pointer-events: none;
+}
+.petbubble__en { font-size: 0.84rem; color: var(--ink); }
+.petbubble__cn { font-size: 0.76rem; color: var(--muted); }
+
+.petmenu {
+  position: fixed; z-index: 63; display: grid; padding: 6px;
+  border-radius: 12px; background: var(--panel);
+  border: 1px solid var(--line-2); box-shadow: 0 18px 40px rgba(0, 0, 0, 0.45);
+}
+.petmenu button {
+  border: 0; background: none; text-align: left; cursor: pointer;
+  padding: 8px 12px; border-radius: 8px;
+  font-size: 0.84rem; color: var(--ink-2);
+  transition: background-color 0.15s ease, color 0.15s ease;
+}
+.petmenu button:hover { background: var(--hover-2); color: var(--ink); }
+/* these two set their own display, so the attribute needs saying out loud */
+.petbubble[hidden], .petmenu[hidden] { display: none !important; }
+
+.petctrl {
+  display: grid; gap: 12px; padding: 18px; border-radius: 18px;
+  background: var(--panel); border: 1px solid var(--line); box-shadow: var(--elevation);
+  margin-bottom: 18px;
+}
+.petctrl__row { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; }
+.petctrl__label {
+  font-size: 0.66rem; letter-spacing: 0.14em; text-transform: uppercase;
+  color: var(--muted-2); min-width: 6rem;
+}
+.petctrl__btn { padding: 7px 13px; font-size: 0.82rem; }
+.petctrl__btn.is-on { border-color: var(--accent); color: var(--accent); background: var(--hover-2); }
+.petctrl__range { width: min(18rem, 60vw); accent-color: var(--accent); }
+.petctrl__hint { font-size: 0.76rem; color: var(--muted); max-width: 60ch; }
+
+.petnotes {
+  display: grid; gap: 10px; padding: 20px; border-radius: 18px;
+  background: var(--panel); border: 1px solid var(--line); box-shadow: var(--elevation);
+  margin-bottom: 120px;
+}
+.petnotes h2 { font-size: 0.7rem; letter-spacing: 0.16em; text-transform: uppercase; color: var(--muted-2); }
+.petnotes ul { margin: 0; padding-left: 1.1rem; display: grid; gap: 6px; }
+.petnotes li { font-size: 0.86rem; color: var(--ink-2); }
+.petnotes b { color: var(--ink); font-weight: 600; }
+
+@media (max-width: 680px) {
+  .petctrl__label { min-width: 0; width: 100%; }
+  .petnotes { margin-bottom: 140px; }
+}
+
 /* ---------- today's mood ---------- */
 .mood__slots { display: flex; gap: 4px; margin-top: 10px; }
 .mood__slot {
