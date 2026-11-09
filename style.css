@@ -1207,6 +1207,52 @@ body, .nav, .panel, .card, .metric, .rail__block, .watch, .stat,
 .swatch__name { font-size: 0.72rem; color: var(--muted); }
 .swatch.is-active .swatch__name { color: var(--ink); }
 
+/* ---------- practice questions ---------- */
+/* these blocks set their own display, which would beat the hidden attribute */
+.scard--quiz [hidden] { display: none !important; }
+.scard--quiz { grid-column: span 12; }
+.quiz__setup { display: flex; flex-wrap: wrap; align-items: end; gap: 12px; }
+.quiz__field { max-width: 15rem; }
+.quiz__setup .btn { margin-bottom: 1px; }
+
+.quiz { display: grid; gap: 12px; }
+.quiz__head { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; }
+.quiz__meta { font-size: 0.78rem; color: var(--muted); }
+.quiz__score { font-size: 0.8rem; color: var(--muted-2); font-variant-numeric: tabular-nums; }
+.quiz__q { font-size: 1.02rem; font-weight: 600; line-height: 1.45; max-width: 60ch; }
+
+.quiz__options { display: grid; gap: 8px; max-width: 60rem; }
+.quiz__option {
+  display: flex; align-items: flex-start; gap: 10px; text-align: left;
+  padding: 11px 14px; border-radius: 12px; cursor: pointer;
+  border: 1px solid var(--line); background: transparent; color: var(--ink-2);
+  font-size: 0.9rem; line-height: 1.45;
+  transition: border-color 0.16s ease, background-color 0.16s ease, color 0.16s ease;
+}
+.quiz__option:hover:not(:disabled) { border-color: var(--line-2); background: var(--hover); color: var(--ink); }
+.quiz__option:disabled { cursor: default; opacity: 0.85; }
+.quiz__key {
+  flex: none; width: 1.5rem; height: 1.5rem; display: grid; place-items: center;
+  border-radius: 7px; border: 1px solid var(--line);
+  font-size: 0.72rem; color: var(--muted-2);
+}
+.quiz__option.is-right { border-color: var(--good); color: var(--ink); }
+.quiz__option.is-right .quiz__key { border-color: var(--good); color: var(--good); }
+.quiz__option.is-wrong { border-color: var(--bad); }
+.quiz__option.is-wrong .quiz__key { border-color: var(--bad); color: var(--bad); }
+
+.quiz__feedback { font-size: 0.84rem; min-height: 1.2em; color: var(--muted); }
+.quiz__feedback.is-right { color: var(--good); }
+.quiz__feedback.is-wrong { color: var(--bad); }
+
+.quiz__summary { display: grid; gap: 8px; justify-items: start; }
+.quiz__result { font-size: 1.1rem; font-weight: 650; }
+
+@media (max-width: 680px) {
+  .quiz__field { max-width: none; width: 100%; }
+  .quiz__setup .btn { width: 100%; }
+}
+
 /* ---------- today's mood ---------- */
 .mood__slots { display: flex; gap: 4px; margin-top: 10px; }
 .mood__slot {

@@ -11,8 +11,8 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="style.css?v=64">
-<script src="theme.js?v=64"></script>
+<link rel="stylesheet" href="style.css?v=65">
+<script src="theme.js?v=65"></script>
 </head>
 <body>
 
@@ -106,6 +106,48 @@
       </p>
     </article>
 
+    <article class="scard scard--quiz">
+      <h2>Practice questions</h2>
+      <p class="scard__hint">Generated from the deck of the course you pick above — one answer is right,
+         the other three come from the same course.</p>
+
+      <div class="quiz__setup" id="quizSetup">
+        <label class="field quiz__field">
+          <span>How many</span>
+          <select class="input" id="quizCount">
+            <option value="5" selected>5</option>
+            <option value="10">10</option>
+            <option value="15">15</option>
+            <option value="20">20</option>
+          </select>
+        </label>
+        <label class="field quiz__field">
+          <span>Only cards I have not marked</span>
+          <select class="input" id="quizScope">
+            <option value="unknown" selected>Not yet known</option>
+            <option value="all">The whole deck</option>
+          </select>
+        </label>
+        <button class="btn btn--primary" id="quizStart" type="button">Generate</button>
+      </div>
+
+      <div class="quiz" id="quiz" hidden>
+        <div class="quiz__head">
+          <span class="quiz__meta" id="quizMeta">—</span>
+          <span class="quiz__score" id="quizScore">0 / 0</span>
+        </div>
+        <p class="quiz__q" id="quizQuestion">—</p>
+        <div class="quiz__options" id="quizOptions"></div>
+        <p class="quiz__feedback" id="quizFeedback" aria-live="polite"></p>
+        <div class="row" style="margin-top:12px">
+          <button class="btn" id="quizNext" type="button" disabled>Next</button>
+          <span class="spacer"></span>
+          <button class="btn btn--ghost" id="quizStop" type="button">Stop</button>
+        </div>
+      </div>
+
+      <div class="quiz__summary" id="quizSummary" hidden></div>
+    </article>
     <article class="scard scard--projects">
       <h2>My projects</h2>
       <form class="project-form" id="projectForm">
@@ -129,7 +171,7 @@
   </section>
 </main>
 
-<script src="nav.js?v=64"></script>
+<script src="nav.js?v=65"></script>
 <script>
   const SUBJECTS = {
     cpp: {
@@ -786,6 +828,192 @@
     });
   }
 
+
+  /* ---------- practice questions ----------
+     A question is a card turned into four options: the real answer plus three
+     taken from other cards of the same course. No network, no model — everything
+     is derived from the deck above, so a wrong option is always plausible. */
+  (function () {
+    var setup = document.getElementById('quizSetup');
+    var box = document.getElementById('quiz');
+    var summary = document.getElementById('quizSummary');
+    var meta = document.getElementById('quizMeta');
+    var scoreEl = document.getElementById('quizScore');
+    var questionEl = document.getElementById('quizQuestion');
+    var optionsEl = document.getElementById('quizOptions');
+    var feedback = document.getElementById('quizFeedback');
+    var nextBtn = document.getElementById('quizNext');
+    var startBtn = document.getElementById('quizStart');
+    var stopBtn = document.getElementById('quizStop');
+    if (!setup || !box || !startBtn) return;
+
+    var questions = [];
+    var index = 0;
+    var right = 0;
+    var answered = false;
+
+    function shuffle(list) {
+      for (var i = list.length - 1; i > 0; i--) {
+        var j = Math.floor(Math.random() * (i + 1));
+        var tmp = list[i];
+        list[i] = list[j];
+        list[j] = tmp;
+      }
+      return list;
+    }
+
+    function build(courseKey) {
+      var cards = SUBJECTS[courseKey].cards;
+      var scope = document.getElementById('quizScope').value;
+      var pool = cards.map(function (card, i) { return { card: card, i: i }; })
+        .filter(function (entry) {
+          return scope === 'all' || !isKnown(cardId(courseKey, entry.i), 'all');
+        });
+      if (pool.length < 4) pool = cards.map(function (card, i) { return { card: card, i: i }; });
+
+      var want = Math.min(Number(document.getElementById('quizCount').value) || 5, pool.length);
+      var picked = shuffle(pool.slice()).slice(0, want);
+
+      return picked.map(function (entry) {
+        var answer = entry.card.a;
+        var others = shuffle(cards
+          .filter(function (card) { return card.a !== answer; })
+          .map(function (card) { return card.a; }))
+          .slice(0, 3);
+        return {
+          key: cardId(courseKey, entry.i),
+          q: entry.card.q,
+          answer: answer,
+          options: shuffle([answer].concat(others))
+        };
+      });
+    }
+
+    function paint() {
+      var item = questions[index];
+      answered = false;
+      meta.textContent = SUBJECTS[current].name + ' · question ' + (index + 1) + ' of ' + questions.length;
+      scoreEl.textContent = right + ' / ' + index;
+      questionEl.textContent = item.q;
+      feedback.textContent = '';
+      feedback.className = 'quiz__feedback';
+      nextBtn.disabled = true;
+      nextBtn.textContent = index === questions.length - 1 ? 'Finish' : 'Next';
+
+      optionsEl.replaceChildren();
+      item.options.forEach(function (option, i) {
+        var button = document.createElement('button');
+        button.type = 'button';
+        button.className = 'quiz__option';
+        button.dataset.index = String(i);
+
+        var key = document.createElement('span');
+        key.className = 'quiz__key';
+        key.textContent = 'ABCD'[i];
+
+        var text = document.createElement('span');
+        text.textContent = option;
+
+        button.append(key, text);
+        button.addEventListener('click', function () { answer(button, option); });
+        optionsEl.appendChild(button);
+      });
+    }
+
+    function answer(button, option) {
+      if (answered) return;
+      answered = true;
+      var item = questions[index];
+      var correct = option === item.answer;
+
+      Array.prototype.forEach.call(optionsEl.children, function (child) {
+        var text = child.lastChild.textContent;
+        child.disabled = true;
+        if (text === item.answer) child.classList.add('is-right');
+        else if (child === button) child.classList.add('is-wrong');
+      });
+
+      if (correct) {
+        right += 1;
+        feedback.textContent = 'Right.';
+        feedback.className = 'quiz__feedback is-right';
+        /* answering correctly counts as knowing the card */
+        progress[item.key] = { state: 'known', at: Date.now() };
+      } else {
+        feedback.textContent = 'Not quite — the right answer is marked in green.';
+        feedback.className = 'quiz__feedback is-wrong';
+        delete progress[item.key];
+      }
+      save(STORE, progress);
+      buildSubjects();
+      paintHero();
+      paintChart();
+      scoreEl.textContent = right + ' / ' + (index + 1);
+      nextBtn.disabled = false;
+    }
+
+    function next() {
+      if (index + 1 >= questions.length) { finish(); return; }
+      index += 1;
+      paint();
+    }
+
+    function finish() {
+      box.hidden = true;
+      setup.hidden = false;
+      summary.hidden = false;
+      var total = questions.length;
+      var share = total ? Math.round(right / total * 100) : 0;
+      summary.innerHTML = '';
+      var line = document.createElement('p');
+      line.className = 'quiz__result';
+      line.textContent = right + ' of ' + total + ' right (' + share + '%)';
+      var note = document.createElement('p');
+      note.className = 'small muted';
+      note.textContent = share === 100
+        ? 'Clean sweep. Generate another set to keep it warm.'
+        : 'Every correct answer also marked that card as known in the deck.';
+      var again = document.createElement('button');
+      again.type = 'button';
+      again.className = 'btn btn--primary';
+      again.textContent = 'Generate another set';
+      again.addEventListener('click', function () { begin(); });
+      summary.append(line, note, again);
+    }
+
+    function begin() {
+      questions = build(current);
+      index = 0;
+      right = 0;
+      if (!questions.length) { return; }
+      summary.hidden = true;
+      setup.hidden = true;
+      box.hidden = false;
+      paint();
+    }
+
+    startBtn.addEventListener('click', begin);
+    nextBtn.addEventListener('click', next);
+    stopBtn.addEventListener('click', function () {
+      box.hidden = true;
+      setup.hidden = false;
+      summary.hidden = true;
+    });
+
+    /* 1–4 pick an option, Enter goes on */
+    document.addEventListener('keydown', function (event) {
+      if (box.hidden) return;
+      var tag = (event.target.tagName || '').toLowerCase();
+      if (tag === 'input' || tag === 'select' || tag === 'textarea') return;
+
+      var number = Number(event.key);
+      if (number >= 1 && number <= 4) {
+        var child = optionsEl.children[number - 1];
+        if (child && !child.disabled) child.click();
+      }
+      if (event.key === 'Enter' && !nextBtn.disabled) next();
+    });
+  })();
   buildSubjects();
   buildNote();
   buildPeriod();
