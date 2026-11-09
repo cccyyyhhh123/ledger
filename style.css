@@ -1277,6 +1277,50 @@ body, .nav, .panel, .card, .metric, .rail__block, .watch, .stat,
   .quiz__setup .btn { width: 100%; }
 }
 
+/* ---------- weather module on the desk ---------- */
+.wxcard {
+  display: grid; gap: 10px;
+  padding: 18px; border-radius: 18px; text-decoration: none;
+  background: var(--panel); border: 1px solid var(--line);
+  box-shadow: var(--elevation); color: var(--ink);
+  transition: border-color 0.18s ease, background-color 0.18s ease, transform 0.18s ease;
+}
+.wxcard:hover { border-color: var(--line-2); background: var(--panel-2); }
+.wxcard:hover .wxcard__go { transform: translateX(3px); color: var(--ink); }
+
+.wxcard__top { display: flex; align-items: center; gap: 12px; }
+.wxcard__icon { display: flex; color: var(--accent); }
+.wxcard__temp {
+  font-size: clamp(2rem, 3.4vw, 2.6rem); font-weight: 700; line-height: 1;
+  letter-spacing: -0.04em; font-variant-numeric: tabular-nums;
+}
+.wxcard__go {
+  margin-left: auto; color: var(--muted-2); font-size: 1rem;
+  transition: transform 0.18s ease, color 0.18s ease;
+}
+.wxcard__line { font-size: 0.84rem; color: var(--muted); }
+.wxcard__facts {
+  display: grid; grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px; margin: 0; padding-top: 10px; border-top: 1px solid var(--line);
+}
+.wxcard__facts dt {
+  font-size: 0.62rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted-2);
+}
+.wxcard__facts dd { margin: 2px 0 0; font-size: 0.9rem; font-weight: 600; font-variant-numeric: tabular-nums; }
+
+/* the clock itself is the way into the clock page */
+.anchor--link { display: block; text-decoration: none; color: inherit; }
+.anchor__go {
+  font-size: 0.66rem; letter-spacing: 0.1em; text-transform: uppercase;
+  color: var(--muted-2); margin-left: 8px; opacity: 0;
+  transition: opacity 0.18s ease;
+}
+.anchor--link:hover .anchor__go, .anchor--link:focus-visible .anchor__go { opacity: 1; }
+
+@media (max-width: 980px) {
+  .wxcard { padding: 16px; }
+}
+
 /* ---------- today's mood ---------- */
 .mood__slots { display: flex; gap: 4px; margin-top: 10px; }
 .mood__slot {

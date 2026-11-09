@@ -11,8 +11,8 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="style.css?v=67">
-<script src="theme.js?v=67"></script>
+<link rel="stylesheet" href="style.css?v=68">
+<script src="theme.js?v=68"></script>
 </head>
 <body>
 
@@ -20,8 +20,6 @@
   <a class="nav__brand" href="index.html">Yuhan<span>.</span>Desk</a>
   <div class="nav__links">
     <a href="index.html" aria-current="page">Home</a>
-    <a href="clock.html">Clock</a>
-    <a href="weather.html">Weather</a>
     <a href="study.html">Study</a>
     <a href="music.html">Music</a>
     <a href="ledger.html">Ledger</a>
@@ -32,7 +30,7 @@
   <section class="desk__main">
     <p class="desk__greet" id="greeting">Good afternoon</p>
 
-    <div class="anchor">
+    <a class="anchor anchor--link" href="clock.html" aria-label="Open the clock">
       <p class="anchor__value">
         <span id="hourTiles"></span><span class="ct__sep" aria-hidden="true"><i></i><i></i></span><span id="minTiles"></span><span class="ct__sep" aria-hidden="true"><i></i><i></i></span><span class="anchor__sec" id="secTiles"></span>
       </p>
@@ -42,8 +40,9 @@
         <span id="stripTemp">—</span>
         <span class="dot">·</span>
         <span>Danzhou</span>
+        <span class="anchor__go" aria-hidden="true">clock →</span>
       </p>
-    </div>
+    </a>
 
     <figure class="affirm">
       <blockquote class="affirm__line" id="affirmLine">—</blockquote>
@@ -74,13 +73,25 @@
   </section>
 
   <aside class="desk__rail">
+    <a class="wxcard" href="weather.html" aria-label="Open the weather page">
+      <div class="wxcard__top">
+        <span class="wxcard__icon" id="wxIcon" aria-hidden="true"></span>
+        <span class="wxcard__temp" id="wxTemp">—</span>
+        <span class="wxcard__go" aria-hidden="true">→</span>
+      </div>
+      <p class="wxcard__line" id="wxCond">Reading the forecast…</p>
+      <dl class="wxcard__facts">
+        <div><dt>Feels</dt><dd id="wxFeels">—</dd></div>
+        <div><dt>High</dt><dd id="wxHigh">—</dd></div>
+        <div><dt>Low</dt><dd id="wxLow">—</dd></div>
+      </dl>
+    </a>
+
     <div class="rail__block">
       <h2>On the desk</h2>
       <ul class="rail__list">
         <li><a href="music.html">Music <span id="railMusic">QQ</span></a></li>
         <li><a href="study.html">Study <span>4 courses</span></a></li>
-        <li><a href="clock.html">Clock <span>countdown</span></a></li>
-        <li><a href="weather.html">Weather <span id="railTemp">—</span></a></li>
         <li><a href="ledger.html">Ledger <span>shared</span></a></li>
       </ul>
     </div>
@@ -114,8 +125,8 @@
   </aside>
 </main>
 
-<script src="counter.js?v=67"></script>
-<script src="nav.js?v=67"></script>
+<script src="counter.js?v=68"></script>
+<script src="nav.js?v=68"></script>
 <script>
   (function () {
     var hour = new Date().getHours();
@@ -261,8 +272,17 @@
         (next.days === 0 ? 'today' : next.days === 1 ? 'tomorrow' : 'in ' + next.days + ' days');
     })();
 
-    /* ---------- temperature ---------- */
+    /* ---------- weather ---------- */
     var tempEl = document.getElementById('stripTemp');
+    var wx = {
+      temp: document.getElementById('wxTemp'),
+      cond: document.getElementById('wxCond'),
+      feels: document.getElementById('wxFeels'),
+      high: document.getElementById('wxHigh'),
+      low: document.getElementById('wxLow'),
+      icon: document.getElementById('wxIcon')
+    };
+
     var CONDITIONS = [
       [0, 'clear'], [2, 'mostly clear'], [3, 'overcast'], [48, 'fog'], [57, 'drizzle'],
       [67, 'rain'], [77, 'snow'], [82, 'showers'], [86, 'snow showers'], [99, 'storm']
@@ -273,25 +293,61 @@
       }
       return '';
     }
+
+    /* one small glyph per group, drawn here so it takes the theme's colour */
+    function weatherIcon(code) {
+      var sun = '<circle cx="12" cy="12" r="4.2" fill="none" stroke="currentColor" stroke-width="1.6"/>' +
+        '<g stroke="currentColor" stroke-width="1.6" stroke-linecap="round">' +
+        '<path d="M12 3.2v2.2M12 18.6v2.2M3.2 12h2.2M18.6 12h2.2M5.8 5.8l1.6 1.6M16.6 16.6l1.6 1.6M18.2 5.8l-1.6 1.6M7.4 16.6l-1.6 1.6"/></g>';
+      var cloud = '<path d="M7.2 17.5h9.3a3.6 3.6 0 0 0 .3-7.2 5 5 0 0 0-9.6-.9 3.9 3.9 0 0 0 0 8.1z" ' +
+        'fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/>';
+      var rain = cloud + '<g stroke="currentColor" stroke-width="1.6" stroke-linecap="round">' +
+        '<path d="M9 19.4l-.7 2M12.4 19.4l-.7 2M15.8 19.4l-.7 2"/></g>';
+      var snow = cloud + '<g stroke="currentColor" stroke-width="1.4" stroke-linecap="round">' +
+        '<path d="M9 19.6v2.2M7.9 20.7h2.2M12.6 19.6v2.2M11.5 20.7h2.2"/></g>';
+      var storm = cloud + '<path d="M12.6 18.6l-2 3h2.6l-1.4 2.4" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/>';
+      var fog = '<g stroke="currentColor" stroke-width="1.6" stroke-linecap="round">' +
+        '<path d="M5 9.5h14M4 13h16M6.5 16.5h11"/></g>';
+
+      var svg;
+      if (code <= 1) svg = sun;
+      else if (code <= 3) svg = cloud;
+      else if (code <= 48) svg = fog;
+      else if (code <= 67) svg = rain;
+      else if (code <= 77) svg = snow;
+      else if (code <= 82) svg = rain;
+      else if (code <= 86) svg = snow;
+      else svg = storm;
+
+      return '<svg viewBox="0 0 24 24" width="30" height="30" aria-hidden="true">' + svg + '</svg>';
+    }
+
     function loadTemp() {
       fetch('https://api.open-meteo.com/v1/forecast?latitude=19.52&longitude=109.57' +
-            '&current=temperature_2m,weather_code&timezone=Asia%2FShanghai', { cache: 'no-store' })
+            '&current=temperature_2m,weather_code,apparent_temperature' +
+            '&daily=temperature_2m_max,temperature_2m_min&forecast_days=1' +
+            '&timezone=Asia%2FShanghai', { cache: 'no-store' })
         .then(function (response) {
           if (!response.ok) throw new Error('http ' + response.status);
           return response.json();
         })
         .then(function (data) {
           var now = data.current;
-          /* the degrees belong in the rail; the line under the clock keeps the
-             condition, so the same number is not printed twice */
-          tempEl.textContent = condition(now.weather_code);
-          var rail = document.getElementById('railTemp');
-          if (rail) rail.textContent = Math.round(now.temperature_2m) + '°';
+          var day = data.daily || {};
+          var degrees = Math.round(now.temperature_2m);
+
+          if (tempEl) tempEl.textContent = condition(now.weather_code);
+
+          if (wx.temp) wx.temp.textContent = degrees + '°';
+          if (wx.cond) wx.cond.textContent = condition(now.weather_code) + ' · Danzhou';
+          if (wx.icon) wx.icon.innerHTML = weatherIcon(now.weather_code);
+          if (wx.feels) wx.feels.textContent = Math.round(now.apparent_temperature) + '°';
+          if (wx.high) wx.high.textContent = Math.round(day.temperature_2m_max[0]) + '°';
+          if (wx.low) wx.low.textContent = Math.round(day.temperature_2m_min[0]) + '°';
         })
         .catch(function () {
-          if (!tempEl.textContent || tempEl.textContent === '—') tempEl.textContent = 'weather offline';
-          var rail = document.getElementById('railTemp');
-          if (rail && rail.textContent === '—') rail.textContent = '—';
+          if (tempEl && (!tempEl.textContent || tempEl.textContent === '—')) tempEl.textContent = 'weather offline';
+          if (wx.cond) wx.cond.textContent = 'Forecast unavailable';
         });
     }
     loadTemp();
