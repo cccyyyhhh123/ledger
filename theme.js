@@ -18,15 +18,15 @@
       bg: '#0b0b10', panel: '#121218', panel2: '#16161d',
       accent: '#a78bfa', accent2: '#67e8f9'
     },
-    ember: {
-      name: 'Ember',
-      bg: '#100b0a', panel: '#181110', panel2: '#1e1613',
-      accent: '#fb923c', accent2: '#fca5a5'
+    clay: {
+      name: 'Clay',
+      bg: '#100d0c', panel: '#181412', panel2: '#1e1917',
+      accent: '#c08562', accent2: '#d8a48a'
     },
-    forest: {
-      name: 'Forest',
-      bg: '#0a0f0c', panel: '#111814', panel2: '#16201a',
-      accent: '#4ade80', accent2: '#a3e635'
+    sage: {
+      name: 'Sage',
+      bg: '#0c0f0d', panel: '#131715', panel2: '#181d1a',
+      accent: '#8aa88f', accent2: '#a8bfae'
     },
     ocean: {
       name: 'Ocean',
