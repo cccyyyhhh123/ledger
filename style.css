@@ -1449,7 +1449,14 @@ body, .nav, .panel, .card, .metric, .rail__block, .watch, .stat,
   position: fixed; inset: 0; z-index: 0; pointer-events: none;
   background: linear-gradient(180deg, rgba(6, 6, 10, 0.62), rgba(6, 6, 10, 0.34) 42%, rgba(6, 6, 10, 0.74));
 }
-html[data-wallpaper-live] body { background: #08080c; }
+/* the still must not show through the video: one picture at a time */
+/* only once the video is actually playing: before that the still is the only
+   thing on screen, and hiding it would leave a black page */
+html[data-wallpaper-live="ready"] body,
+html[data-wallpaper-live="ready"][data-wallpaper] body {
+  background-image: none;
+  background-color: #08080c;
+}
 html[data-wallpaper-live] .shell { position: relative; z-index: 1; }
 html[data-wallpaper-live] .nav { position: relative; z-index: 3; }
 html[data-wallpaper-live] .desk__greet,

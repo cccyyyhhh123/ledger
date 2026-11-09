@@ -11,11 +11,11 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="style.css?v=95">
+<link rel="stylesheet" href="style.css?v=96">
 <!-- clock ink: kept here as well, so a cached style.css cannot leave the
      seconds a different colour from the hours -->
 <style>.anchor__sec { color: inherit !important; }</style>
-<script src="theme.js?v=95"></script>
+<script src="theme.js?v=96"></script>
 </head>
 <body>
 
@@ -169,8 +169,8 @@
   </div>
 </div>
 
-<script src="counter.js?v=95"></script>
-<script src="nav.js?v=95"></script>
+<script src="counter.js?v=96"></script>
+<script src="nav.js?v=96"></script>
 <script>
   (function () {
     var hour = new Date().getHours();
@@ -573,6 +573,8 @@
         if (DeskTheme.wallpaper && DeskTheme.wallpaper()) clearWallpaperBtn.hidden = false;
         clearWallpaperBtn.addEventListener('click', function () {
           DeskTheme.clearWallpaper();
+          try { localStorage.removeItem('deskWallpaperLive'); } catch (e) {}
+          window.dispatchEvent(new CustomEvent('deskwallpaper:live'));
           clearWallpaperBtn.hidden = true;
           status.textContent = 'Wallpaper removed; the colours stay.';
         });
@@ -1061,8 +1063,8 @@
     window.DeskCrop = { open: open };
   })();
 </script>
-<script src="wallpaper-pick.js?v=95"></script>
-<script src="wallpaper-live.js?v=95"></script>
-<script src="pet.js?v=95"></script>
+<script src="wallpaper-pick.js?v=96"></script>
+<script src="wallpaper-live.js?v=96"></script>
+<script src="pet.js?v=96"></script>
 </body>
 </html>
