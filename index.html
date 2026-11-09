@@ -11,7 +11,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="style.css?v=96">
+<link rel="stylesheet" href="style.css?v=97">
 <!-- clock ink: kept here as well, so a cached style.css cannot leave the
      seconds a different colour from the hours -->
 <style>.anchor__sec { color: inherit !important; }</style>
@@ -459,6 +459,25 @@
           try { window.location.href = 'deskwallpaper:start'; } catch (e) { /* not registered */ }
         }
 
+        /* the address only opens while the click is fresh, so the retry loop
+           must not be the thing that tries it: that is this button's job */
+        function offerLaunch() {
+          if (!hint) return;
+          hint.textContent = 'The local service is not running. ';
+          var start = document.createElement('button');
+          start.type = 'button';
+          start.className = 'wppick__launch';
+          start.textContent = 'Start it';
+          start.addEventListener('click', wake);
+          hint.appendChild(start);
+          var note = document.createElement('span');
+          note.textContent = ' — Windows will ask once whether to open Desk Wallpaper Service.';
+          hint.appendChild(note);
+        }
+        function maybeLaunch() {
+          offerLaunch();
+        }
+
         var tries = 0;
         function probe() {
           tries += 1;
@@ -474,13 +493,11 @@
             })
             .catch(function () {
               if (tries === 1) {
-                if (hint) hint.textContent = 'Starting the local service…';
-                wake();
+                maybeLaunch();
               }
               if (tries < 15) {
                 if (hint) {
-                  hint.textContent = 'Waiting for the service to come up… (' + tries + ') ' +
-                    'If a prompt asks to open Desk Wallpaper Service, say yes.';
+                  hint.textContent = 'Waiting for the service… (' + tries + ')';
                 }
                 setTimeout(probe, 1500);
               } else if (hint) {
