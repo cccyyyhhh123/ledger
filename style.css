@@ -1571,6 +1571,46 @@ html[data-wallpaper-live] .nav__links a { color: #f2f2f7; }
 .wpmenu__item:hover { background: var(--hover); }
 .wpmenu__item b { font-size: 0.82rem; font-weight: 600; }
 .wpmenu__item span { font-size: 0.72rem; color: var(--muted); line-height: 1.35; }
+/* ---------- the fitness column ---------- */
+.fit__summary {
+  display: grid; grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 12px; margin-bottom: 18px;
+}
+.fit__summary .metric { padding: 16px 18px; }
+.fit__summary .metric__value { font-size: 1.5rem; }
+.fit__summary .metric__meta { font-size: 0.74rem; color: var(--muted); }
+
+.fit__panel { margin-bottom: 16px; }
+.fit__panel h2 { display: flex; align-items: baseline; gap: 10px; }
+.fit__cn {
+  font-size: 0.76rem; font-weight: 500; letter-spacing: 0.06em;
+  color: var(--muted-2);
+}
+
+.fit__table { margin: 12px 0 4px; }
+.fit__caption {
+  caption-side: bottom; text-align: left; padding-top: 8px;
+  font-size: 0.74rem; color: var(--muted-2);
+}
+.fit__table tbody td:first-child {
+  width: 6.5rem; color: var(--ink); font-weight: 600;
+}
+.fit__table tbody td:last-child { color: var(--muted); }
+
+.fit__list { display: grid; gap: 9px; margin: 12px 0 4px; padding-left: 1.05rem; }
+.fit__list li { font-size: 0.9rem; line-height: 1.55; color: var(--ink-2); }
+.fit__list b { color: var(--ink); font-weight: 600; }
+.fit__list a { color: var(--accent); }
+
+.fit__caution .hint { margin-bottom: 8px; }
+.fit__caution a { color: var(--accent); }
+
+@media (max-width: 900px) {
+  .fit__summary { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+@media (max-width: 560px) {
+  .fit__table tbody td:first-child { width: auto; }
+}
 /* ---------- contact ---------- */
 .contact {
   display: grid; grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr);
