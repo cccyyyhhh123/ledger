@@ -1684,6 +1684,90 @@ html[data-wallpaper-live="ready"] .wp-live {
 .wp-library { grid-template-columns: repeat(auto-fill, minmax(9.5rem, 1fr)); gap: 10px; }
 }
 
+/* ---------- everything that changes should arrive, not appear ----------
+   A static site is a series of separate documents, so smoothness has to be
+   built twice: once between pages (the view transition below) and once inside
+   a page, where palettes, wallpapers and tab contents swap in place. */
+:root {
+  --ease-out-soft: cubic-bezier(0.22, 0.61, 0.36, 1);
+  --ease-swap: cubic-bezier(0.33, 1, 0.68, 1);
+}
+
+/* a palette swap recolours the page over a beat instead of at once */
+body,
+.panel,
+.rail__block,
+.metric,
+.scard,
+.tool__head h1,
+.nav,
+.nav__links a,
+.btn,
+.ct__col,
+.anchor__value,
+.wxcard {
+  transition:
+    background-color 260ms var(--ease-out-soft),
+    border-color 260ms var(--ease-out-soft),
+    color 260ms var(--ease-out-soft);
+}
+
+/* blocks settle in as the page paints, a breath apart */
+@keyframes settle-in {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: none; }
+}
+.shell > header,
+.desk__main > *,
+.rail > *,
+.tool > header,
+.panel,
+.metric {
+  animation: settle-in 420ms var(--ease-swap) both;
+}
+.desk__main > *:nth-child(2) { animation-delay: 40ms; }
+.desk__main > *:nth-child(3) { animation-delay: 80ms; }
+.desk__main > *:nth-child(4) { animation-delay: 120ms; }
+.desk__main > *:nth-child(5) { animation-delay: 160ms; }
+.rail > *:nth-child(2) { animation-delay: 60ms; }
+.rail > *:nth-child(3) { animation-delay: 120ms; }
+
+/* a row that appears because something was clicked fades rather than jumps */
+.mood__slots,
+.mood__week,
+[data-swap] {
+  animation: settle-in 260ms var(--ease-swap) both;
+}
+
+/* the wallpaper itself fades when it is replaced */
+html[data-wallpaper] body {
+  transition: background-color 420ms var(--ease-out-soft);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .shell > header,
+  .desk__main > *,
+  .rail > *,
+  .tool > header,
+  .panel,
+  .metric,
+  .mood__slots,
+  .mood__week,
+  [data-swap] {
+    animation: none !important;
+  }
+  body,
+  .panel,
+  .rail__block,
+  .metric,
+  .scard,
+  .nav,
+  .btn,
+  .wxcard {
+    transition: none !important;
+  }
+}
+
 /* ---------- moving between pages ----------
    The site is plain HTML, so every link is a full document swap. The View
    Transitions API turns that swap into a cross-fade the browser does itself;
@@ -1692,7 +1776,7 @@ html[data-wallpaper-live="ready"] .wp-live {
 
 ::view-transition-old(root),
 ::view-transition-new(root) {
-  animation-duration: 260ms;
+  animation-duration: 300ms;
   animation-timing-function: cubic-bezier(0.22, 0.61, 0.36, 1);
 }
 ::view-transition-old(root) {
@@ -1701,14 +1785,14 @@ html[data-wallpaper-live="ready"] .wp-live {
 }
 ::view-transition-new(root) {
   animation-name: fade-in-page;
-  animation-duration: 260ms;
+  animation-duration: 320ms;
 }
 
 @keyframes fade-out-page {
   to { opacity: 0; }
 }
 @keyframes fade-in-page {
-  from { opacity: 0; transform: translateY(8px); }
+  from { opacity: 0; transform: translateY(10px) scale(0.996); }
   to { opacity: 1; transform: none; }
 }
 
