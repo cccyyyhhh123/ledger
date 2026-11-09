@@ -1518,6 +1518,8 @@ html[data-wallpaper-live="ready"] .wp-live {
 /* ---------- wallpaper strip in the rail ---------- */
 .wppick { display: grid; gap: 6px; margin-top: 14px; }
 .wppick[hidden] { display: none !important; }
+.rail__block li[hidden] { display: none !important; }
+.wpmenu__item[hidden] { display: none !important; }
 .wppick__label {
   font-size: 0.62rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted-2);
 }
