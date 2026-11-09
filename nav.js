@@ -84,7 +84,7 @@
     var from = offset(previous);
     var to = offset(current);
     var reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    ink.animate(
+    var travel = ink.animate(
       [
         { transform: 'translate(' + from.x + 'px,' + from.y + 'px)', width: from.w + 'px', height: from.h + 'px' },
         { transform: 'translate(' + to.x + 'px,' + to.y + 'px)', width: to.w + 'px', height: to.h + 'px' }
@@ -94,6 +94,10 @@
         easing: reduced ? 'ease-out' : 'cubic-bezier(0.34, 1.4, 0.64, 1)'
       }
     );
+    /* a phone can reflow the menu while the travel is still running (fonts,
+       wrapped rows, a scrolled bar); snap to the live rect when it ends */
+    travel.onfinish = function () { place(current, true); };
+    travel.oncancel = function () { place(current, true); };
   }
 
   var currentHref = current.getAttribute('href');
@@ -106,10 +110,15 @@
     });
   }
 
-  /* a resize can reflow the menu under the highlight */
-  window.addEventListener('resize', function () {
+  /* a resize, a rotation or a sideways scroll can all reflow the menu under
+     the highlight; measure again and put it back */
+  function reposition() {
     place(bar.querySelector('a[aria-current="page"]') || current, true);
-  });
+  }
+  window.addEventListener('resize', reposition);
+  window.addEventListener('orientationchange', reposition);
+  if (window.visualViewport) window.visualViewport.addEventListener('resize', reposition);
+  bar.addEventListener('scroll', reposition, { passive: true });
 })();
 /* ---------- stale page guard ----------
  * GitHub Pages lets a browser keep an HTML page for ten minutes, which is
