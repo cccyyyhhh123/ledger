@@ -68,18 +68,7 @@
   var bubbleEn = bubble.firstChild;
   var bubbleCn = bubble.lastChild;
 
-  /* the sprite is the only way into its page now, so let it be a link */
-  canvas.setAttribute('role', 'link');
-  canvas.setAttribute('tabindex', '0');
-  canvas.setAttribute('aria-label', 'Open the pet page');
-  canvas.title = 'Pet — click for the page';
-  canvas.addEventListener('click', function () { window.location.href = 'pet.html'; });
-  canvas.addEventListener('keydown', function (event) {
-    if (event.key === 'Enter' || event.key === ' ') {
-      event.preventDefault();
-      window.location.href = 'pet.html';
-    }
-  });
+
 
   var menu = document.createElement('div');
   menu.className = 'petmenu';
@@ -90,6 +79,7 @@
     ['bigger', 'Bigger'],
     ['smaller', 'Smaller'],
     ['corner', 'Back to the corner'],
+    ['page', 'Open the pet page'],
     ['hide', 'Put it away']
   ].forEach(function (item) {
     var button = document.createElement('button');
@@ -358,6 +348,7 @@
       if (act === 'bigger') resize(size + 20);
       if (act === 'smaller') resize(size - 20);
       if (act === 'corner') goHome();
+      if (act === 'page') window.location.href = 'pet.html';
       if (act === 'hide') hide();
     });
 
