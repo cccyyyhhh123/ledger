@@ -11,7 +11,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Bricolage+Grotesque:wght@700;800&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="style.css?v=151">
+<link rel="stylesheet" href="style.css?v=152">
 <!-- clock ink: kept here as well, so a cached style.css cannot leave the
      seconds a different colour from the hours -->
 <style>.anchor__sec { color: inherit !important; }</style>
@@ -88,6 +88,13 @@
 
   <aside class="desk__rail">
 
+    <div class="rail__block rail__block--go" data-href="healing.html">
+      <h2><a href="healing.html">Today&rsquo;s mood</a></h2>
+      <div class="mood__slots" id="moodSlots" role="tablist" aria-label="Part of the day"></div>
+      <div class="mood" id="mood" role="group" aria-label="How is this part of the day going"></div>
+      <div class="mood__week" id="moodWeek" aria-hidden="true"></div>
+      <p class="mood__note" id="moodNote">Tap a face — one entry a day, kept in this browser.</p>
+      <button class="mood__undo" id="moodUndo" type="button" hidden>Undo last entry</button>
     </div>
     <div class="rail__block fitmini rail__block--go" id="fitMini" data-href="fitness.html">
       <h2><a href="fitness.html">Fitness</a></h2>
