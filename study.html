@@ -11,7 +11,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="style.css?v=156">
+<link rel="stylesheet" href="style.css?v=157">
 <script src="theme.js?v=132"></script>
 </head>
 <body>
@@ -106,7 +106,7 @@
     </article>
 
     <!-- Math III unit progress — synced from the tutoring sessions 2026-11-10 -->
-    <article class="scard" style="grid-column: span 12" aria-labelledby="mathH">
+    <article class="scard unitcard" data-course="stats" style="grid-column: span 12" aria-labelledby="mathH">
       <div class="scard__head">
         <h2 id="mathH">Math III · unit progress</h2>
         <span class="scard__meta">synced 2026-11-10</span>
@@ -181,6 +181,55 @@ continuous:  P(X = c) = 0             probability = area, not height</pre>
       <p class="scard__hint" style="margin:0">
         The card ticks above are still yours to click — this block records what the tutoring sessions
         actually covered, so the two never contradict each other.
+      </p>
+    </article>
+
+
+    <!-- the other courses: their unit breakdown is not recorded yet -->
+    <article class="scard unitcard" data-course="cpp" style="grid-column: span 12" hidden>
+      <div class="scard__head">
+        <h2>Programming III · unit progress</h2>
+        <span class="scard__meta">no unit list yet</span>
+      </div>
+      <p class="small" style="margin:0 0 10px; color:var(--muted)">
+        The lectures for this course are not broken into units on this page yet. What is recorded is the
+        tick list above and the exam on <strong style="color:var(--ink)">11/23</strong>.
+      </p>
+      <p class="scard__hint" style="margin:0">
+        Start from the revise panel above — references, RAII and const carry most of the paper.
+        <a href="https://learn.hibiuh.edu.cn/courses/146" target="_blank" rel="noopener">Open the course in Canvas</a>
+        to check the module list.
+      </p>
+    </article>
+
+    <article class="scard unitcard" data-course="data" style="grid-column: span 12" hidden>
+      <div class="scard__head">
+        <h2>Data Analytics &amp; ML · unit progress</h2>
+        <span class="scard__meta">no unit list yet</span>
+      </div>
+      <p class="small" style="margin:0 0 10px; color:var(--muted)">
+        No unit breakdown recorded for this course yet. The exam is on
+        <strong style="color:var(--ink)">11/25</strong>.
+      </p>
+      <p class="scard__hint" style="margin:0">
+        Send me the module list and this card becomes a real checklist, the same shape as the one for
+        Mathematics III.
+        <a href="https://learn.hibiuh.edu.cn/courses/143" target="_blank" rel="noopener">Open the course in Canvas</a>
+      </p>
+    </article>
+
+    <article class="scard unitcard" data-course="web" style="grid-column: span 12" hidden>
+      <div class="scard__head">
+        <h2>Web Technologies · unit progress</h2>
+        <span class="scard__meta">no unit list yet</span>
+      </div>
+      <p class="small" style="margin:0 0 10px; color:var(--muted)">
+        No unit breakdown recorded yet. The exam is on
+        <strong style="color:var(--ink)">11/20</strong> — eight days before this page was last touched.
+      </p>
+      <p class="scard__hint" style="margin:0">
+        The revise panel above lists the five things that carry the paper.
+        <a href="https://learn.hibiuh.edu.cn/courses/149" target="_blank" rel="noopener">Open the course in Canvas</a>
       </p>
     </article>
 
@@ -454,6 +503,13 @@ continuous:  P(X = c) = 0             probability = area, not height</pre>
   }
 
   /* ---------- courses (the "books") ---------- */
+  /* the unit card belongs to whichever course is picked above */
+  function showUnitCard() {
+    const cards = document.querySelectorAll('.unitcard');
+    Array.prototype.forEach.call(cards, function (card) {
+      card.hidden = card.dataset.course !== current;
+    });
+  }
   function buildSubjects() {
     el.subjects.replaceChildren();
     Object.keys(SUBJECTS).forEach(function (key) {
@@ -489,7 +545,9 @@ continuous:  P(X = c) = 0             probability = area, not height</pre>
       button.addEventListener('click', function () {
         if (key === current) { noteOpen = !noteOpen; }
         else { current = key; noteOpen = true; buildOrder(); }
+        showUnitCard();
         buildSubjects();
+  showUnitCard();
         buildNote();
         paintHero();
         render();

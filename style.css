@@ -2650,3 +2650,5 @@ html[data-theme="light"] .nav.is-stuck {
 @media (max-width: 900px) {
   .heal__head { grid-template-columns: minmax(0, 1fr); align-items: start; }
 }
+/* the unit cards hide and show by course; a display rule would otherwise win */
+.unitcard[hidden] { display: none !important; }
