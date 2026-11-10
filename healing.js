@@ -286,13 +286,13 @@
   function paintAffirmation(step) {
     var line = document.getElementById('healLine');
     var cn = document.getElementById('healCn');
-    if (!line || !cn) return;
+    if (!line) return;
 
     var index = Number(localStorage.getItem('deskAffirmShow') || '-1');
     index = (index + (step == null ? 1 : step) + AFFIRMATIONS.length * 2) % AFFIRMATIONS.length;
     try { localStorage.setItem('deskAffirmShow', String(index)); } catch (e) {}
     line.textContent = AFFIRMATIONS[index].en;
-    cn.textContent = AFFIRMATIONS[index].cn;
+    if (cn) cn.textContent = AFFIRMATIONS[index].cn;
   }
 
   /* ---------- four minutes of breathing ---------- */

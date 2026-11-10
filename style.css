@@ -2619,3 +2619,8 @@ html[data-theme="light"] .nav.is-stuck {
   outline: 2px solid color-mix(in srgb, var(--accent) 60%, transparent);
   outline-offset: 4px; border-radius: 12px;
 }
+/* the healing page is one column: nothing competes, and the history sits at
+   the bottom where looking back belongs */
+.heal__grid { grid-template-columns: minmax(0, 1fr); max-width: 60rem; }
+.heal__card--history { grid-row: auto; }
+.heal__days { max-height: none; }
