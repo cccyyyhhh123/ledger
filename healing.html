@@ -11,7 +11,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Bricolage+Grotesque:wght@700;800&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="style.css?v=149">
+<link rel="stylesheet" href="style.css?v=150">
 <script src="theme.js?v=139"></script>
 </head>
 <body>
@@ -43,6 +43,15 @@
       <div class="mood__slots" id="healSlots" role="tablist" aria-label="Part of the day"></div>
       <div class="mood" id="healFaces" role="group" aria-label="How is this part of the day going"></div>
       <p class="mood__note" id="healNote">Nothing recorded yet today.</p>
+    </article>
+
+    <!-- 2 · the days behind -->
+    <article class="panel heal__card heal__card--history">
+      <h2>Behind you</h2>
+      <p class="hint">The last three weeks, newest first. Hover a face to read the slot.</p>
+      <div class="heal__days" id="healHistory"></div>
+      <p class="heal__stats" id="healStats"></p>
+      <button class="btn btn--ghost heal__clear" id="healClear" type="button">Clear every entry</button>
     </article>
 
     <!-- 3 · a line to keep -->
@@ -116,21 +125,12 @@
         <button class="btn btn--ghost" id="healDumpClear" type="button">Clear</button>
       </div>
     </article>
-    <!-- 2 · the days behind -->
-    <article class="panel heal__card heal__card--history">
-      <h2>Behind you</h2>
-      <p class="hint">The last three weeks, newest first. Hover a face to read the slot.</p>
-      <div class="heal__days" id="healHistory"></div>
-      <p class="heal__stats" id="healStats"></p>
-      <button class="btn btn--ghost heal__clear" id="healClear" type="button">Clear every entry</button>
-    </article>
-
   </section>
 
   <p class="sign">uY^Yu.</p>
 </main>
 
-<script>window.__DESK_BUILD__ = 'v149';</script>
+<script>window.__DESK_BUILD__ = 'v150';</script>
 <script src="nav.js?v=144"></script>
 <script src="healing.js?v=149"></script>
 <script src="pet.js?v=148"></script>
