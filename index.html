@@ -11,7 +11,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Bricolage+Grotesque:wght@700;800&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="style.css?v=147">
+<link rel="stylesheet" href="style.css?v=148">
 <!-- clock ink: kept here as well, so a cached style.css cannot leave the
      seconds a different colour from the hours -->
 <style>.anchor__sec { color: inherit !important; }</style>
@@ -88,9 +88,6 @@
 
   <aside class="desk__rail">
 
-
-
-
     </div>
     <div class="rail__block">
       <h2>Appearance</h2>
@@ -129,13 +126,6 @@
         Colours are kept in this browser and apply to every page.
       </p>
     </div>
-    <p class="rail__more">
-      <a href="pet.html">Pet</a>
-      <a href="wallpaper.html" id="railWallpapers">Wallpapers</a>
-      <a href="healing.html">Healing</a>
-      <a href="weather.html">Weather</a>
-      <a href="clock.html">Clock</a>
-    </p>
 
   </aside>
 </main>
@@ -261,7 +251,6 @@
         list.append(dt, dd);
       });
       body.appendChild(list);
-
 
     }
 
@@ -504,7 +493,6 @@
           var degrees = Math.round(now.temperature_2m);
 
           night = isNight(day.sunrise && day.sunrise[0], day.sunset && day.sunset[0]);
-
 
           if (wx.temp) wx.temp.textContent = degrees + '°';
           if (wx.cond) wx.cond.textContent = condition(now.weather_code) + ' · Danzhou';
@@ -1349,6 +1337,6 @@
 <script src="wallpaper-pick.js?v=132"></script>
 <script src="wallpaper-live.js?v=132"></script>
 <script src="fitness-plan.js?v=132"></script>
-<script src="pet.js?v=132"></script>
+<script src="pet.js?v=148"></script>
 </body>
 </html>
