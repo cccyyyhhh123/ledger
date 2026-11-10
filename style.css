@@ -2251,7 +2251,18 @@ html[data-wallpaper] body {
   transition: color 0.16s ease, border-color 0.16s ease, background-color 0.16s ease;
 }
 .mood__slot:hover { color: var(--ink); background: var(--hover); }
-.mood__slot.is-on { color: var(--accent); border-color: var(--accent); background: var(--hover-2); }
+/* the chosen tab is a little firmer than the others, but it does not wear the
+   accent until the block is actually in play */
+.mood__slot.is-on {
+  color: var(--ink); border-color: var(--line-2); background: var(--hover-2);
+  transition: color 180ms var(--ease-out-soft, ease),
+              border-color 180ms var(--ease-out-soft, ease);
+}
+.rail__block:hover .mood__slot.is-on,
+.mood__slots:hover .mood__slot.is-on,
+.mood__slot.is-on:focus-visible {
+  color: var(--accent); border-color: var(--accent);
+}
 
 .mood { display: flex; gap: 6px; margin-top: 10px; }
 .mood__btn {
@@ -2261,7 +2272,11 @@ html[data-wallpaper] body {
   transition: opacity 0.16s ease, border-color 0.16s ease, background-color 0.16s ease;
 }
 .mood__btn:hover { opacity: 1; background: var(--hover); }
-.mood__btn.is-picked { opacity: 1; border-color: var(--mood); }
+/* the face keeps its mouth colour — that is the record — but the ring waits */
+.mood__btn.is-picked { opacity: 1; border-color: var(--line-2); }
+.rail__block:hover .mood__btn.is-picked,
+.mood:hover .mood__btn.is-picked,
+.mood__btn.is-picked:focus-visible { border-color: var(--mood); }
 .mood__btn[data-level="1"] { --mood: var(--mood-1); }
 .mood__btn[data-level="2"] { --mood: var(--mood-2); }
 .mood__btn[data-level="3"] { --mood: var(--mood-3); }
@@ -2571,3 +2586,17 @@ html[data-theme="light"] .nav.is-stuck {
 @media (max-width: 680px) {
   .nav.is-stuck { padding-bottom: 12px; }
 }
+/* rail links follow the same rule as panel links */
+.rail__block a {
+  color: var(--muted);
+  border-bottom-color: color-mix(in srgb, var(--muted-2) 42%, transparent);
+  transition: color 180ms var(--ease-out-soft, ease),
+              border-color 180ms var(--ease-out-soft, ease);
+}
+.rail__block a:hover,
+.rail__block a:focus-visible {
+  color: var(--accent);
+  border-bottom-color: var(--accent);
+}
+.rail__block h2 a,
+.rail__block h2 a:hover { color: inherit; border-bottom-color: transparent; }
