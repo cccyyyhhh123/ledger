@@ -2492,3 +2492,47 @@ html[data-wallpaper] body {
                 height 0.16s ease-out, opacity 0.16s ease-out !important;
   }
 }
+
+/* ---------- quiet until touched ----------
+   Nothing wears the accent while the pointer is elsewhere: buttons sit in the
+   page's own ink, and only the thing under the cursor takes the colour. */
+.btn--primary {
+  background: transparent;
+  border-color: var(--line-2);
+  color: var(--ink-2);
+  transition: background-color 180ms var(--ease-out-soft, ease),
+              border-color 180ms var(--ease-out-soft, ease),
+              color 180ms var(--ease-out-soft, ease);
+}
+.btn--primary:hover,
+.btn--primary:focus-visible {
+  background: color-mix(in srgb, var(--accent) 14%, transparent);
+  border-color: color-mix(in srgb, var(--accent) 62%, var(--line-2));
+  color: color-mix(in srgb, var(--accent) 70%, var(--ink));
+}
+
+.fitmini__link,
+.mood__open,
+.panel a,
+.rail__more a {
+  color: var(--muted);
+  border-bottom-color: color-mix(in srgb, var(--muted-2) 42%, transparent);
+  transition: color 180ms var(--ease-out-soft, ease),
+              border-color 180ms var(--ease-out-soft, ease);
+}
+.fitmini__link:hover,
+.fitmini__link:focus-visible,
+.mood__open:hover,
+.mood__open:focus-visible,
+.panel a:hover,
+.panel a:focus-visible,
+.rail__more a:hover,
+.rail__more a:focus-visible {
+  color: var(--accent);
+  border-bottom-color: var(--accent);
+}
+
+/* the fitness block's link only steps forward when the block is in play */
+.fitmini__link { opacity: 0.62; }
+.rail__block:hover .fitmini__link,
+.fitmini__link:focus-visible { opacity: 1; }
