@@ -11,7 +11,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Bricolage+Grotesque:wght@700;800&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="style.css?v=155">
+<link rel="stylesheet" href="style.css?v=156">
 <script src="theme.js?v=139"></script>
 </head>
 <body>
@@ -29,10 +29,17 @@
 </nav>
 
 <main class="shell tool">
-  <header class="tool__head">
-    <h1>Healing</h1>
-    <p>A page with nothing to finish. Look at how today is going, read the days behind you, keep one line,
-       and breathe for four minutes. Everything here stays in this browser.</p>
+  <header class="tool__head heal__head">
+    <div class="heal__headText">
+      <h1>Healing</h1>
+      <p>A page with nothing to finish. Look at how today is going, read the days behind you, keep one line,
+         and breathe for four minutes. Everything here stays in this browser.</p>
+    </div>
+    <div class="heal__headLine">
+      <h2>One line</h2>
+      <blockquote class="heal__quote" id="healLine">—</blockquote>
+      <button class="btn btn--primary" id="healAnother" type="button">Another</button>
+    </div>
   </header>
 
   <section class="heal__grid">
@@ -52,13 +59,6 @@
       <div class="heal__days" id="healHistory"></div>
       <p class="heal__stats" id="healStats"></p>
       <button class="btn btn--ghost heal__clear" id="healClear" type="button">Clear every entry</button>
-    </article>
-
-    <!-- 3 · a line to keep -->
-    <article class="panel heal__card heal__card--line">
-      <h2>One line</h2>
-      <blockquote class="heal__quote" id="healLine">—</blockquote>
-      <button class="btn btn--primary" id="healAnother" type="button">Another</button>
     </article>
 
     <!-- 4 · mindfulness -->
@@ -130,7 +130,7 @@
   <p class="sign">uY^Yu.</p>
 </main>
 
-<script>window.__DESK_BUILD__ = 'v155';</script>
+<script>window.__DESK_BUILD__ = 'v156';</script>
 <script src="nav.js?v=144"></script>
 <script src="healing.js?v=155"></script>
 <script src="pet.js?v=153"></script>
