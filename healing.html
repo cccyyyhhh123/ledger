@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Healing — uY^Yu.</title>
+<meta name="description" content="A quiet page: pick how today is going, look back at the days behind, keep a line, and breathe for four minutes.">
+<link rel="icon" href="Images/favicon-32.png?v=139" sizes="32x32" type="image/png">
+<link rel="apple-touch-icon" href="Images/icon-180.png?v=139">
+<meta name="theme-color" content="#0b0b10">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Bricolage+Grotesque:wght@700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css?v=139">
+<script src="theme.js?v=139"></script>
+</head>
+<body>
+
+<nav class="nav">
+  <a class="nav__brand" href="index.html" aria-label="uY^Yu — home">uY^Yu<span>.</span></a>
+  <div class="nav__links">
+    <a href="index.html">Home</a>
+    <a href="study.html">Study</a>
+    <a href="fitness.html">Fitness</a>
+    <a href="music.html">Music</a>
+    <a href="ledger.html">Ledger</a>
+    <a href="contact.html">Contact</a>
+  </div>
+</nav>
+
+<main class="shell tool">
+  <header class="tool__head">
+    <h1>Healing</h1>
+    <p>A page with nothing to finish. Look at how today is going, read the days behind you, keep one line,
+       and breathe for four minutes. Everything here stays in this browser.</p>
+  </header>
+
+  <section class="heal__grid">
+    <!-- 1 · how today is going -->
+    <article class="panel heal__card heal__card--mood">
+      <h2>Today <span class="fit__cn">心情</span></h2>
+      <p class="hint">One face for this part of the day. It is the same entry the desk uses.</p>
+      <div class="mood__slots" id="healSlots" role="tablist" aria-label="Part of the day"></div>
+      <div class="mood" id="healFaces" role="group" aria-label="How is this part of the day going"></div>
+      <p class="mood__note" id="healNote">Nothing recorded yet today.</p>
+    </article>
+
+    <!-- 2 · the days behind -->
+    <article class="panel heal__card heal__card--history">
+      <h2>Behind you <span class="fit__cn">历史</span></h2>
+      <p class="hint">The last three weeks, newest first. Hover a face to read the slot.</p>
+      <div class="heal__days" id="healHistory"></div>
+      <p class="heal__stats" id="healStats"></p>
+      <button class="btn btn--ghost heal__clear" id="healClear" type="button">Clear every entry</button>
+    </article>
+
+    <!-- 3 · a line to keep -->
+    <article class="panel heal__card heal__card--line">
+      <h2>One line <span class="fit__cn">肯定语</span></h2>
+      <blockquote class="heal__quote" id="healLine">—</blockquote>
+      <p class="heal__cn" id="healCn">—</p>
+      <button class="btn btn--primary" id="healAnother" type="button">Another</button>
+    </article>
+
+    <!-- 4 · mindfulness -->
+    <article class="panel heal__card heal__card--breath">
+      <h2>Four minutes <span class="fit__cn">正念</span></h2>
+      <p class="hint">Breathe in for four, hold for four, out for six, hold for two. Follow the circle.</p>
+
+      <div class="heal__breath">
+        <div class="heal__orb" id="healOrb" aria-hidden="true"></div>
+        <div class="heal__breathText">
+          <strong id="healBreathWord">Ready when you are</strong>
+          <span id="healBreathLeft">4 minutes</span>
+        </div>
+      </div>
+
+      <div class="row" style="gap:8px; flex-wrap:wrap">
+        <button class="btn btn--primary" id="healStart" type="button">Start</button>
+        <button class="btn btn--ghost" id="healStop" type="button">Stop</button>
+      </div>
+
+      <ol class="heal__ground">
+        <li><b>5</b> things you can see</li>
+        <li><b>4</b> you can touch</li>
+        <li><b>3</b> you can hear</li>
+        <li><b>2</b> you can smell</li>
+        <li><b>1</b> you can taste</li>
+      </ol>
+    </article>
+  </section>
+
+  <p class="sign">uY^Yu.</p>
+</main>
+
+<script>window.__DESK_BUILD__ = 'v139';</script>
+<script src="nav.js?v=139"></script>
+<script src="healing.js?v=139"></script>
+<script src="pet.js?v=139"></script>
+</body>
+</html>
