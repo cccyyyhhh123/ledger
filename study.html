@@ -105,6 +105,85 @@
       </p>
     </article>
 
+    <!-- Math III unit progress — synced from the tutoring sessions 2026-11-10 -->
+    <article class="scard" style="grid-column: span 12" aria-labelledby="mathH">
+      <div class="scard__head">
+        <h2 id="mathH">Math III · unit progress</h2>
+        <span class="scard__meta">synced 2026-11-10</span>
+      </div>
+
+      <div style="display:flex; flex-wrap:wrap; gap:8px 18px; align-items:baseline">
+        <p style="margin:0; font:600 clamp(1.5rem,3vw,2rem)/1 var(--sans); letter-spacing:-.02em">
+          3 <small style="color:var(--muted); font-size:.55em; font-weight:500">/ 9 units</small>
+        </p>
+        <p class="small" style="margin:0; color:var(--muted)">
+          6.5 sessions left · content done <strong style="color:var(--ink)">11/17</strong> ·
+          exam <strong style="color:var(--ink)">11/24 14:00 · b110</strong>
+        </p>
+      </div>
+      <div style="height:8px; border-radius:99px; background:var(--panel-2); overflow:hidden" role="img" aria-label="33 percent of units covered">
+        <i style="display:block; height:100%; width:33%; background:linear-gradient(90deg, var(--accent), var(--accent-2))"></i>
+      </div>
+
+      <ol id="mathUnits" style="list-style:none; margin:2px 0 0; padding:0; display:grid; gap:7px; font-size:.9rem">
+        <li style="display:flex; gap:10px; align-items:baseline">
+          <span style="flex:none; width:4.6rem; font:600 .72rem/1.6 var(--mono); color:var(--good)">DONE</span>
+          <span>1 · From a question to statistical data <span style="color:var(--muted-2)">p.7</span></span></li>
+        <li style="display:flex; gap:10px; align-items:baseline">
+          <span style="flex:none; width:4.6rem; font:600 .72rem/1.6 var(--mono); color:var(--warn)">PART</span>
+          <span>2 · Reading plots, describing distributions <span style="color:var(--muted-2)">p.9 — centre &amp; spread done, plot construction not yet</span></span></li>
+        <li style="display:flex; gap:10px; align-items:baseline">
+          <span style="flex:none; width:4.6rem; font:600 .72rem/1.6 var(--mono); color:var(--muted-2)">TODO</span>
+          <span>3 · Studies, bias, confounding, causal claims <span style="color:var(--muted-2)">p.11</span></span></li>
+        <li style="display:flex; gap:10px; align-items:baseline">
+          <span style="flex:none; width:4.6rem; font:600 .72rem/1.6 var(--mono); color:var(--good)">DONE</span>
+          <span>4 · Joint, marginal, conditional probability · Bayes <span style="color:var(--muted-2)">p.13</span></span></li>
+        <li style="display:flex; gap:10px; align-items:baseline">
+          <span style="flex:none; width:4.6rem; font:600 .72rem/1.6 var(--mono); color:var(--warn)">PART</span>
+          <span>5 · Choosing a distribution (binomial, geometric, Poisson, normal) <span style="color:var(--muted-2)">p.15 — selection logic done, continuous density pending</span></span></li>
+        <li style="display:flex; gap:10px; align-items:baseline">
+          <span style="flex:none; width:4.6rem; font:600 .72rem/1.6 var(--mono); color:var(--muted-2)">TODO</span>
+          <span>6 · Joint random variables, covariance <span style="color:var(--muted-2)">p.17 · Exam D section, 35 marks</span></span></li>
+        <li style="display:flex; gap:10px; align-items:baseline">
+          <span style="flex:none; width:4.6rem; font:600 .72rem/1.6 var(--mono); color:var(--muted-2)">TODO</span>
+          <span>7 · Continuous joint densities, double integrals <span style="color:var(--muted-2)">p.19 — hardest unit, 1.5 sessions</span></span></li>
+        <li style="display:flex; gap:10px; align-items:baseline">
+          <span style="flex:none; width:4.6rem; font:600 .72rem/1.6 var(--mono); color:var(--muted-2)">TODO</span>
+          <span>8 · Sampling distributions, standard error, CLT <span style="color:var(--muted-2)">p.21</span></span></li>
+        <li style="display:flex; gap:10px; align-items:baseline">
+          <span style="flex:none; width:4.6rem; font:600 .72rem/1.6 var(--mono); color:var(--muted-2)">TODO</span>
+          <span>9 · Confidence intervals, hypothesis tests, claims <span style="color:var(--muted-2)">p.26 · Exam E section, 25 marks</span></span></li>
+      </ol>
+
+      <details>
+        <summary style="cursor:pointer; color:var(--ink-2)">Next 7 days</summary>
+        <ul class="small" style="margin:8px 0 0; padding-left:18px; color:var(--muted); display:grid; gap:4px">
+          <li>11/11 — unit 2 plots + unit 3 (bias &amp; confounding)</li>
+          <li>11/12 — unit 6 joint variables, covariance</li>
+          <li>11/13 — unit 7 continuous joint densities</li>
+          <li>11/14 — unit 8 sampling distribution, SE, CLT</li>
+          <li>11/15–11/17 — unit 9: CI, then hypothesis tests, then the error book</li>
+          <li>11/18–11/22 — no new content: Part E problem sets, full 120-minute mock on 11/22</li>
+        </ul>
+      </details>
+
+      <details>
+        <summary style="cursor:pointer; color:var(--ink-2)">Formulas that were missing from my sheet</summary>
+        <pre style="margin:8px 0 0; padding:12px; border:1px solid var(--line); border-radius:10px; background:var(--panel-2); overflow-x:auto; font:500 .82rem/1.7 var(--mono); color:var(--ink-2)">P(Aᶜ) = 1 − P(A)
+P(A|B) = P(A∩B) / P(B)
+independent:  P(A∩B) = P(A)·P(B)      mutually exclusive:  P(A∩B) = 0
+E(X) = Σ x·p(x)                       V(X) = E(X²) − [E(X)]²
+s = √( Σ(x−x̄)² / (n−1) )              population version uses σ
+z = (x − µ)/σ                         P(X &gt; x) = 1 − Φ(z)
+continuous:  P(X = c) = 0             probability = area, not height</pre>
+      </details>
+
+      <p class="scard__hint" style="margin:0">
+        The card ticks above are still yours to click — this block records what the tutoring sessions
+        actually covered, so the two never contradict each other.
+      </p>
+    </article>
+
     <article class="scard scard--quiz">
       <h2>Practice questions</h2>
       <p class="scard__hint">Generated from the deck of the course you pick above — one answer is right,
