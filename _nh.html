@@ -1,0 +1,1355 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>uY^Yu.</title>
+<meta name="description" content="One desk: music, revision cards, a clock, live weather and a shared ledger.">
+<link rel="icon" href="Images/favicon-32.png?v=132" sizes="32x32" type="image/png">
+<link rel="apple-touch-icon" href="Images/icon-180.png?v=132">
+<meta name="theme-color" content="#0b0b10">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Bricolage+Grotesque:wght@700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css?v=147">
+<script>try{localStorage.setItem('deskMode','light');}catch(e){}</script>
+<!-- clock ink: kept here as well, so a cached style.css cannot leave the
+     seconds a different colour from the hours -->
+<style>.anchor__sec { color: inherit !important; }</style>
+<script src="theme.js?v=132"></script>
+</head>
+<body>
+
+<nav class="nav">
+  <a class="nav__brand" href="index.html" aria-label="uY^Yu — home">uY^Yu<span>.</span></a>
+  <div class="nav__links">
+    <a href="index.html" aria-current="page">Home</a>
+    <a href="study.html">Study</a>
+    <a href="fitness.html">Fitness</a>
+    <a href="music.html">Music</a>
+    <a href="ledger.html">Ledger</a>
+    <a href="contact.html">Contact</a>
+  </div>
+</nav>
+
+<main class="shell desk">
+  <section class="desk__main">
+    <p class="desk__greet" id="greeting">Good afternoon</p>
+
+    <a class="anchor anchor--link" href="clock.html" aria-label="Open the clock">
+      <p class="anchor__value">
+        <span id="hourTiles"></span><span class="ct__sep" aria-hidden="true"><i></i><i></i></span><span id="minTiles"></span><span class="ct__sep" aria-hidden="true"><i></i><i></i></span><span class="anchor__sec" id="secTiles"></span>
+      </p>
+      <p class="anchor__meta">
+        <b id="stripDate">—</b>
+        <span class="anchor__go" aria-hidden="true">clock →</span>
+      </p>
+    </a>
+
+    <figure class="affirm">
+      <blockquote class="affirm__line" id="affirmLine">—</blockquote>
+      <figcaption class="affirm__cn" id="affirmCn">今日肯定语</figcaption>
+      <button class="affirm__next" id="affirmNext" type="button">another ↻</button>
+    </figure>
+
+    <div class="metrics">
+      <a class="metric metric--primary" href="study.html">
+        <span class="metric__label">Cards known</span>
+        <span class="metric__value" id="metricCards">—</span>
+        <span class="metric__meta" id="metricCardsNote">across four courses</span>
+        <span class="metric__track"><i id="metricCardsBar" style="width:0%"></i></span>
+      </a>
+      <a class="metric" href="study.html">
+        <span class="metric__label">Revision plan</span>
+        <span class="metric__value" id="metricPlan">—</span>
+        <span class="metric__note" id="metricPlanNote">no projects yet</span>
+      </a>
+      <a class="metric" href="study.html">
+        <span class="metric__label">Mood today</span>
+        <span class="metric__value" id="metricMood">—</span>
+        <span class="metric__note">picked in the rail</span>
+      </a>
+    </div>
+
+    <p class="nextup" id="nextExam">—</p>
+
+    <a class="wxcard" href="weather.html" aria-label="Open the weather page">
+      <div class="wxcard__top">
+        <span class="wxcard__icon" id="wxIcon" aria-hidden="true"></span>
+        <span class="wxcard__temp" id="wxTemp">—</span>
+      </div>
+      <p class="wxcard__line" id="wxCond">Reading the forecast…</p>
+      <dl class="wxcard__facts">
+        <div><dt>Feels</dt><dd id="wxFeels">—</dd></div>
+        <div><dt>High</dt><dd id="wxHigh">—</dd></div>
+        <div><dt>Low</dt><dd id="wxLow">—</dd></div>
+      </dl>
+    </a>
+  </section>
+
+  <aside class="desk__rail">
+
+
+
+
+    </div>
+    <div class="rail__block">
+      <h2>Appearance</h2>
+      <div class="swatches" id="swatches"></div>
+      <button class="swatch swatch--custom" id="customSwatch" type="button" aria-label="Pick your own colour">
+        <span class="swatch__chip swatch__chip--custom" id="customChip" aria-hidden="true"></span>
+        <span class="swatch__name">Custom</span>
+        <input type="color" id="customColor" value="#a78bfa" aria-label="Your own accent colour">
+      </button>
+      <div class="row" style="gap:8px; margin-top:12px; flex-wrap:wrap">
+        <div class="wpmenu" id="wpMenu">
+          <button class="btn btn--primary" id="wpMenuBtn" type="button" aria-expanded="false" aria-haspopup="true" style="padding:7px 12px; font-size:0.8rem">Choose wallpaper</button>
+          <div class="wpmenu__panel" id="wpMenuPanel" hidden>
+            <button class="wpmenu__item" id="wpFromFile" type="button">
+              <b>A picture on this computer</b>
+              <span>Upload, then frame the part you want</span>
+            </button>
+            <button class="wpmenu__item" id="wpFromEngine" type="button">
+              <b>From Wallpaper Engine</b>
+              <span>Reads the installed library; starts the local service</span>
+            </button>
+          </div>
+        </div>
+        <input id="wallpaper" type="file" accept="image/*" hidden>
+        <button class="btn btn--ghost" id="themeClearWallpaper" type="button" style="padding:7px 12px; font-size:0.8rem" hidden>Remove wallpaper</button>
+        <button class="btn btn--ghost" id="themeReset" type="button" style="padding:7px 12px; font-size:0.8rem">Reset</button>
+      </div>
+
+      <div class="wppick" id="wallpaperPick" hidden>
+        <span class="wppick__label">From this computer</span>
+        <div class="wppick__row" id="wallpaperPickRow"></div>
+        <p class="wppick__hint" id="wallpaperPickHint"></p>
+      </div>
+
+      <p class="rail__note" id="themeStatus" role="status" aria-live="polite" style="margin-top:8px">
+        Colours are kept in this browser and apply to every page.
+      </p>
+    </div>
+    <p class="rail__more">
+      <a href="pet.html">Pet</a>
+      <a href="wallpaper.html" id="railWallpapers">Wallpapers</a>
+      <a href="healing.html">Healing</a>
+      <a href="weather.html">Weather</a>
+      <a href="clock.html">Clock</a>
+    </p>
+
+  </aside>
+</main>
+
+<div class="crop" id="crop" hidden>
+  <div class="crop__sheet" role="dialog" aria-modal="true" aria-label="Choose the part of the picture to use">
+    <p class="crop__title">Drag the box over the part you want</p>
+    <p class="crop__hint">The box keeps the shape of the window, so what you frame is what the page shows.</p>
+    <div class="crop__stage" id="cropStage">
+      <img id="cropImg" alt="">
+      <div class="crop__sel" id="cropSel">
+        <span class="crop__handle" data-h="nw"></span>
+        <span class="crop__handle" data-h="ne"></span>
+        <span class="crop__handle" data-h="sw"></span>
+        <span class="crop__handle" data-h="se"></span>
+      </div>
+    </div>
+    <div class="crop__actions">
+      <button class="btn btn--ghost" id="cropCancel" type="button">Cancel</button>
+      <button class="btn btn--primary" id="cropApply" type="button">Use this area</button>
+    </div>
+  </div>
+</div>
+
+<script src="counter.js?v=132"></script>
+<script src="nav.js?v=144"></script>
+<script>
+  (function () {
+    var hour = new Date().getHours();
+    var greeting = hour < 5 ? 'Still up' : hour < 12 ? 'Good morning' : hour < 18 ? 'Good afternoon' : 'Good evening';
+    document.getElementById('greeting').textContent = greeting;
+
+    /* ---------- the anchor: the clock ---------- */
+    var hourHost = document.getElementById('hourTiles');
+    var minHost = document.getElementById('minTiles');
+    var hours = (window.Counter && hourHost) ? window.Counter.mount(hourHost, { digits: 2 }) : null;
+    var minutes = (window.Counter && minHost) ? window.Counter.mount(minHost, { digits: 2 }) : null;
+    var secHost = document.getElementById('secTiles');
+    var seconds = (window.Counter && secHost) ? window.Counter.mount(secHost, { digits: 2 }) : null;
+
+    var dateEl = document.getElementById('stripDate');
+    function tick() {
+      var now = new Date();
+      dateEl.textContent = now.toLocaleDateString('en-GB', { weekday: 'short', day: 'numeric', month: 'short' });
+      var hh = String(now.getHours()).padStart(2, '0');
+      var mm = String(now.getMinutes()).padStart(2, '0');
+      var ss = String(now.getSeconds()).padStart(2, '0');
+      if (hours && minutes && seconds) { hours.set(hh); minutes.set(mm); seconds.set(ss); }
+      else if (hourHost && minHost) {
+        hourHost.textContent = hh; minHost.textContent = mm;
+        if (secHost) secHost.textContent = ss;
+      }
+    }
+    tick();
+    setInterval(tick, 1000);
+
+/* ---------- the clock wears the wallpaper ----------
+       Six columns, three colours taken from the picture, and stops in between:
+       the gradient runs from the first stop to the last across the whole time. */
+    function paintClock() {
+      var value = document.querySelector('.anchor__value');
+      if (!value) return;
+
+      var styles = getComputedStyle(document.documentElement);
+      var a = (styles.getPropertyValue('--wp-a') || '').trim();
+      var b = (styles.getPropertyValue('--wp-b') || '').trim();
+      var c = (styles.getPropertyValue('--wp-c') || '').trim();
+
+      var colours = value.querySelectorAll('.ct__col');
+      if (!colours.length) return;
+
+      function mix(x, y, t) {
+        return 'color-mix(in srgb, ' + x + ' ' + Math.round((1 - t) * 100) + '%, ' + y + ')';
+      }
+
+      var stops;
+      if (a && b && c) {
+        stops = [a, mix(a, b, 0.5), b, mix(b, c, 0.5), c, mix(c, a, 0.5)];
+      } else {
+        stops = [null, null, null, null, null, null];
+      }
+
+      Array.prototype.forEach.call(colours, function (column, index) {
+        if (stops[index]) column.style.setProperty('--digit', stops[index]);
+        else column.style.removeProperty('--digit');
+      });
+
+      /* the pane shows the part of the picture that is actually behind it:
+         each lane gets the wallpaper's cover placement written out in pixels,
+         offset by where the lane sits on screen */
+    }
+
+/* ---------- the fitness block ----------
+       The same planner that builds the full page also lives here, quietly: a
+       few of its numbers, and a way in. */
+    function paintFitnessBlock() {
+      var body = document.getElementById('fitMiniBody');
+      var empty = document.getElementById('fitMiniEmpty');
+      if (!body) return;
+
+      var profile = null;
+      try { profile = JSON.parse(localStorage.getItem('deskFitnessProfile')); } catch (e) { profile = null; }
+
+      if (!profile || !profile.weight || !window.DeskFitness) return;
+
+      var plan = window.DeskFitness.build(profile);
+      empty.hidden = true;
+
+      var rows = [
+        ['Eat about', plan.target + ' kcal'],
+        ['Protein', plan.protein + ' g'],
+        ['Steps', String(plan.steps)],
+        ['Training', plan.days + ' days a week']
+      ];
+
+      var list = document.createElement('dl');
+      list.className = 'fitmini__list';
+      rows.forEach(function (row) {
+        var dt = document.createElement('dt');
+        dt.textContent = row[0];
+        var dd = document.createElement('dd');
+        dd.textContent = row[1];
+        list.append(dt, dd);
+      });
+      body.appendChild(list);
+
+
+    }
+
+    /* the planner is a script further down the page, so wait for it */
+    if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', paintFitnessBlock);
+    else paintFitnessBlock();
+    window.addEventListener('deskfitness:update', paintFitnessBlock);
+
+/* ---------- a block that is one door ----------
+       Clicking the card opens the page; clicking a face, a tab or a button in it
+       still does exactly what that control does. */
+    (function () {
+      var blocks = document.querySelectorAll('.rail__block--go[data-href]');
+      Array.prototype.forEach.call(blocks, function (block) {
+        block.addEventListener('click', function (event) {
+          if (event.target.closest('a, button, input, select, textarea, label')) return;
+          var selection = window.getSelection();
+          if (selection && String(selection).length) return;
+          window.location.href = block.dataset.href;
+        });
+        block.addEventListener('keydown', function (event) {
+          if (event.key !== 'Enter' || event.target !== block) return;
+          window.location.href = block.dataset.href;
+        });
+      });
+    })();
+
+    /* ---------- the affirmation of the day ---------- */
+    var AFFIRMATIONS = [
+      { en: 'Slow is smooth, and smooth is fast.', cn: '慢就是稳，稳就是快。' },
+      { en: 'You do not have to feel ready to begin.', cn: '不必准备好了才开始。' },
+      { en: 'One page is still a page done.', cn: '一页，也是一页。' },
+      { en: 'The thing you are avoiding is usually small.', cn: '你躲的那件事，往往并不大。' },
+      { en: 'Ask earlier than feels polite.', cn: '去问，比你以为的时机早一点。' },
+      { en: 'Rest is part of the work, not a reward for it.', cn: '休息不是奖励，是工作的一部分。' },
+      { en: 'Say the true thing once, plainly.', cn: '把真话说一遍，说清楚就好。' },
+      { en: 'Finish something small today.', cn: '今天做完一件小事。' },
+      { en: 'You are allowed to change your mind with evidence.', cn: '有证据时，你可以改变主意。' },
+      { en: 'Being new at this is not the same as being bad at it.', cn: '刚学，不等于学不好。' },
+      { en: 'A deadline is a shape, not a verdict.', cn: '截止日期是形状，不是判决。' },
+      { en: 'Write it badly first.', cn: '先写烂，再写好。' },
+      { en: 'Do the next honest thing.', cn: '做下一件老实的事。' },
+      { en: 'A little every day beats a lot someday.', cn: '每天一点，胜过某天很多。' },
+      { en: 'You can be tired and still be kind.', cn: '累了也可以好好说话。' },
+      { en: 'Nothing here has to be perfect to be useful.', cn: '有用，不必完美。' },
+      { en: 'Close the tab you are not reading.', cn: '关掉那个你不看的标签页。' },
+      { en: 'Begin again from where you are.', cn: '从你现在的位置，再来一次。' }
+    ];
+
+    /* a new line each time the desk is opened, never the same one twice in a
+       row — a quote of the day repeats every fortnight, which stops reading */
+    var lastShown = -1;
+    try { lastShown = Number(localStorage.getItem('deskAffirmLast')); } catch (e) { lastShown = -1; }
+
+    var affirmIndex = Math.floor(Math.random() * AFFIRMATIONS.length);
+    if (AFFIRMATIONS.length > 1 && affirmIndex === lastShown) {
+      affirmIndex = (affirmIndex + 1 + Math.floor(Math.random() * (AFFIRMATIONS.length - 1))) % AFFIRMATIONS.length;
+    }
+    try { localStorage.setItem('deskAffirmLast', String(affirmIndex)); } catch (e) {}
+    var affirmLine = document.getElementById('affirmLine');
+    var affirmCn = document.getElementById('affirmCn');
+    var affirmNext = document.getElementById('affirmNext');
+
+    function showAffirm(index) {
+      var item = AFFIRMATIONS[(index + AFFIRMATIONS.length) % AFFIRMATIONS.length];
+      affirmLine.textContent = item.en;
+      affirmCn.textContent = item.cn;
+    }
+    showAffirm(affirmIndex);
+    if (affirmNext) {
+      affirmNext.addEventListener('click', function () {
+        affirmIndex += 1;
+        showAffirm(affirmIndex);
+      });
+    }
+
+    /* ---------- the supporting figures ---------- */
+    function num(value, digits) {
+      return Number(value).toLocaleString('en-US', {
+        minimumFractionDigits: digits || 0, maximumFractionDigits: digits || 0
+      });
+    }
+
+    try {
+      var projects = JSON.parse(localStorage.getItem('deskProjects')) || [];
+      var sessions = 0, done = 0;
+      projects.forEach(function (project) {
+        (project.plan || []).forEach(function (row) {
+          sessions += 1;
+          if (row.done) done += 1;
+        });
+      });
+      document.getElementById('metricPlan').textContent = projects.length
+        ? done + ' / ' + sessions
+        : '—';
+      document.getElementById('metricPlanNote').textContent = projects.length
+        ? (projects.length === 1 ? '1 project' : projects.length + ' projects') + ' · sessions done'
+        : 'no projects yet';
+    } catch (e) {
+      document.getElementById('metricPlan').textContent = '—';
+    }
+
+    try {
+      var progress = JSON.parse(localStorage.getItem('deskStudyProgress')) || {};
+      var known = 0;
+      Object.keys(progress).forEach(function (id) { if (progress[id] === 'known') known += 1; });
+      document.getElementById('metricCards').textContent = known + ' / 32';
+      document.getElementById('metricCardsBar').style.width = (known / 32 * 100).toFixed(1) + '%';
+      document.getElementById('metricCardsNote').textContent =
+        (32 - known) + ' to go · across four courses';
+    } catch (e) {
+      document.getElementById('metricCards').textContent = '0 / 32';
+    }
+
+    try {
+      var moods = JSON.parse(localStorage.getItem('deskMood')) || {};
+      var d = new Date();
+      var key = d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' +
+        String(d.getDate()).padStart(2, '0');
+      var WORDS = { 1: 'rough', 2: 'low', 3: 'okay', 4: 'good', 5: 'great' };
+      var value = moods[key];
+      document.getElementById('metricMood').textContent = value ? WORDS[value] : '—';
+    } catch (e) {
+      document.getElementById('metricMood').textContent = '—';
+    }
+
+    /* ---------- what is coming ---------- */
+    var EXAMS = [
+      { name: 'Web Technologies', date: '2026-11-20', href: 'study.html' },
+      { name: 'Programming III', date: '2026-11-23', href: 'study.html' },
+      { name: 'Statistics', date: '2026-11-24', href: 'study.html' },
+      { name: 'Data Analytics & ML', date: '2026-11-25', href: 'study.html' }
+    ];
+
+    (function () {
+      var target = document.getElementById('nextExam');
+      if (!target) return;
+
+      var today = new Date();
+      today.setHours(0, 0, 0, 0);
+      var upcoming = EXAMS.map(function (exam) {
+        var date = new Date(exam.date + 'T00:00:00');
+        return { name: exam.name, days: Math.round((date - today) / 86400000) };
+      }).filter(function (exam) { return exam.days >= 0; })
+        .sort(function (a, b) { return a.days - b.days; });
+
+      if (!upcoming.length) {
+        target.textContent = 'No exam dates left in this term.';
+        return;
+      }
+      var next = upcoming[0];
+      target.textContent = 'Next exam · ' + next.name + ' · ' +
+        (next.days === 0 ? 'today' : next.days === 1 ? 'tomorrow' : 'in ' + next.days + ' days');
+    })();
+
+    /* ---------- weather ---------- */
+    var tempEl = null;   /* the strip below carries the weather now */
+    var wx = {
+      temp: document.getElementById('wxTemp'),
+      cond: document.getElementById('wxCond'),
+      feels: document.getElementById('wxFeels'),
+      high: document.getElementById('wxHigh'),
+      low: document.getElementById('wxLow'),
+      icon: document.getElementById('wxIcon')
+    };
+
+    var CONDITIONS = [
+      [0, 'clear'], [2, 'mostly clear'], [3, 'overcast'], [48, 'fog'], [57, 'drizzle'],
+      [67, 'rain'], [77, 'snow'], [82, 'showers'], [86, 'snow showers'], [99, 'storm']
+    ];
+    function condition(code) {
+      for (var i = 0; i < CONDITIONS.length; i++) {
+        if (code <= CONDITIONS[i][0]) return CONDITIONS[i][1];
+      }
+      return '';
+    }
+
+    /* one small glyph per group, drawn here so it takes the theme's colour */
+    /* a clear sky at 23:00 is not a sun: the icon follows the local sunrise and
+       sunset that the forecast hands back */
+    var night = false;
+
+    function weatherIcon(code) {
+      var sun = '<circle cx="12" cy="12" r="4.2" fill="none" stroke="currentColor" stroke-width="1.6"/>' +
+        '<g stroke="currentColor" stroke-width="1.6" stroke-linecap="round">' +
+        '<path d="M12 3.2v2.2M12 18.6v2.2M3.2 12h2.2M18.6 12h2.2M5.8 5.8l1.6 1.6M16.6 16.6l1.6 1.6M18.2 5.8l-1.6 1.6M7.4 16.6l-1.6 1.6"/></g>';
+      var cloud = '<path d="M7.2 17.5h9.3a3.6 3.6 0 0 0 .3-7.2 5 5 0 0 0-9.6-.9 3.9 3.9 0 0 0 0 8.1z" ' +
+        'fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/>';
+      var rain = cloud + '<g stroke="currentColor" stroke-width="1.6" stroke-linecap="round">' +
+        '<path d="M9 19.4l-.7 2M12.4 19.4l-.7 2M15.8 19.4l-.7 2"/></g>';
+      var snow = cloud + '<g stroke="currentColor" stroke-width="1.4" stroke-linecap="round">' +
+        '<path d="M9 19.6v2.2M7.9 20.7h2.2M12.6 19.6v2.2M11.5 20.7h2.2"/></g>';
+      var storm = cloud + '<path d="M12.6 18.6l-2 3h2.6l-1.4 2.4" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/>';
+      var fog = '<g stroke="currentColor" stroke-width="1.6" stroke-linecap="round">' +
+        '<path d="M5 9.5h14M4 13h16M6.5 16.5h11"/></g>';
+
+      var moon = '<path d="M15.6 3.4a7.6 7.6 0 1 0 5.2 13.2A8.8 8.8 0 0 1 15.6 3.4z" ' +
+        'fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/>';
+      var cloudMoon = '<path d="M9.1 3.6a3.9 3.9 0 1 0 4.6 5.4A4.6 4.6 0 0 1 9.1 3.6z" ' +
+        'fill="none" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/>' +
+        '<path d="M7.6 19.6h8.9a3.3 3.3 0 0 0 .3-6.6 4.6 4.6 0 0 0-8.8-.8 3.6 3.6 0 0 0-.4 7.4z" ' +
+        'fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>';
+
+      var svg;
+      if (code <= 1) svg = night ? moon : sun;
+      else if (code <= 3) svg = night ? cloudMoon : cloud;
+      else if (code <= 48) svg = fog;
+      else if (code <= 67) svg = rain;
+      else if (code <= 77) svg = snow;
+      else if (code <= 82) svg = rain;
+      else if (code <= 86) svg = snow;
+      else svg = storm;
+
+      return '<svg viewBox="0 0 24 24" width="30" height="30" aria-hidden="true">' + svg + '</svg>';
+    }
+
+    function isNight(sunrise, sunset) {
+      var stamp = Date.now();
+      if (sunrise && sunset) {
+        var up = Date.parse(sunrise);
+        var down = Date.parse(sunset);
+        if (!isNaN(up) && !isNaN(down)) return stamp < up || stamp > down;
+      }
+      var hour = new Date().getHours() + new Date().getMinutes() / 60;
+      return hour < 6.2 || hour >= 18.6;
+    }
+
+    function loadTemp() {
+      fetch('https://api.open-meteo.com/v1/forecast?latitude=19.52&longitude=109.57' +
+            '&current=temperature_2m,weather_code,apparent_temperature' +
+            '&daily=temperature_2m_max,temperature_2m_min,sunrise,sunset&forecast_days=1' +
+            '&timezone=Asia%2FShanghai', { cache: 'no-store' })
+        .then(function (response) {
+          if (!response.ok) throw new Error('http ' + response.status);
+          return response.json();
+        })
+        .then(function (data) {
+          var now = data.current;
+          var day = data.daily || {};
+          var degrees = Math.round(now.temperature_2m);
+
+          night = isNight(day.sunrise && day.sunrise[0], day.sunset && day.sunset[0]);
+
+
+          if (wx.temp) wx.temp.textContent = degrees + '°';
+          if (wx.cond) wx.cond.textContent = condition(now.weather_code) + ' · Danzhou';
+          if (wx.icon) wx.icon.innerHTML = weatherIcon(now.weather_code);
+          if (wx.feels) wx.feels.textContent = Math.round(now.apparent_temperature) + '°';
+          if (wx.high) wx.high.textContent = Math.round(day.temperature_2m_max[0]) + '°';
+          if (wx.low) wx.low.textContent = Math.round(day.temperature_2m_min[0]) + '°';
+        })
+        .catch(function () {
+          if (tempEl && (!tempEl.textContent || tempEl.textContent === '—')) tempEl.textContent = 'weather offline';
+          if (wx.cond) wx.cond.textContent = 'Forecast unavailable';
+        });
+    }
+    loadTemp();
+    setInterval(loadTemp, 10 * 60 * 1000);
+
+    /* ---------- appearance ---------- */
+    if (window.DeskTheme) {
+      var swatches = document.getElementById('swatches');
+      var status = document.getElementById('themeStatus');
+      var input = document.getElementById('wallpaper');
+
+  /* ---------- the library is a local feature ----------
+     github.io cannot reach 127.0.0.1, so on the published copy the menu keeps
+     only the picture option, the strip stays hidden and the rail drops the row
+     that would lead to a page with nothing on it. */
+  (function () {
+    var localHost = /^(127\.0\.0\.1|localhost|\[::1\])$/.test(location.hostname);
+    window.__DESK_LOCAL__ = localHost;
+    if (localHost) return;
+
+    var engineItem = document.getElementById('wpFromEngine');
+    if (engineItem) engineItem.hidden = true;
+
+    var libraryStrip = document.getElementById('wallpaperPick');
+    if (libraryStrip) libraryStrip.hidden = true;
+
+    var rail = document.getElementById('railWallpapers');
+    if (rail) rail.hidden = true;
+  })();
+
+/* ---------- the wallpaper menu ----------
+     One button, two sources: a picture the reader owns, or the Wallpaper Engine
+     library on this machine. The library needs the small service, which a web
+     page is not allowed to launch by itself, so the page wakes it by trying,
+     reports honestly when nothing answers, and keeps trying. */
+  (function () {
+    var menu = document.getElementById('wpMenu');
+    var button = document.getElementById('wpMenuBtn');
+    var panel = document.getElementById('wpMenuPanel');
+    var fromFile = document.getElementById('wpFromFile');
+    var fromEngine = document.getElementById('wpFromEngine');
+    var fileInput = document.getElementById('wallpaper');
+    var strip = document.getElementById('wallpaperPick');
+    var hint = document.getElementById('wallpaperPickHint');
+    if (!menu || !button || !panel) return;
+
+    function open() {
+      panel.hidden = false;
+      button.setAttribute('aria-expanded', 'true');
+    }
+    function close() {
+      panel.hidden = true;
+      button.setAttribute('aria-expanded', 'false');
+    }
+
+    button.addEventListener('click', function (event) {
+      event.stopPropagation();
+      if (panel.hidden) open(); else close();
+    });
+    document.addEventListener('click', function (event) {
+      if (!menu.contains(event.target)) close();
+    });
+    document.addEventListener('keydown', function (event) {
+      if (event.key === 'Escape') close();
+    });
+
+    if (fromFile) {
+      fromFile.addEventListener('click', function () {
+        close();
+        if (fileInput) fileInput.click();
+      });
+    }
+
+    if (fromEngine) {
+      fromEngine.addEventListener('click', function () {
+        close();
+        if (strip) strip.hidden = false;
+
+        /* the strip lives at the bottom of the rail: without this the menu just
+           closes and nothing appears to have happened */
+        if (strip) {
+          strip.scrollIntoView({ block: 'center', behavior: 'smooth' });
+          strip.classList.add('is-flash');
+          setTimeout(function () { strip.classList.remove('is-flash'); }, 1400);
+        }
+
+        /* A page may not run a program, but Windows lets a registered address
+           do it: deskwallpaper: is wired to the launcher, so this click can
+           really start the service. Only tried while the click is still fresh,
+           because browsers drop the permission once it is not. */
+        if (hint) hint.textContent = 'Checking the local service…';
+        function wake() {
+          try { window.location.href = 'deskwallpaper:start'; } catch (e) { /* not registered */ }
+        }
+
+        /* the address only opens while the click is fresh, so the retry loop
+           must not be the thing that tries it: that is this button's job */
+        function offerLaunch() {
+          if (!hint) return;
+          if (strip) strip.scrollIntoView({ block: 'center', behavior: 'smooth' });
+          hint.textContent = 'The local service is not running. ';
+          var start = document.createElement('button');
+          start.type = 'button';
+          start.className = 'wppick__launch';
+          start.textContent = 'Start it';
+          start.addEventListener('click', wake);
+          hint.appendChild(start);
+          var note = document.createElement('span');
+          note.textContent = ' — Windows will ask once whether to open Desk Wallpaper Service.';
+          hint.appendChild(note);
+        }
+        function maybeLaunch() {
+          offerLaunch();
+        }
+
+        /* the published copy lives on github.io, where /api/version is just a
+           404: the library only exists on this machine, so say so at once
+           instead of waiting for something that cannot arrive */
+        var local = /^(127\.0\.0\.1|localhost|\[::1\])$/.test(location.hostname);
+
+        var tries = 0;
+        function probe() {
+          tries += 1;
+          fetch('/api/version', { cache: 'no-store' })
+            .then(function (response) { return response.ok ? response.json() : null; })
+            .then(function (info) {
+              if (!info || !info.ok) throw new Error('no service');
+              if (hint) {
+                hint.textContent = 'Service is up (' + info.build + ') — pick a thumbnail below.';
+              }
+              window.dispatchEvent(new CustomEvent('deskwallpaper:reload'));
+              if (strip) strip.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+            })
+            .catch(function () {
+              if (!local) {
+                if (hint) {
+                  hint.textContent = 'This is the published copy: the wallpaper library only exists on this machine. ';
+                  var local_button = document.createElement('button');
+                  local_button.type = 'button';
+                  local_button.className = 'wppick__launch';
+                  local_button.textContent = 'Start it';
+                  local_button.addEventListener('click', wake);
+                  hint.appendChild(local_button);
+                  var note = document.createElement('span');
+                  note.textContent = ' — it starts the service and opens the page it serves (127.0.0.1:8788), where the library is.';
+                  hint.appendChild(note);
+                }
+                return;
+              }
+              if (tries === 1) maybeLaunch();
+              if (tries < 15) {
+                if (hint) hint.textContent = 'Waiting for the service… (' + tries + ')';
+                setTimeout(probe, 1500);
+              } else if (hint) {
+                hint.textContent = 'The service is not running. Double-click _tools\\启动壁纸台.bat — ' +
+                  'it also installs itself to start with Windows, so this is a one-time step.';
+              }
+            });
+        }
+        probe();
+      });
+    }
+  })();
+
+  /* ---------- picking a wallpaper from this computer ----------
+     The library behind 127.0.0.1:8788 is only reachable when the page itself
+     is served from there, so the strip hides itself on the published site and
+     points at the wallpaper page instead. */
+  (function () {
+    var box = document.getElementById('wallpaperPick');
+    var row = document.getElementById('wallpaperPickRow');
+    var hint = document.getElementById('wallpaperPickHint');
+    if (!box || !row) return;
+
+    function start() {
+    if (!window.__DESK_LOCAL__ || !window.DeskWallpaper) return;
+
+    function state(text) { hint.textContent = text; }
+
+    window.DeskWallpaper.load().then(function (items) {
+      if (!items.length) { state('The library came back empty.'); return; }
+      box.hidden = false;
+
+      var shown = items.slice(0, 12);
+      shown.forEach(function (item) {
+        var button = document.createElement('button');
+        button.type = 'button';
+        button.className = 'wppick__thumb';
+        button.title = item.title;
+        button.setAttribute('aria-label', 'Use ' + item.title);
+
+        var picture = document.createElement('img');
+        picture.loading = 'lazy';
+        picture.alt = '';
+        picture.src = window.DeskWallpaper.previewUrl(item);
+        button.appendChild(picture);
+
+        if (item.hasVideo) {
+          var mark = document.createElement('span');
+          mark.className = 'wppick__play';
+          mark.textContent = '▶';
+          button.appendChild(mark);
+        }
+
+        button.addEventListener('click', function () {
+          state('Applying ' + item.title + '…');
+          Array.prototype.forEach.call(row.children, function (other) {
+            other.classList.remove('is-on');
+          });
+          button.classList.add('is-on');
+          window.DeskWallpaper.publish(item, function (url) {
+            state(url ? item.title + ' kept, on every page.' : 'That frame was empty, nothing changed.');
+            window.DeskWallpaper.remember(item.id);
+            window.DeskWallpaper.setLive(item);
+          });
+        });
+
+        row.appendChild(button);
+      });
+
+      if (items.length > shown.length) {
+        state('Showing ' + shown.length + ' of ' + items.length + ' — the rest are on the wallpaper page.');
+      }
+    }).catch(function () {
+      if (!window.__DESK_LOCAL__) return;
+      box.hidden = false;
+      state('The local library is not reachable from here. Open the site through 启动壁纸台.bat, or use the wallpaper page.');
+    });
+    }
+
+    if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', start);
+    else start();
+  })();
+
+    /* ---------- pick any colour ---------- */
+      var customSwatch = document.getElementById('customSwatch');
+      var customChip = document.getElementById('customChip');
+      var customColor = document.getElementById('customColor');
+
+      var clearWallpaperBtn = document.getElementById('themeClearWallpaper');
+      if (clearWallpaperBtn) {
+        if (DeskTheme.wallpaper && DeskTheme.wallpaper()) clearWallpaperBtn.hidden = false;
+        clearWallpaperBtn.addEventListener('click', function () {
+          DeskTheme.clearWallpaper();
+          try { localStorage.removeItem('deskWallpaperLive'); } catch (e) {}
+          window.dispatchEvent(new CustomEvent('deskwallpaper:live'));
+          clearWallpaperBtn.hidden = true;
+          status.textContent = 'Wallpaper removed; the colours stay.';
+        });
+      }
+
+      if (customSwatch && customColor) {
+        customSwatch.addEventListener('click', function (event) {
+          if (event.target !== customColor) customColor.click();
+        });
+
+        customColor.addEventListener('input', function () {
+          var theme = DeskTheme.fromAccent(customColor.value);
+          DeskTheme.save(theme);
+          customChip.style.background = 'linear-gradient(135deg, ' + theme.accent + ', ' + theme.accent2 + ')';
+          paintSwatches('custom');
+          customSwatch.classList.add('is-active');
+          status.textContent = 'Custom colour ' + customColor.value + ' applied to every page.';
+        });
+      }
+
+      function paintSwatches(activeKey) {
+        swatches.replaceChildren();
+        Object.keys(DeskTheme.PRESETS).forEach(function (key) {
+          var preset = DeskTheme.PRESETS[key];
+          var button = document.createElement('button');
+          button.type = 'button';
+          button.className = 'swatch' + (key === activeKey ? ' is-active' : '');
+          button.setAttribute('aria-pressed', String(key === activeKey));
+          button.title = preset.name;
+
+          var chip = document.createElement('span');
+          chip.className = 'swatch__chip';
+          chip.style.background = 'linear-gradient(135deg, ' + preset.accent + ', ' + preset.accent2 + ')';
+
+          var label = document.createElement('span');
+          label.className = 'swatch__name';
+          label.textContent = preset.name;
+
+          button.append(chip, label);
+          button.addEventListener('click', function () {
+            DeskTheme.save(DeskTheme.preset(key));
+            paintSwatches(key);
+            status.textContent = preset.name + ' applied.';
+          });
+          swatches.appendChild(button);
+        });
+
+        /* the custom tile rides at the end of the same grid */
+        if (customSwatch) swatches.appendChild(customSwatch);
+      }
+      paintSwatches(null);
+
+      if (input) {
+        input.addEventListener('change', function () {
+          var file = input.files && input.files[0];
+          if (!file) return;
+          /* the picture is not used whole: the chooser lets the reader frame the
+             part that will actually be seen, then that crop becomes the wallpaper */
+          if (window.DeskCrop) {
+            window.DeskCrop.open(file, function (result) {
+              DeskTheme.save(result.theme);
+              DeskTheme.setWallpaper(result.url, file.name, result.lum);
+              paintSwatches(null);
+              status.textContent = 'Wallpaper and palette set from ' + file.name + '.';
+              if (clearWallpaperBtn) clearWallpaperBtn.hidden = false;
+            });
+          } else {
+            status.textContent = 'This browser cannot frame the picture.';
+          }
+          input.value = '';
+        });
+      }
+
+      var reset = document.getElementById('themeReset');
+      if (reset) {
+        reset.addEventListener('click', function () {
+          DeskTheme.clear();
+          paintSwatches(null);
+          status.textContent = 'Back to the default palette.';
+        });
+      }
+    }
+  })();
+
+  /* ---------- today's mood, three times a day ----------
+     Morning, afternoon and evening each get their own entry, so a bad morning
+     and a good evening can both be true. The strip below shows the last seven
+     days as three stacked cells per day. */
+  (function () {
+    var KEY = 'deskMood';
+    var slotsHost = document.getElementById('moodSlots');
+    var host = document.getElementById('mood');
+    var week = document.getElementById('moodWeek');
+    var note = document.getElementById('moodNote');
+    if (!host || !week || !slotsHost) return;
+
+    var SLOTS = [
+      { id: 'morning', label: 'Morning', short: 'M' },
+      { id: 'afternoon', label: 'Afternoon', short: 'A' },
+      { id: 'evening', label: 'Evening', short: 'E' }
+    ];
+    var MOUTHS = [
+      'M15 22 Q20 17 25 22',
+      'M15 21 Q20 19.5 25 21',
+      'M15 21 H25',
+      'M15 19.5 Q20 23 25 19.5',
+      'M14.5 18.5 Q20 24.5 25.5 18.5'
+    ];
+    var LABELS = ['rough', 'low', 'okay', 'good', 'great'];
+
+    function iso(day) {
+      return day.getFullYear() + '-' + String(day.getMonth() + 1).padStart(2, '0') + '-' +
+        String(day.getDate()).padStart(2, '0');
+    }
+
+    function load() {
+      var raw = {};
+      try { raw = JSON.parse(localStorage.getItem(KEY)) || {}; } catch (e) { raw = {}; }
+      var out = {};
+      Object.keys(raw).forEach(function (key) {
+        var value = raw[key];
+        /* older entries were one number for the whole day: keep it at midday */
+        if (typeof value === 'number') out[key] = { afternoon: value };
+        else if (value && typeof value === 'object') out[key] = value;
+      });
+      return out;
+    }
+
+    function save(data) {
+      var keys = Object.keys(data).sort();
+      while (keys.length > 60) { delete data[keys.shift()]; }
+      try { localStorage.setItem(KEY, JSON.stringify(data)); } catch (e) {}
+    }
+
+    function currentSlot() {
+      var hour = new Date().getHours();
+      if (hour < 12) return 'morning';
+      if (hour < 18) return 'afternoon';
+      return 'evening';
+    }
+
+    var data = load();
+    var slot = currentSlot();
+
+    /* one step back, and then another: every write remembers what it replaced */
+    var UNDO_KEY = 'deskMoodUndo';
+    var undoButton = document.getElementById('moodUndo');
+    var history = [];
+    try { history = JSON.parse(localStorage.getItem(UNDO_KEY)) || []; } catch (e) { history = []; }
+
+    function paintUndo() {
+      if (!undoButton) return;
+
+      var todayEntry = data[iso(new Date())] || {};
+      var hasHere = todayEntry[slot] != null;
+
+      if (history.length) {
+        undoButton.hidden = false;
+        undoButton.textContent = history.length === 1
+          ? 'Undo last entry'
+          : 'Undo last entry (' + history.length + ')';
+        return;
+      }
+
+      /* nothing to step back to, but there may be an entry from before this
+         button existed: offer to clear exactly that */
+      undoButton.hidden = !hasHere;
+      undoButton.textContent = 'Clear this entry';
+    }
+
+    function clearHere() {
+      var key = iso(new Date());
+      var entry = data[key];
+      if (!entry || entry[slot] == null) return;
+      remember(key, slot, entry[slot]);
+      delete entry[slot];
+      if (!Object.keys(entry).length) delete data[key];
+      save(data);
+      history.pop();                       /* clearing is not an undo step */
+      try { localStorage.setItem(UNDO_KEY, JSON.stringify(history)); } catch (e) {}
+      paint();
+      say('Cleared — the slot is empty again.');
+    }
+
+    function remember(key, slotId, previous) {
+      history.push({ key: key, slot: slotId, previous: previous == null ? null : previous });
+      if (history.length > 40) history.shift();
+      try { localStorage.setItem(UNDO_KEY, JSON.stringify(history)); } catch (e) {}
+      paintUndo();
+    }
+
+    function undo() {
+      if (!history.length) return;
+      var step = history.pop();
+      var entry = data[step.key] || (data[step.key] = {});
+      if (step.previous === null) delete entry[step.slot];
+      else entry[step.slot] = step.previous;
+      if (!Object.keys(entry).length) delete data[step.key];
+      save(data);
+      try { localStorage.setItem(UNDO_KEY, JSON.stringify(history)); } catch (e) {}
+      if (step.slot) slot = step.slot;
+      paint();
+      paintUndo();
+
+      /* say what came back, so an empty face is not mistaken for a failure */
+      var restored = step.previous === null
+        ? 'Undone — that entry is gone.'
+        : 'Undone — back to ' + (step.previous ? LABELS[step.previous - 1] : 'nothing') + '.';
+      say(restored);
+    }
+
+    var sayTimer = 0;
+    function say(text) {
+      if (!note) return;
+      note.textContent = text;
+      clearTimeout(sayTimer);
+      sayTimer = setTimeout(paintNote, 2600);
+    }
+
+    function face(level) {
+      return '<svg viewBox="0 0 40 40" width="24" height="24" aria-hidden="true">' +
+        '<circle cx="20" cy="20" r="16.5" fill="none" stroke="currentColor" stroke-width="1.6" opacity="0.55"/>' +
+        '<circle cx="14.5" cy="16" r="1.7" fill="currentColor"/>' +
+        '<circle cx="25.5" cy="16" r="1.7" fill="currentColor"/>' +
+        '<path d="' + MOUTHS[level - 1] + '" fill="none" stroke="currentColor" stroke-width="1.6" ' +
+        'stroke-linecap="round"/></svg>';
+    }
+
+    function labelOf(slotId) {
+      for (var i = 0; i < SLOTS.length; i++) if (SLOTS[i].id === slotId) return SLOTS[i].label;
+      return slotId;
+    }
+
+    /* a part of the day that has not happened yet cannot be filled in */
+    function slotIsAhead(slotId) {
+      var order = ['morning', 'afternoon', 'evening'];
+      return order.indexOf(slotId) > order.indexOf(currentSlot());
+    }
+
+    function paintSlots() {
+      slotsHost.replaceChildren();
+      SLOTS.forEach(function (item) {
+        var ahead = slotIsAhead(item.id);
+        var button = document.createElement('button');
+        button.type = 'button';
+        button.className = 'mood__slot' + (item.id === slot ? ' is-on' : '') + (ahead ? ' is-ahead' : '');
+        button.setAttribute('role', 'tab');
+        button.setAttribute('aria-selected', String(item.id === slot));
+        button.textContent = item.label;
+        button.dataset.slot = item.id;
+        if (ahead) {
+          button.disabled = true;
+          button.title = 'Not yet — this part of the day has not started';
+        }
+        slotsHost.appendChild(button);
+      });
+    }
+
+    function paintFaces() {
+      var key = iso(new Date());
+      var todayEntry = data[key] || {};
+      host.replaceChildren();
+      for (var level = 1; level <= 5; level++) {
+        var button = document.createElement('button');
+        button.type = 'button';
+        button.className = 'mood__btn' + (todayEntry[slot] === level ? ' is-picked' : '');
+        button.innerHTML = face(level);
+        button.setAttribute('aria-pressed', String(todayEntry[slot] === level));
+        button.setAttribute('aria-label', labelOf(slot) + ': ' + LABELS[level - 1]);
+        button.title = LABELS[level - 1];
+        button.dataset.level = String(level);
+        host.appendChild(button);
+      }
+    }
+
+    function paintWeek() {
+      var today = new Date();
+      today.setHours(0, 0, 0, 0);
+      var todayKey = iso(today);
+
+      /* the strip is a calendar week, Monday first — not a rolling window */
+      var monday = new Date(today);
+      monday.setDate(today.getDate() - ((today.getDay() + 6) % 7));
+
+      week.replaceChildren();
+      var letters = ['M', 'T', 'W', 'T', 'F', 'S', 'S'];
+
+      for (var index = 0; index < 7; index++) {
+        var day = new Date(monday);
+        day.setDate(monday.getDate() + index);
+        var key = iso(day);
+        var entry = data[key] || {};
+        var future = day > today;
+
+        var column = document.createElement('div');
+        column.className = 'mood__day' + (key === todayKey ? ' is-today' : '') + (future ? ' is-future' : '');
+        column.title = key + ' — ' + SLOTS.map(function (item) {
+          return item.label + ': ' + (entry[item.id] ? LABELS[entry[item.id] - 1] : '—');
+        }).join(', ');
+
+        SLOTS.forEach(function (item) {
+          var cell = document.createElement('i');
+          var value = entry[item.id] || 0;
+          cell.className = 'mood__cell' + (value ? ' has' : '');
+          if (value) cell.dataset.level = String(value);
+          column.appendChild(cell);
+        });
+
+        var label = document.createElement('span');
+        label.className = 'mood__letter' + (key === todayKey ? ' is-today' : '');
+        label.textContent = letters[index];
+        column.appendChild(label);
+
+        week.appendChild(column);
+      }
+    }
+
+    function paintNote() {
+      var entry = data[iso(new Date())] || {};
+      var parts = SLOTS.filter(function (item) { return entry[item.id]; })
+        .map(function (item) { return item.label + ' ' + LABELS[entry[item.id] - 1]; });
+      note.textContent = parts.length
+        ? 'Today: ' + parts.join(' · ')
+        : 'Tap a face for this part of the day — kept in this browser.';
+
+      var metric = document.getElementById('metricMood');
+      if (metric) {
+        var latest = '';
+        for (var i = SLOTS.length - 1; i >= 0; i--) {
+          if (entry[SLOTS[i].id]) { latest = LABELS[entry[SLOTS[i].id] - 1]; break; }
+        }
+        metric.textContent = latest || '—';
+      }
+    }
+
+    function paint() {
+      paintSlots();
+      paintFaces();
+      paintWeek();
+      paintNote();
+      paintUndo();
+    }
+
+    slotsHost.addEventListener('click', function (event) {
+      var button = event.target.closest('.mood__slot');
+      if (!button || button.disabled || button.classList.contains('is-ahead')) return;
+      slot = button.dataset.slot;
+      paint();
+    });
+
+    host.addEventListener('click', function (event) {
+      var button = event.target.closest('.mood__btn');
+      if (!button) return;
+      var key = iso(new Date());
+      var level = Number(button.dataset.level);
+      var entry = data[key] || (data[key] = {});
+      remember(key, slot, entry[slot] == null ? null : entry[slot]);
+      if (entry[slot] === level) delete entry[slot];
+      else entry[slot] = level;
+      if (!Object.keys(entry).length) delete data[key];
+      save(data);
+      paint();
+    });
+
+    if (undoButton) {
+      undoButton.addEventListener('click', function () {
+        if (history.length) undo();
+        else clearHere();
+      });
+    }
+
+    paint();
+    paintUndo();
+  })();
+  /* ---------- what the desktop player is playing ----------
+     Only the copy served by the local bridge can ask it: on the https site the
+     request is blocked, so the row simply stays on "QQ". */
+  (function () {
+    var host = document.getElementById('railMusic');
+    if (!host) return;
+
+    var local = location.hostname === '127.0.0.1' || location.hostname === 'localhost';
+    var base = local ? '' : 'http://127.0.0.1:8787';
+    var timer = 0;
+
+    function ask() {
+      var controller = new AbortController();
+      var guard = setTimeout(function () { controller.abort(); }, 2200);
+
+      fetch(base + '/state', { cache: 'no-store', signal: controller.signal })
+        .then(function (response) {
+          if (!response.ok) throw new Error('http');
+          return response.json();
+        })
+        .then(function (data) {
+          if (data && data.connected && data.title) {
+            host.textContent = (data.playing ? '▶ ' : '❚❚ ') + data.title;
+            host.title = data.title + (data.artist ? ' — ' + data.artist : '');
+          } else {
+            host.textContent = 'QQ';
+            host.removeAttribute('title');
+          }
+        })
+        .catch(function () {
+          host.textContent = 'QQ';
+          host.removeAttribute('title');
+        })
+        .then(function () { clearTimeout(guard); });
+    }
+
+    ask();
+    timer = setInterval(ask, 4000);
+
+    document.addEventListener('visibilitychange', function () {
+      if (document.hidden) { clearInterval(timer); timer = 0; }
+      else if (!timer) { ask(); timer = setInterval(ask, 4000); }
+    });
+  })();
+</script>
+<script>
+  /* ---------- framing the wallpaper ----------
+     A photo is rarely the right shape for a window, so the whole picture is
+     never used as it is: this lays it out, puts a frame on it with the window's
+     proportions, and only the part inside that frame is kept. */
+  (function () {
+    var modal = document.getElementById('crop');
+    if (!modal) return;
+
+    var stage = document.getElementById('cropStage');
+    var img = document.getElementById('cropImg');
+    var sel = document.getElementById('cropSel');
+    var applyBtn = document.getElementById('cropApply');
+    var cancelBtn = document.getElementById('cropCancel');
+
+    var pending = null;
+    var rect = { x: 0, y: 0, w: 0, h: 0 };
+    var stageSize = { w: 1, h: 1 };
+    var aspect = 1.6;
+    var onDone = null;
+    var drag = null;
+
+    function paint() {
+      sel.style.left = rect.x + 'px';
+      sel.style.top = rect.y + 'px';
+      sel.style.width = rect.w + 'px';
+      sel.style.height = rect.h + 'px';
+    }
+
+    function layout() {
+      var maxW = Math.min(window.innerWidth - 72, 880);
+      var maxH = Math.min(window.innerHeight * 0.56, 520);
+      var scale = Math.min(maxW / pending.w, maxH / pending.h, 1);
+      stageSize.w = Math.round(pending.w * scale);
+      stageSize.h = Math.round(pending.h * scale);
+      stage.style.width = stageSize.w + 'px';
+      stage.style.height = stageSize.h + 'px';
+
+      var w = Math.min(stageSize.w, stageSize.h * aspect);
+      var h = w / aspect;
+      rect = { x: (stageSize.w - w) / 2, y: (stageSize.h - h) / 2, w: w, h: h };
+      paint();
+    }
+
+    function open(file, done) {
+      onDone = done;
+      var url = URL.createObjectURL(file);
+      img.onload = function () {
+        pending = { w: img.naturalWidth, h: img.naturalHeight };
+        aspect = Math.max(0.5, Math.min(3, window.innerWidth / Math.max(1, window.innerHeight)));
+        modal.hidden = false;
+        document.documentElement.style.overflow = 'hidden';
+        layout();
+      };
+      img.onerror = function () { URL.revokeObjectURL(url); };
+      img.src = url;
+    }
+
+    function close() {
+      modal.hidden = true;
+      document.documentElement.style.overflow = '';
+      if (img.src.indexOf('blob:') === 0) URL.revokeObjectURL(img.src);
+      img.removeAttribute('src');
+      pending = null;
+      drag = null;
+    }
+
+    sel.addEventListener('pointerdown', function (event) {
+      var handle = event.target.getAttribute('data-h');
+      drag = {
+        mode: handle || 'move',
+        x: event.clientX,
+        y: event.clientY,
+        from: { x: rect.x, y: rect.y, w: rect.w, h: rect.h }
+      };
+      sel.setPointerCapture(event.pointerId);
+      event.preventDefault();
+    });
+
+    sel.addEventListener('pointermove', function (event) {
+      if (!drag) return;
+      var dx = event.clientX - drag.x;
+      var dy = event.clientY - drag.y;
+      var from = drag.from;
+
+      if (drag.mode === 'move') {
+        rect.x = Math.max(0, Math.min(stageSize.w - rect.w, from.x + dx));
+        rect.y = Math.max(0, Math.min(stageSize.h - rect.h, from.y + dy));
+        paint();
+        return;
+      }
+
+      var east = drag.mode.indexOf('e') >= 0;
+      var south = drag.mode.indexOf('s') >= 0;
+      var byX = east ? from.w + dx : from.w - dx;
+      var byY = (south ? from.h + dy : from.h - dy) * aspect;
+      var w = Math.max(90, (byX + byY) / 2);
+      var h = w / aspect;
+      var x = east ? from.x : from.x + from.w - w;
+      var y = south ? from.y : from.y + from.h - h;
+
+      if (x < 0) { w += x; h = w / aspect; x = 0; }
+      if (y < 0) { h += y; w = h * aspect; y = 0; }
+      if (x + w > stageSize.w) { w = stageSize.w - x; h = w / aspect; }
+      if (y + h > stageSize.h) { h = stageSize.h - y; w = h * aspect; }
+      if (w < 90) { w = 90; h = w / aspect; }
+
+      rect = { x: x, y: y, w: w, h: h };
+      paint();
+    });
+
+    sel.addEventListener('pointerup', function () { drag = null; });
+    sel.addEventListener('pointercancel', function () { drag = null; });
+
+    cancelBtn.addEventListener('click', close);
+    modal.addEventListener('click', function (event) { if (event.target === modal) close(); });
+    document.addEventListener('keydown', function (event) {
+      if (event.key === 'Escape' && !modal.hidden) close();
+    });
+
+    applyBtn.addEventListener('click', function () {
+      if (!pending) return;
+      var scale = pending.w / stageSize.w;
+      var sx = Math.round(rect.x * scale);
+      var sy = Math.round(rect.y * scale);
+      var sw = Math.max(1, Math.round(rect.w * scale));
+      var sh = Math.max(1, Math.round(rect.h * scale));
+
+      var outW = Math.min(sw, 1600);
+      var outH = Math.max(1, Math.round(sh * outW / sw));
+
+      var canvas = document.createElement('canvas');
+      canvas.width = outW;
+      canvas.height = outH;
+      canvas.getContext('2d').drawImage(img, sx, sy, sw, sh, 0, 0, outW, outH);
+
+      var probe = document.createElement('canvas');
+      probe.width = 24;
+      probe.height = 24;
+      var pctx = probe.getContext('2d', { willReadFrequently: true });
+      pctx.drawImage(canvas, 0, 0, 24, 24);
+      var data = pctx.getImageData(0, 0, 24, 24).data;
+      var sum = 0;
+      for (var i = 0; i < data.length; i += 4) {
+        sum += (0.2126 * data[i] + 0.7152 * data[i + 1] + 0.0722 * data[i + 2]) / 255;
+      }
+      var lum = sum / (data.length / 4);
+      var url = canvas.toDataURL('image/jpeg', 0.75);
+
+      canvas.toBlob(function (blob) {
+        function finish(theme) {
+          close();
+          if (onDone) onDone({ url: url, lum: lum, theme: theme });
+        }
+        if (window.DeskTheme && blob && window.DeskTheme.extract) {
+          window.DeskTheme.extract(blob).then(finish).catch(function () { finish(null); });
+        } else {
+          finish(null);
+        }
+      }, 'image/jpeg', 0.9);
+    });
+
+    window.DeskCrop = { open: open };
+  })();
+</script>
+<script src="wallpaper-pick.js?v=132"></script>
+<script src="wallpaper-live.js?v=132"></script>
+<script src="fitness-plan.js?v=132"></script>
+<script src="pet.js?v=132"></script>
+</body>
+</html>
