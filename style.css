@@ -1753,6 +1753,37 @@ html[data-wallpaper-live] .nav__links a { color: #f2f2f7; }
 @media (prefers-reduced-motion: reduce) {
   .heal__orb { transition: none; }
 }
+/* the quick action, the toolkit and the dump */
+.heal__card--history { grid-row: span 3; }
+.heal__quick {
+  display: grid; gap: 6px; padding: 14px 16px; border-radius: 12px;
+  background: color-mix(in srgb, var(--accent) 8%, transparent);
+  border: 1px solid color-mix(in srgb, var(--accent) 22%, transparent);
+}
+.heal__quick h3 { font-size: 0.98rem; color: var(--ink); margin: 0; }
+.heal__quick p { font-size: 0.88rem; color: var(--ink-2); line-height: 1.55; margin: 0; }
+.heal__quickTime {
+  font-size: 0.66rem; letter-spacing: 0.12em; text-transform: uppercase;
+  color: var(--accent);
+}
+
+.heal__tools { display: grid; gap: 8px; margin: 2px 0 0; padding-left: 1.05rem; }
+.heal__tools li { font-size: 0.86rem; line-height: 1.55; color: var(--ink-2); }
+.heal__tools b { color: var(--ink); font-weight: 600; }
+
+.heal__dump {
+  width: 100%; resize: vertical; min-height: 8rem;
+  padding: 12px 14px; border-radius: 12px;
+  background: var(--panel-2); border: 1px solid var(--line);
+  color: var(--ink); font: inherit; font-size: 0.9rem; line-height: 1.6;
+}
+.heal__dump::placeholder { color: var(--muted-2); }
+.heal__dump:focus {
+  outline: none; border-color: color-mix(in srgb, var(--accent) 55%, transparent);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 12%, transparent);
+}
+.heal__dumpRow { justify-content: space-between; align-items: center; gap: 10px; }
+.heal__count { font-size: 0.74rem; color: var(--muted-2); font-variant-numeric: tabular-nums; }
 /* ---------- contact ---------- */
 .contact {
   display: grid; grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr);

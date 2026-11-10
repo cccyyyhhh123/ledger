@@ -234,6 +234,47 @@
     }
   }
 
+/* ---------- one thing for right now ---------- */
+  var QUICK = [
+    { title: 'Two short breaths, one long one', time: '20 seconds', how: 'In through the nose, a second sniff on top, then a long slow exhale. Three times. Done.' },
+    { title: 'Cold water on your wrists', time: '30 seconds', how: 'Run the tap cold, hold both wrists under it, and let your shoulders drop while you wait.' },
+    { title: 'Stand up and look out of a window', time: '1 minute', how: 'Something further than a screen. Let your eyes go slack; distance is what relaxes them.' },
+    { title: 'Drop the shoulders and unclench the jaw', time: '20 seconds', how: 'Three slow rolls back, tongue off the roof of the mouth, fingers spread wide then soft.' },
+    { title: 'Write the loud thing down', time: '3 minutes', how: 'One sentence on paper or in the box below. Not a plan — just the sentence you keep repeating.' },
+    { title: 'Walk to the end of the corridor and back', time: '2 minutes', how: 'No phone. The point is the change of view and the fact that your body moved.' },
+    { title: 'Drink a glass of water slowly', time: '1 minute', how: 'Both hands on the glass, all of it gone. Thirst and anxiety feel almost identical.' },
+    { title: 'Close every tab but this one', time: '1 minute', how: 'Each open tab is a small unpaid debt. Pay them all at once by closing them.' },
+    { title: 'Put your hand on your chest and count six breaths', time: '1 minute', how: 'Count to six on the out-breath. If the count wanders, that is the practice, not a failure.' },
+    { title: 'Name it out loud', time: '15 seconds', how: '"I am tired and behind." Saying it plainly takes the edge off faster than reasoning with it.' }
+  ];
+
+  var quickIndex = -1;
+
+  function paintQuick(step) {
+    var title = document.getElementById('quickTitle');
+    var how = document.getElementById('quickHow');
+    var time = document.getElementById('quickTime');
+    if (!title) return;
+
+    quickIndex = (quickIndex + (step == null ? 1 : step) + QUICK.length) % QUICK.length;
+    title.textContent = QUICK[quickIndex].title;
+    how.textContent = QUICK[quickIndex].how;
+    if (time) time.textContent = QUICK[quickIndex].time;
+  }
+
+  /* ---------- the brain dump ---------- */
+  var DUMP_KEY = 'deskHealDump';
+
+  function paintDump() {
+    var box = document.getElementById('healDump');
+    var count = document.getElementById('healCount');
+    if (!box) return;
+    var text = box.value.trim();
+    var words = text ? text.split(/\s+/).length : 0;
+    if (count) count.textContent = words + (words === 1 ? ' word' : ' words');
+    try { localStorage.setItem(DUMP_KEY, box.value); } catch (e) { /* private mode */ }
+  }
+
   /* ---------- a line to keep ---------- */
   function paintAffirmation(step) {
     var line = document.getElementById('healLine');
@@ -317,6 +358,27 @@
     if (stop) stop.addEventListener('click', stopBreath);
 
     paintBreath();
+
+    /* quick action and the dump */
+    paintQuick(0);
+    var next = document.getElementById('quickNext');
+    if (next) next.addEventListener('click', function () { paintQuick(1); });
+
+    var dump = document.getElementById('healDump');
+    if (dump) {
+      try { dump.value = localStorage.getItem(DUMP_KEY) || ''; } catch (e) { dump.value = ''; }
+      paintDump();
+      dump.addEventListener('input', paintDump);
+      var clearDump = document.getElementById('healDumpClear');
+      if (clearDump) {
+        clearDump.addEventListener('click', function () {
+          dump.value = '';
+          paintDump();
+          dump.focus();
+        });
+      }
+    }
+
     document.addEventListener('visibilitychange', function () {
       if (document.hidden && breathing.running) stopBreath();
     });

@@ -11,7 +11,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Bricolage+Grotesque:wght@700;800&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="style.css?v=139">
+<link rel="stylesheet" href="style.css?v=140">
 <script src="theme.js?v=139"></script>
 </head>
 <body>
@@ -88,14 +88,52 @@
         <li><b>1</b> you can taste</li>
       </ol>
     </article>
+    <!-- 5 · one thing for right now -->
+    <article class="panel heal__card heal__card--quick">
+      <h2>Right now <span class="fit__cn">立刻做一件</span></h2>
+      <p class="hint">No decisions left to make. Press the button if this one does not fit.</p>
+      <div class="heal__quick">
+        <h3 id="quickTitle">—</h3>
+        <p id="quickHow">—</p>
+        <span class="heal__quickTime" id="quickTime"></span>
+      </div>
+      <button class="btn btn--primary" id="quickNext" type="button">Something else</button>
+    </article>
+
+    <!-- 6 · the toolkit -->
+    <article class="panel heal__card heal__card--tools">
+      <h2>Toolkit <span class="fit__cn">解压方法</span></h2>
+      <p class="hint">Eight that work without an app, a subscription or a good mood.</p>
+      <ul class="heal__tools">
+        <li><b>Physiological sigh</b> — two short inhales through the nose, then one long exhale. Three rounds. The fastest way down that needs nothing but air.</li>
+        <li><b>Cold on the wrists</b> — thirty seconds of cold water on the inside of the wrists or the face. The dive reflex slows the heart before the mind can argue.</li>
+        <li><b>Ten minutes outside, no headphones</b> — walking without input is what lets a loop finish itself. Leave the phone in the pocket.</li>
+        <li><b>Name it in one sentence</b> — “I am angry that the deadline moved.” Labelling an emotion measurably lowers its grip; vague dread does not.</li>
+        <li><b>One tab</b> — close everything except the thing you are actually doing. The mess on screen is a tax you pay every glance.</li>
+        <li><b>Shoulders, jaw, hands</b> — drop the shoulders, unclench the jaw, open the fingers. Twenty seconds; most tension lives in those three places.</li>
+        <li><b>Write it out for five minutes</b> — paper or the box below. Not a plan, not a message: just the noise, until the page stops being interesting.</li>
+        <li><b>Sunlight in the first hour</b> — ten minutes outdoors early sets the day's rhythm, and a settled rhythm does more for mood than most apps.</li>
+      </ul>
+    </article>
+
+    <!-- 7 · brain dump -->
+    <article class="panel heal__card heal__card--dump">
+      <h2>Brain dump <span class="fit__cn">清空脑袋</span></h2>
+      <p class="hint">Five minutes, no editing. Kept in this browser only — close the tab and it is gone.</p>
+      <textarea class="heal__dump" id="healDump" rows="7" placeholder="Everything that is loud right now…"></textarea>
+      <div class="row heal__dumpRow">
+        <span class="heal__count" id="healCount">0 words</span>
+        <button class="btn btn--ghost" id="healDumpClear" type="button">Clear</button>
+      </div>
+    </article>
   </section>
 
   <p class="sign">uY^Yu.</p>
 </main>
 
-<script>window.__DESK_BUILD__ = 'v139';</script>
-<script src="nav.js?v=139"></script>
-<script src="healing.js?v=139"></script>
+<script>window.__DESK_BUILD__ = 'v140';</script>
+<script src="nav.js?v=140"></script>
+<script src="healing.js?v=140"></script>
 <script src="pet.js?v=139"></script>
 </body>
 </html>
