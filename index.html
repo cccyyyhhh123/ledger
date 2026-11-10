@@ -11,7 +11,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Bricolage+Grotesque:wght@700;800&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="style.css?v=142">
+<link rel="stylesheet" href="style.css?v=143">
 <!-- clock ink: kept here as well, so a cached style.css cannot leave the
      seconds a different colour from the hours -->
 <style>.anchor__sec { color: inherit !important; }</style>
@@ -90,18 +90,17 @@
 
 
 
-    <div class="rail__block">
-      <h2>Today&rsquo;s mood</h2>
+    <div class="rail__block rail__block--go" data-href="healing.html">
+      <h2><a href="healing.html">Today&rsquo;s mood</a></h2>
       <div class="mood__slots" id="moodSlots" role="tablist" aria-label="Part of the day"></div>
       <div class="mood" id="mood" role="group" aria-label="How is this part of the day going"></div>
       <div class="mood__week" id="moodWeek" aria-hidden="true"></div>
       <p class="mood__note" id="moodNote">Tap a face — one entry a day, kept in this browser.</p>
       <button class="mood__undo" id="moodUndo" type="button" hidden>Undo last entry</button>
-      <a class="mood__open" href="healing.html">Past days &amp; breathing →</a>
     </div>
 
-    <div class="rail__block fitmini" id="fitMini">
-      <h2>Fitness</h2>
+    <div class="rail__block fitmini rail__block--go" id="fitMini" data-href="fitness.html">
+      <h2><a href="fitness.html">Fitness</a></h2>
       <div class="fitmini__body" id="fitMiniBody">
         <p class="fitmini__empty" id="fitMiniEmpty">
           No numbers yet — <a href="fitness.html">set them once</a> and this block will follow.
@@ -277,17 +276,32 @@
       });
       body.appendChild(list);
 
-      var link = document.createElement('a');
-      link.className = 'fitmini__link';
-      link.href = 'fitness.html';
-      link.textContent = 'Full plan →';
-      body.appendChild(link);
+
     }
 
     /* the planner is a script further down the page, so wait for it */
     if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', paintFitnessBlock);
     else paintFitnessBlock();
     window.addEventListener('deskfitness:update', paintFitnessBlock);
+
+/* ---------- a block that is one door ----------
+       Clicking the card opens the page; clicking a face, a tab or a button in it
+       still does exactly what that control does. */
+    (function () {
+      var blocks = document.querySelectorAll('.rail__block--go[data-href]');
+      Array.prototype.forEach.call(blocks, function (block) {
+        block.addEventListener('click', function (event) {
+          if (event.target.closest('a, button, input, select, textarea, label')) return;
+          var selection = window.getSelection();
+          if (selection && String(selection).length) return;
+          window.location.href = block.dataset.href;
+        });
+        block.addEventListener('keydown', function (event) {
+          if (event.key !== 'Enter' || event.target !== block) return;
+          window.location.href = block.dataset.href;
+        });
+      });
+    })();
 
     /* ---------- the affirmation of the day ---------- */
     var AFFIRMATIONS = [

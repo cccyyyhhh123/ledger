@@ -2536,3 +2536,21 @@ html[data-wallpaper] body {
 .fitmini__link { opacity: 0.62; }
 .rail__block:hover .fitmini__link,
 .fitmini__link:focus-visible { opacity: 1; }
+/* ---------- a rail block that is a door ---------- */
+.rail__block--go {
+  cursor: pointer;
+  transition: border-color 180ms var(--ease-out-soft, ease),
+              background-color 180ms var(--ease-out-soft, ease);
+}
+.rail__block--go:hover { border-color: var(--line-2); }
+.rail__block--go h2 a {
+  color: inherit; text-decoration: none; border-bottom: 0;
+}
+.rail__block--go h2 a:focus-visible {
+  outline: 2px solid color-mix(in srgb, var(--accent) 60%, transparent);
+  outline-offset: 3px; border-radius: 4px;
+}
+/* the controls inside keep their own cursor */
+.rail__block--go button,
+.rail__block--go input,
+.rail__block--go select { cursor: pointer; }
