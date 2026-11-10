@@ -2600,3 +2600,16 @@ html[data-theme="light"] .nav.is-stuck {
 }
 .rail__block h2 a,
 .rail__block h2 a:hover { color: inherit; border-bottom-color: transparent; }
+/* a tab that is ahead of the clock: visible, but plainly not available yet */
+.mood__slot.is-ahead,
+.mood__slot:disabled {
+  color: var(--muted-2);
+  border-color: var(--line);
+  background: transparent;
+  cursor: default;
+  opacity: 0.55;
+}
+.mood__slot.is-ahead:hover,
+.mood__slot:disabled:hover {
+  color: var(--muted-2); background: transparent; border-color: var(--line);
+}

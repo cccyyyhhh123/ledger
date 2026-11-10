@@ -11,7 +11,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Bricolage+Grotesque:wght@700;800&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="style.css?v=145">
+<link rel="stylesheet" href="style.css?v=146">
 <!-- clock ink: kept here as well, so a cached style.css cannot leave the
      seconds a different colour from the hours -->
 <style>.anchor__sec { color: inherit !important; }</style>
@@ -1009,16 +1009,27 @@
       return slotId;
     }
 
+    /* a part of the day that has not happened yet cannot be filled in */
+    function slotIsAhead(slotId) {
+      var order = ['morning', 'afternoon', 'evening'];
+      return order.indexOf(slotId) > order.indexOf(currentSlot());
+    }
+
     function paintSlots() {
       slotsHost.replaceChildren();
       SLOTS.forEach(function (item) {
+        var ahead = slotIsAhead(item.id);
         var button = document.createElement('button');
         button.type = 'button';
-        button.className = 'mood__slot' + (item.id === slot ? ' is-on' : '');
+        button.className = 'mood__slot' + (item.id === slot ? ' is-on' : '') + (ahead ? ' is-ahead' : '');
         button.setAttribute('role', 'tab');
         button.setAttribute('aria-selected', String(item.id === slot));
         button.textContent = item.label;
         button.dataset.slot = item.id;
+        if (ahead) {
+          button.disabled = true;
+          button.title = 'Not yet — this part of the day has not started';
+        }
         slotsHost.appendChild(button);
       });
     }
@@ -1110,7 +1121,7 @@
 
     slotsHost.addEventListener('click', function (event) {
       var button = event.target.closest('.mood__slot');
-      if (!button) return;
+      if (!button || button.disabled || button.classList.contains('is-ahead')) return;
       slot = button.dataset.slot;
       paint();
     });

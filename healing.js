@@ -95,13 +95,20 @@
 
     tabs.replaceChildren();
     SLOTS.forEach(function (item) {
+      /* a part of the day that has not happened yet cannot be filled in */
+      var ahead = SLOTS.map(function (s) { return s.id; }).indexOf(item.id) >
+        SLOTS.map(function (s) { return s.id; }).indexOf(currentSlot());
       var button = document.createElement('button');
       button.type = 'button';
-      button.className = 'mood__slot' + (item.id === slot ? ' is-on' : '');
+      button.className = 'mood__slot' + (item.id === slot ? ' is-on' : '') + (ahead ? ' is-ahead' : '');
       button.setAttribute('role', 'tab');
       button.setAttribute('aria-selected', String(item.id === slot));
       button.textContent = item.label;
       button.dataset.slot = item.id;
+      if (ahead) {
+        button.disabled = true;
+        button.title = 'Not yet — this part of the day has not started';
+      }
       tabs.appendChild(button);
     });
 
@@ -131,7 +138,7 @@
 
   document.addEventListener('click', function (event) {
     var tab = event.target.closest('.mood__slot');
-    if (tab && tab.dataset.slot) {
+    if (tab && tab.dataset.slot && !tab.disabled) {
       slot = tab.dataset.slot;
       paintPicker();
       return;
