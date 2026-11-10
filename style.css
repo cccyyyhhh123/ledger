@@ -2554,3 +2554,20 @@ html[data-wallpaper] body {
 .rail__block--go button,
 .rail__block--go input,
 .rail__block--go select { cursor: pointer; }
+/* ---------- the bar once it is covering something ---------- */
+.nav.is-stuck {
+  background: color-mix(in srgb, var(--bg) 92%, transparent);
+  -webkit-backdrop-filter: blur(14px) saturate(1.15);
+  backdrop-filter: blur(14px) saturate(1.15);
+  box-shadow: 0 1px 0 var(--line);
+}
+html[data-wallpaper] .nav.is-stuck,
+html[data-wallpaper-live] .nav.is-stuck {
+  background: color-mix(in srgb, var(--bg) 94%, transparent);
+}
+html[data-theme="light"] .nav.is-stuck {
+  background: color-mix(in srgb, var(--bg) 94%, transparent);
+}
+@media (max-width: 680px) {
+  .nav.is-stuck { padding-bottom: 12px; }
+}

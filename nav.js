@@ -224,3 +224,36 @@
   /* a sibling of the menu: beside the links on desktop, beside the brand on a phone */
   nav.appendChild(button);
 })();
+/* ---------- the bar stops being see-through once it has something to cover ----------
+ * At the top of a page the menu should melt into the background; once the page
+ * scrolls under it, a transparent bar lets the clock show through and the words
+ * collide. One class, toggled on the first few pixels of scroll, fixes both the
+ * desktop and the phone without changing either layout.
+ */
+(function () {
+  var nav = document.querySelector('.nav');
+  if (!nav) return;
+
+  var stuck = false;
+  var ticking = false;
+
+  function apply() {
+    var now = window.scrollY > 6;
+    if (now === stuck) return;
+    stuck = now;
+    nav.classList.toggle('is-stuck', now);
+  }
+
+  function onScroll() {
+    if (ticking) return;
+    ticking = true;
+    requestAnimationFrame(function () {
+      ticking = false;
+      apply();
+    });
+  }
+
+  apply();
+  window.addEventListener('scroll', onScroll, { passive: true });
+  window.addEventListener('resize', onScroll, { passive: true });
+})();
