@@ -2613,3 +2613,19 @@ html[data-theme="light"] .nav.is-stuck {
 .mood__slot:disabled:hover {
   color: var(--muted-2); background: transparent; border-color: var(--line);
 }
+
+/* ---------- the history card, kept small ----------
+   It is a glance, not a report: fourteen days, tight rows, and its own scroll
+   so it never stretches the column it lives in. */
+.heal__card--history { grid-row: auto; padding: 18px 20px; }
+.heal__card--history .hint { margin-bottom: 6px; }
+.heal__days { max-height: 13.5rem; overflow-y: auto; gap: 2px; padding-right: 6px; }
+.heal__day { grid-template-columns: 5.6rem auto 1fr; gap: 8px; padding: 3px 0; }
+.heal__date { font-size: 0.72rem; }
+.heal__faces { gap: 2px; }
+.heal__face { width: 22px; height: 22px; border-radius: 7px; }
+.heal__face svg { width: 17px; height: 17px; }
+.heal__face i { width: 11px; height: 2px; }
+.heal__words { font-size: 0.68rem; }
+.heal__stats { font-size: 0.68rem; line-height: 1.45; }
+.heal__clear { font-size: 0.74rem; padding: 5px 12px; }

@@ -165,7 +165,7 @@
 
     var days = [];
     var today = new Date();
-    for (var back = 0; back < 21; back++) {
+    for (var back = 0; back < 14; back++) {
       var day = new Date(today);
       day.setDate(today.getDate() - back);
       var key = iso(day);
@@ -196,7 +196,7 @@
           var cell = document.createElement('span');
           cell.className = 'heal__face' + (value ? ' has l' + value : '');
           cell.title = item.label + ': ' + (value ? LABELS[value - 1] : '—');
-          cell.innerHTML = value ? face(value, 20) : '<i></i>';
+          cell.innerHTML = value ? face(value, 17) : '<i></i>';
           faces.appendChild(cell);
         });
 
