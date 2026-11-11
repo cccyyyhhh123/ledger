@@ -11,7 +11,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="style.css?v=164">
+<link rel="stylesheet" href="style.css?v=165">
 <script src="theme.js?v=132"></script>
 </head>
 <body>
@@ -189,12 +189,12 @@ continuous:  P(X = c) = 0             probability = area, not height</pre>
     <article class="scard unitcard" data-course="cpp" style="grid-column: span 12" hidden>
       <div class="scard__head">
         <h2>Programming III · unit progress</h2>
-        <span class="scard__meta">5 parts · 187 pages</span>
+        <span class="scard__meta">5 parts · 187 pages · PART I–II drilled 11/11</span>
       </div>
 
       <div style="display:flex; flex-wrap:wrap; gap:8px 18px; align-items:baseline; margin-bottom:10px">
         <p style="margin:0; font:600 clamp(1.5rem,3vw,2rem)/1 var(--sans); letter-spacing:-.02em">
-          0 <small style="color:var(--muted); font-size:.55em; font-weight:500">/ 5 parts</small>
+          2 <small style="color:var(--muted); font-size:.55em; font-weight:500">/ 5 parts</small>
         </p>
         <p class="small" style="margin:0; color:var(--muted)">
           exam <strong style="color:var(--ink)">11/23</strong> · the parts are the lecture PDFs, not chapters
@@ -226,6 +226,76 @@ continuous:  P(X = c) = 0             probability = area, not height</pre>
         <a href="https://learn.hibiuh.edu.cn/courses/146/modules" target="_blank" rel="noopener">Open the modules</a>
       </p>
     </article>
+
+    <!-- Programming III — what the 11/11 evening session actually settled -->
+    <article class="scard unitcard" data-course="cpp" style="grid-column: span 12" aria-labelledby="cppLogH">
+      <div class="scard__head">
+        <h2 id="cppLogH">Programming III · what I learned today</h2>
+        <span class="scard__meta">session 11/11 · PART I–II drills</span>
+      </div>
+
+      <div style="display:flex; flex-wrap:wrap; gap:8px 18px; align-items:baseline">
+        <p style="margin:0; font:600 clamp(1.5rem,3vw,2rem)/1 var(--sans); letter-spacing:-.02em">
+          7 <small style="color:var(--muted); font-size:.55em; font-weight:500">rules now solid</small>
+        </p>
+        <p class="small" style="margin:0; color:var(--muted)">
+          drill set A <strong style="color:var(--ink)">4 / 8</strong> ·
+          mock B part A <strong style="color:var(--ink)">4.5 / 10</strong> ·
+          integer drill <strong style="color:var(--ink)">3 / 4</strong> ·
+          exam <strong style="color:var(--ink)">11/23 09:00 · b106</strong>
+        </p>
+      </div>
+
+      <ol style="list-style:none; margin:2px 0 0; padding:0; display:grid; gap:7px; font-size:.9rem">
+        <li style="display:flex; gap:10px; align-items:baseline">
+          <span style="flex:none; width:4.6rem; font:600 .72rem/1.6 var(--mono); color:var(--good)">RULE</span>
+          <span><code>int / int</code> truncates — <code>7 / 2 == 3</code>. One <code>double</code> operand makes it real: <code>7.0 / 2 == 3.5</code>.</span></li>
+        <li style="display:flex; gap:10px; align-items:baseline">
+          <span style="flex:none; width:4.6rem; font:600 .72rem/1.6 var(--mono); color:var(--good)">RULE</span>
+          <span><code>%</code> is the remainder, never the quotient — <code>7 % 2 == 1</code>, <code>10 % 3 == 1</code>.</span></li>
+        <li style="display:flex; gap:10px; align-items:baseline">
+          <span style="flex:none; width:4.6rem; font:600 .72rem/1.6 var(--mono); color:var(--good)">RULE</span>
+          <span><code>char</code> is an integer: <code>'A' + 1 == 'B'</code>, <code>'a' + 2 == 'c'</code>, <code>'a' - 'A' == 32</code>, <code>'0' == 48</code>.</span></li>
+        <li style="display:flex; gap:10px; align-items:baseline">
+          <span style="flex:none; width:4.6rem; font:600 .72rem/1.6 var(--mono); color:var(--good)">RULE</span>
+          <span>Upper bounds are excluded — <code>for (i = 5; i &gt; 0; --i)</code> body runs <strong>5</strong> times, not 6.</span></li>
+        <li style="display:flex; gap:10px; align-items:baseline">
+          <span style="flex:none; width:4.6rem; font:600 .72rem/1.6 var(--mono); color:var(--good)">RULE</span>
+          <span><code>cin &gt;&gt; a &gt;&gt; b</code> fills left to right — input <code>3 4</code> gives a = 3, b = 4.</span></li>
+        <li style="display:flex; gap:10px; align-items:baseline">
+          <span style="flex:none; width:4.6rem; font:600 .72rem/1.6 var(--mono); color:var(--good)">RULE</span>
+          <span><code>[]</code> never bounds-checks: <code>std::vector&lt;int&gt; v; v[0] = 1;</code> is undefined behaviour, not an exception. <code>at()</code> throws; <code>[]</code> does not.</span></li>
+        <li style="display:flex; gap:10px; align-items:baseline">
+          <span style="flex:none; width:4.6rem; font:600 .72rem/1.6 var(--mono); color:var(--good)">RULE</span>
+          <span><code>%</code> and <code>/</code> share a precedence level and run left to right — <code>10 % 3 + 10 / 3</code> = 1 + 3 = <strong>4</strong>.</span></li>
+      </ol>
+
+      <details>
+        <summary style="cursor:pointer; color:var(--ink-2)">What I actually got wrong (and why)</summary>
+        <ul class="small" style="margin:8px 0 0; padding-left:18px; color:var(--muted); display:grid; gap:4px">
+          <li><code>10 % 3 + 10 / 3</code> — I wrote 6.333, it is 4. I read <code>/</code> as real division and <code>%</code> as the quotient.</li>
+          <li><code>char c = 'A' + 1</code> — I wrote 1, it is <code>'B'</code>.</li>
+          <li><code>for (i = 5; i &gt; 0; --i)</code> — I wrote 6 runs, it is 5.</li>
+          <li><code>cin &gt;&gt; a &gt;&gt; b</code> on <code>3 4</code> — I wrote a = 4, b = 3; the order is left to right.</li>
+          <li><code>v[0] = 1</code> on an empty vector — I said it throws; it is undefined behaviour.</li>
+          <li><code>cout &lt;&lt; 7.0 / 2</code> — I wrote 3, it is 3.5.</li>
+        </ul>
+      </details>
+
+      <details>
+        <summary style="cursor:pointer; color:var(--ink-2)">Still shaky</summary>
+        <ul class="small" style="margin:8px 0 0; padding-left:18px; color:var(--muted); display:grid; gap:4px">
+          <li>Floating literals: I still drop the decimals when the operands look like whole numbers.</li>
+          <li><code>char c = 'a'; c += 2;</code> — prints a character, not a number. Not drilled yet.</li>
+        </ul>
+      </details>
+
+      <p class="scard__hint" style="margin:0">
+        Next: part C (find and fix, 30 marks) and part D (write programs, 30 marks) — 60 of the 100 marks
+        sit there, and part A only buys 10.
+      </p>
+    </article>
+
     <article class="scard unitcard" data-course="data" style="grid-column: span 12" hidden>
       <div class="scard__head">
         <h2>Data Analytics &amp; ML · unit progress</h2>

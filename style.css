@@ -2411,6 +2411,11 @@ html[data-wallpaper] body {
 .scard__head { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
 .scard__meta { font-size: 0.76rem; color: var(--muted); font-variant-numeric: tabular-nums; }
 .scard__hint { font-size: 0.78rem; color: var(--muted); }
+/* inline code inside study cards: a quiet chip so the snippets stay scannable */
+.scard code {
+  background: var(--panel-2); border: 1px solid var(--line); border-radius: 6px;
+  padding: 1px 5px; font-size: 0.86em; color: var(--ink-2); white-space: nowrap;
+}
 
 /* period switch: three small buttons, one clearly pressed */
 .period { display: inline-flex; gap: 2px; padding: 3px; border-radius: 999px; background: var(--panel-2); border: 1px solid var(--line); }
