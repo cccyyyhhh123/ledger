@@ -2747,3 +2747,9 @@ html[data-wallpaper-live] .stitchhome { color: var(--ink); }
 .heal__day { cursor: pointer; border-radius: 8px; }
 .heal__day:hover { background: color-mix(in srgb, var(--accent) 6%, transparent); }
 .heal__day:focus-visible { outline: 2px solid color-mix(in srgb, var(--accent) 55%, transparent); outline-offset: 2px; }
+/* icons inside the pet card: inline, currentColor, aligned with the text */
+.petlife__icon { display: inline-flex; vertical-align: -2px; margin-right: 5px; }
+.petlife__moodIcon { display: inline-flex; vertical-align: -3px; margin-right: 6px; }
+.petlife__mood { display: inline-flex; align-items: center; }
+.petlife__btn { display: inline-flex; align-items: center; gap: 2px; }
+.petlife__btn .petlife__icon { margin-right: 4px; }

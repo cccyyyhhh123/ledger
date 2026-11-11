@@ -11,7 +11,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="style.css?v=163">
+<link rel="stylesheet" href="style.css?v=164">
 <script src="theme.js?v=132"></script>
 </head>
 <body>
@@ -39,19 +39,19 @@
     <article class="panel petlife__card">
       <div class="petlife__head">
         <h2>How Stitch is</h2>
-        <span class="petlife__mood" id="petMood">content</span>
+        <span class="petlife__mood" id="petMood"><i class="petlife__moodIcon" id="petMoodIcon" aria-hidden="true"></i><span id="petMoodText">content</span></span>
       </div>
 
       <p class="hint" id="petLine">Feed it, stroke it, or leave it alone for a while.</p>
 
       <div class="petlife__meters">
         <div class="petlife__meter">
-          <span class="petlife__label">Fullness</span>
+          <span class="petlife__label"><i class="petlife__icon" id="petFoodIcon" aria-hidden="true"></i>Fullness</span>
           <span class="petlife__track"><i id="petFoodBar" style="width:0%"></i></span>
           <span class="petlife__value" id="petFoodVal">—</span>
         </div>
         <div class="petlife__meter">
-          <span class="petlife__label">Cheer</span>
+          <span class="petlife__label"><i class="petlife__icon" id="petJoyIcon" aria-hidden="true"></i>Cheer</span>
           <span class="petlife__track"><i id="petJoyBar" style="width:0%"></i></span>
           <span class="petlife__value" id="petJoyVal">—</span>
         </div>
@@ -59,11 +59,11 @@
 
       <div class="petlife__actions">
         <div class="petlife__feed">
-          <button class="btn petlife__btn" type="button" data-feed="fish">Snack <span>· fish</span></button>
-          <button class="btn petlife__btn" type="button" data-feed="berry">Snack <span>· berries</span></button>
-          <button class="btn petlife__btn" type="button" data-feed="cookie">Snack <span>· cookie</span></button>
+          <button class="btn petlife__btn" type="button" data-feed="fish"><i class="petlife__icon" data-icon="fish" aria-hidden="true"></i>Snack <span>· fish</span></button>
+          <button class="btn petlife__btn" type="button" data-feed="berry"><i class="petlife__icon" data-icon="berry" aria-hidden="true"></i>Snack <span>· berries</span></button>
+          <button class="btn petlife__btn" type="button" data-feed="cookie"><i class="petlife__icon" data-icon="cookie" aria-hidden="true"></i>Snack <span>· cookie</span></button>
         </div>
-        <button class="btn petlife__btn" id="petStroke" type="button">Stroke it</button>
+        <button class="btn petlife__btn" id="petStroke" type="button"><i class="petlife__icon" data-icon="hand" aria-hidden="true"></i>Stroke it</button>
       </div>
 
       <p class="petlife__meta" id="petMeta">—</p>
@@ -111,7 +111,7 @@
   </section>
 </main>
 
-<script>window.__DESK_BUILD__ = 'v163';</script>
+<script>window.__DESK_BUILD__ = 'v164';</script>
 <script src="nav.js?v=144"></script>
 <script src="pet.js?v=160"></script>
 <script>
@@ -170,6 +170,47 @@
       return 'content';
     }
 
+/* ---------- little drawn icons ----------
+       Four strokes and a circle each, in the page's ink. No emoji, no image files. */
+    var ICON = {
+      bowl: '<path d="M3 10h18c0 4-3.4 7-9 7s-9-3-9-7z"/><path d="M6 7c0-1.6 1.3-2.5 3-2.5s3 .9 3 2.5"/>',
+      heart: '<path d="M12 19.5C7.5 16 4 13 4 9.8 4 7.6 5.7 6 7.8 6c1.5 0 2.9.8 4.2 2.3C13.3 6.8 14.7 6 16.2 6 18.3 6 20 7.6 20 9.8c0 3.2-3.5 6.2-8 9.7z"/>',
+      fish: '<path d="M4 12c3-4 7-5 10-3.5L18 6v12l-4-2.5C11 17 7 16 4 12z"/><circle cx="8" cy="11.2" r=".9" fill="currentColor" stroke="none"/>',
+      berry: '<circle cx="9" cy="14" r="4"/><circle cx="15.5" cy="12.5" r="3.2"/><path d="M12 7c.8-2 2.4-3 4-3"/>',
+      cookie: '<circle cx="12" cy="12" r="7.5"/><circle cx="9.5" cy="10" r="1" fill="currentColor" stroke="none"/><circle cx="14" cy="9.5" r=".9" fill="currentColor" stroke="none"/><circle cx="13" cy="14.5" r="1.1" fill="currentColor" stroke="none"/>',
+      hand: '<path d="M9 12V6.5a1.4 1.4 0 0 1 2.8 0V11m0-.5V5.4a1.4 1.4 0 0 1 2.8 0V11m0-.5V7.2a1.4 1.4 0 0 1 2.8 0V15a5 5 0 0 1-5 5h-1.4a5 5 0 0 1-4.2-2.3L5 13.6a1.5 1.5 0 0 1 2.4-1.8L9 13"/>',
+      zzz: '<path d="M5 8h5l-5 6h5"/><path d="M14 4h4l-4 5h4"/>'
+    };
+
+    function icon(name, size) {
+      var body = ICON[name];
+      if (!body) return '';
+      return '<svg viewBox="0 0 24 24" width="' + (size || 15) + '" height="' + (size || 15) + '" fill="none" ' +
+        'stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">' + body + '</svg>';
+    }
+
+    /* a face for the mood chip, using the same five mouths as the mood picker */
+    var FACE_MOUTH = [
+      'M9 16 Q12 12.6 15 16',
+      'M9 15.6 Q12 14.6 15 15.6',
+      'M9 15.6 H15',
+      'M9 14.6 Q12 17.4 15 14.6',
+      'M8.6 14 Q12 18 15.4 14'
+    ];
+
+    function faceIcon(kind) {
+      var mouth = kind === 'happy' ? FACE_MOUTH[4]
+        : kind === 'hungry' ? FACE_MOUTH[1]
+          : kind === 'low' ? FACE_MOUTH[0]
+            : FACE_MOUTH[2];
+      return '<svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" ' +
+        'stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">' +
+        '<circle cx="12" cy="12" r="8.4"/>' +
+        '<circle cx="9.2" cy="10" r=".95" fill="currentColor" stroke="none"/>' +
+        '<circle cx="14.8" cy="10" r=".95" fill="currentColor" stroke="none"/>' +
+        '<path d="' + mouth + '"/></svg>';
+    }
+
     var MOOD_LINE = {
       hungry: 'It keeps looking at the food you are not giving it.',
       happy: 'Full and pleased with itself.',
@@ -195,8 +236,11 @@
 
     function paint(extra) {
       var mood = moodOf();
-      el.mood.textContent = mood;
       el.mood.dataset.mood = mood;
+      var moodIcon = document.getElementById('petMoodIcon');
+      var moodText = document.getElementById('petMoodText');
+      if (moodIcon) moodIcon.innerHTML = mood === 'sleepy' ? icon('zzz') : faceIcon(mood);
+      if (moodText) moodText.textContent = mood;
       el.line.textContent = extra || MOOD_LINE[mood];
 
       var food = Math.round(100 - state.food);   /* fullness, not hunger */
@@ -231,6 +275,12 @@
     });
     var strokeBtn = document.getElementById('petStroke');
     if (strokeBtn) strokeBtn.addEventListener('click', stroke);
+
+    document.getElementById('petFoodIcon').innerHTML = icon('bowl');
+    document.getElementById('petJoyIcon').innerHTML = icon('heart');
+    Array.prototype.forEach.call(document.querySelectorAll('[data-icon]'), function (slot) {
+      slot.innerHTML = icon(slot.dataset.icon);
+    });
 
     paint();
     save(state);
