@@ -11,7 +11,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Bricolage+Grotesque:wght@700;800&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="style.css?v=161">
+<link rel="stylesheet" href="style.css?v=162">
 <script src="theme.js?v=139"></script>
 </head>
 <body>
@@ -57,6 +57,20 @@
       <h2>Behind you</h2>
       <p class="hint">The last two weeks, newest first. Hover a face to read the slot.</p>
       <div class="heal__days" id="healHistory"></div>
+      <div class="heal__fillbar">
+        <label class="heal__filllabel" for="healFillDate">Missed a day?</label>
+        <input class="heal__filldate" id="healFillDate" type="date">
+        <button class="btn btn--ghost heal__fillgo" id="healFillGo" type="button">Fill the gap</button>
+      </div>
+
+      <div class="heal__editor" id="healEditor" hidden>
+        <div class="heal__editorHead">
+          <strong id="healEditorDate">—</strong>
+          <button class="heal__editorClose" id="healEditorClose" type="button">Close</button>
+        </div>
+        <div class="heal__editorRows" id="healEditorRows"></div>
+        <p class="heal__editorHint">Tap a face to set that part of the day; tap the same face again to clear it.</p>
+      </div>
       <p class="heal__stats" id="healStats"></p>
       <button class="btn btn--ghost heal__clear" id="healClear" type="button">Clear every entry</button>
     </article>
@@ -130,9 +144,9 @@
   <p class="sign">uY^Yu.</p>
 </main>
 
-<script>window.__DESK_BUILD__ = 'v161';</script>
+<script>window.__DESK_BUILD__ = 'v162';</script>
 <script src="nav.js?v=144"></script>
-<script src="healing.js?v=155"></script>
+<script src="healing.js?v=162"></script>
 <script src="pet.js?v=160"></script>
 </body>
 </html>

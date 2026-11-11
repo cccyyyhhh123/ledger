@@ -184,6 +184,10 @@
       recorded.forEach(function (day) {
         var row = document.createElement('div');
         row.className = 'heal__day';
+        row.dataset.key = day.key;
+        row.tabIndex = 0;
+        row.setAttribute('role', 'button');
+        row.title = 'Fill in or change this day';
 
         var label = document.createElement('span');
         label.className = 'heal__date';
@@ -282,6 +286,124 @@
     try { localStorage.setItem(DUMP_KEY, box.value); } catch (e) { /* private mode */ }
   }
 
+/* ---------- filling in a day that was missed ----------
+     The history used to be read-only, which made a forgotten day permanent.
+     Any row opens an editor, and the date field reaches back two weeks. */
+  var editorKey = null;
+
+  function prettyDate(key) {
+    var parts = key.split('-');
+    var date = new Date(Number(parts[0]), Number(parts[1]) - 1, Number(parts[2]));
+    return date.toLocaleDateString('en-GB', { weekday: 'short', day: 'numeric', month: 'short' });
+  }
+
+  function openEditor(key) {
+    var host = document.getElementById('healEditor');
+    var rows = document.getElementById('healEditorRows');
+    var label = document.getElementById('healEditorDate');
+    if (!host || !rows) return;
+
+    editorKey = key;
+    if (label) label.textContent = prettyDate(key);
+    rows.replaceChildren();
+
+    SLOTS.forEach(function (item) {
+      var row = document.createElement('div');
+      row.className = 'heal__editorRow';
+
+      var name = document.createElement('span');
+      name.className = 'heal__editorSlot';
+      name.textContent = item.label;
+
+      var faces = document.createElement('span');
+      faces.className = 'heal__editorFaces';
+
+      for (var level = 1; level <= 5; level++) {
+        (function (level) {
+          var button = document.createElement('button');
+          button.type = 'button';
+          var entry = data[key] || {};
+          button.className = 'mood__btn heal__editorFace' + (entry[item.id] === level ? ' is-picked' : '');
+          button.dataset.level = String(level);
+          button.innerHTML = face(level, 20);
+          button.setAttribute('aria-label', item.label + ': ' + LABELS[level - 1]);
+          button.addEventListener('click', function () {
+            var day = data[key] || (data[key] = {});
+            if (day[item.id] === level) delete day[item.id];
+            else day[item.id] = level;
+            if (!Object.keys(day).length) delete data[key];
+            save(data);
+            openEditor(key);       /* redraw in place */
+            paintHistory();
+            paintPicker();
+          });
+          faces.appendChild(button);
+        })(level);
+      }
+
+      row.append(name, faces);
+      rows.appendChild(row);
+    });
+
+    host.hidden = false;
+    host.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+  }
+
+  function closeEditor() {
+    var host = document.getElementById('healEditor');
+    if (host) host.hidden = true;
+    editorKey = null;
+  }
+
+  function wireEditor() {
+    var input = document.getElementById('healFillDate');
+    var go = document.getElementById('healFillGo');
+    var close = document.getElementById('healEditorClose');
+    var host = document.getElementById('healHistory');
+
+    if (input) {
+      var today = new Date();
+      input.max = iso(today);
+      input.value = iso(today);
+      input.addEventListener('change', function () {
+        if (!input.value) return;
+        if (input.value > iso(new Date())) return;
+        openEditor(input.value);
+      });
+    }
+
+    if (go) {
+      go.addEventListener('click', function () {
+        /* the newest day in the last two weeks with nothing recorded */
+        var day = new Date();
+        for (var back = 1; back < 15; back++) {
+          var probe = new Date(day);
+          probe.setDate(day.getDate() - back);
+          var key = iso(probe);
+          if (!data[key] || !Object.keys(data[key]).length) {
+            if (input) input.value = key;
+            openEditor(key);
+            return;
+          }
+        }
+        if (input) input.value = iso(day);
+        openEditor(iso(day));
+      });
+    }
+
+    if (close) close.addEventListener('click', closeEditor);
+
+    if (host) {
+      host.addEventListener('click', function (event) {
+        var row = event.target.closest('.heal__day');
+        if (!row || !row.dataset.key) return;
+        var input = document.getElementById('healFillDate');
+        if (input) input.value = row.dataset.key;
+        openEditor(row.dataset.key);
+      });
+    }
+  }
+
   /* ---------- a line to keep ---------- */
   function paintAffirmation(step) {
     var line = document.getElementById('healLine');
@@ -355,6 +477,7 @@
     paintPicker();
     paintHistory();
     paintAffirmation(0);
+    wireEditor();
 
     var next = document.getElementById('healAnother');
     if (next) next.addEventListener('click', function () { paintAffirmation(1); });

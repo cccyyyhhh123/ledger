@@ -2708,3 +2708,42 @@ html[data-wallpaper-live] .stitchhome { color: var(--ink); }
 .petlife__feed { display: flex; flex-wrap: wrap; gap: 6px; }
 .petlife__btn span { color: var(--muted-2); }
 .petlife__meta { font-size: 0.72rem; color: var(--muted-2); margin: 0; }
+/* ---------- filling in a missed day ---------- */
+.heal__fillbar {
+  display: flex; flex-wrap: wrap; align-items: center; gap: 8px;
+  margin-top: 10px; padding-top: 10px; border-top: 1px solid var(--line);
+}
+.heal__filllabel { font-size: 0.72rem; color: var(--muted-2); }
+.heal__filldate {
+  padding: 4px 8px; border-radius: 8px; border: 1px solid var(--line);
+  background: var(--panel-2); color: var(--ink); font: inherit; font-size: 0.78rem;
+}
+.heal__filldate:focus { outline: none; border-color: color-mix(in srgb, var(--accent) 55%, transparent); }
+.heal__fillgo { padding: 5px 12px; font-size: 0.76rem; }
+
+.heal__editor {
+  margin-top: 10px; padding: 12px 14px; border-radius: 12px;
+  border: 1px solid color-mix(in srgb, var(--accent) 22%, transparent);
+  background: color-mix(in srgb, var(--accent) 6%, transparent);
+  display: grid; gap: 8px;
+}
+.heal__editor[hidden] { display: none !important; }
+.heal__editorHead { display: flex; align-items: center; gap: 10px; }
+.heal__editorHead strong { font-size: 0.86rem; color: var(--ink); }
+.heal__editorClose {
+  margin-left: auto; padding: 2px 10px; border-radius: 999px;
+  border: 1px solid var(--line); background: transparent; color: var(--muted);
+  font: inherit; font-size: 0.7rem; cursor: pointer;
+}
+.heal__editorClose:hover { color: var(--ink); border-color: var(--line-2); }
+.heal__editorRows { display: grid; gap: 6px; }
+.heal__editorRow { display: grid; grid-template-columns: 5.4rem auto; align-items: center; gap: 10px; }
+.heal__editorSlot { font-size: 0.7rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted-2); }
+.heal__editorFaces { display: flex; gap: 4px; }
+.heal__editorFace { width: 28px; height: 28px; }
+.heal__editorHint { font-size: 0.68rem; color: var(--muted-2); margin: 0; }
+
+/* a history row is a door now */
+.heal__day { cursor: pointer; border-radius: 8px; }
+.heal__day:hover { background: color-mix(in srgb, var(--accent) 6%, transparent); }
+.heal__day:focus-visible { outline: 2px solid color-mix(in srgb, var(--accent) 55%, transparent); outline-offset: 2px; }
