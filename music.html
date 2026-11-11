@@ -12,7 +12,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <script src="theme.js?v=132"></script>
-<link rel="stylesheet" href="style.css?v=158">
+<link rel="stylesheet" href="style.css?v=159">
 </head>
 <body>
 
@@ -35,10 +35,7 @@
        it only appears once you have chosen a song, so the page starts as a search box and nothing else.</p>
   </header>
 
-  <p class="bridge-help small muted" id="bridgeHelp">
-    Desktop player not connected. Double-click <span class="mono">_tools\启动音乐台.bat</span> —
-    it starts the bridge and opens this site through it, so the page can read the player.
-  </p>
+
 
   <section class="panel bridge" id="bridgePanel" hidden>
     <div class="bridge__head">
@@ -106,7 +103,7 @@
   </section>
 </main>
 
-<script>window.__DESK_BUILD__ = 'v158';</script>
+<script>window.__DESK_BUILD__ = 'v159';</script>
 <script src="elastic-slider.js?v=132"></script>
 <script src="nav.js?v=144"></script>
 <script>
@@ -399,16 +396,15 @@
       online = false;
       el.state.textContent = 'not connected';
       el.state.className = 'bridge__state';
-      el.title.textContent = 'No desktop player';
-      el.artist.textContent = 'The local service is not running';
+      el.title.textContent = '';
+      el.artist.textContent = '';
       el.fill.style.width = '0%';
       el.pos.textContent = '0:00';
       el.dur.textContent = '0:00';
       el.toggle.disabled = true;
       el.next.disabled = true;
       el.prev.disabled = true;
-      el.hint.innerHTML = 'Double-click <span class="mono">_tools\\启动音乐台.bat</span> to start it — ' +
-        'this panel then follows whatever the desktop player does.';
+      el.hint.textContent = '';
     }
 
     function paint(data) {
@@ -452,15 +448,14 @@
         })
         .then(function (data) {
           document.getElementById('bridgePanel').hidden = false;
-          document.getElementById('bridgeHelp').hidden = true;
+          
           paint(data);
         })
         .catch(function () {
           online = false;
           /* no service: keep the panel out of the way rather than showing a dead one */
           document.getElementById('bridgePanel').hidden = true;
-          document.getElementById('bridgeHelp').hidden = false;
-        })
+            })
         .then(function () { clearTimeout(guard); });
     }
 
