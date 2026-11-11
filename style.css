@@ -2652,3 +2652,33 @@ html[data-theme="light"] .nav.is-stuck {
 }
 /* the unit cards hide and show by course; a display rule would otherwise win */
 .unitcard[hidden] { display: none !important; }
+/* ---------- Stitch's home ----------
+   A small drawing at the end of the quote, where the page has room to breathe.
+   It sits over whatever is behind, so it carries its own soft halo. */
+.affirm { position: relative; }
+.stitchhome {
+  position: absolute; right: 0; bottom: -6px;
+  display: grid; justify-items: center; gap: 2px;
+  padding: 0; border: 0; background: none; cursor: pointer;
+  color: var(--ink-2);
+  opacity: 0.72;
+  transition: opacity 200ms var(--ease-out-soft, ease), transform 260ms var(--ease-out-soft, ease);
+  filter: drop-shadow(0 1px 0 color-mix(in srgb, var(--bg) 65%, transparent));
+}
+.stitchhome svg { width: 116px; height: auto; display: block; }
+.stitchhome__label {
+  font-size: 0.62rem; letter-spacing: 0.14em; text-transform: uppercase;
+  color: var(--muted-2);
+}
+.stitchhome:hover { opacity: 1; transform: translateY(-2px); }
+.stitchhome:active { transform: translateY(0); }
+.stitchhome:focus-visible {
+  outline: 2px solid color-mix(in srgb, #4a7fd4 60%, transparent);
+  outline-offset: 6px; border-radius: 12px;
+}
+html[data-wallpaper] .stitchhome,
+html[data-wallpaper-live] .stitchhome { color: var(--ink); }
+
+@media (max-width: 900px) {
+  .stitchhome { position: static; justify-self: end; margin-top: 8px; }
+}

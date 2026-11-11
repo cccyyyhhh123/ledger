@@ -381,6 +381,12 @@
     setState: function (name) { setState(name); if (name === 'idle') wander(); },
     resize: function (value) { resize(value); },
     goHome: goHome,
+    /* walk to a point: the target is enough, the loop does the rest */
+    moveTo: function (x, y) {
+      target.x = x;
+      target.y = y;
+      facing = x < pos.x ? -1 : 1;
+    },
     show: show,
     hide: hide,
     hidden: function () {

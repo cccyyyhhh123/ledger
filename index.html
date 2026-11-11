@@ -11,7 +11,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Bricolage+Grotesque:wght@700;800&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="style.css?v=159">
+<link rel="stylesheet" href="style.css?v=160">
 <!-- clock ink: kept here as well, so a cached style.css cannot leave the
      seconds a different colour from the hours -->
 <style>.anchor__sec { color: inherit !important; }</style>
@@ -49,6 +49,29 @@
       <blockquote class="affirm__line" id="affirmLine">—</blockquote>
       <figcaption class="affirm__cn" id="affirmCn">今日肯定语</figcaption>
       <button class="affirm__next" id="affirmNext" type="button">another ↻</button>
+      <button class="stitchhome" id="stitchHome" type="button" aria-label="Stitch's home — send Stitch there" title="Stitch's home">
+        <svg viewBox="0 0 132 116" role="img" aria-hidden="true">
+          <!-- sand -->
+          <path d="M8 96c14-7 30-10 58-10s46 3 58 10" fill="none" stroke="currentColor" stroke-opacity=".35" stroke-width="2" stroke-linecap="round"/>
+          <!-- hut -->
+          <path d="M34 96V64c0-3 2-5 5-5h38c3 0 5 2 5 5v32" fill="currentColor" fill-opacity=".07" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>
+          <!-- door -->
+          <path d="M52 96V78c0-3 2-5 5-5s5 2 5 5v18" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>
+          <!-- roof, in Stitch blue -->
+          <path d="M26 64 61 38l35 26" fill="none" stroke="#4a7fd4" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M38 56h46" stroke="#4a7fd4" stroke-width="2.5" stroke-linecap="round" stroke-opacity=".8"/>
+          <!-- palm -->
+          <path d="M112 96c0-14-1-28-2-40" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"/>
+          <path d="M110 56c-7-8-16-10-24-8 6 5 14 9 24 8z" fill="currentColor" fill-opacity=".12" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>
+          <path d="M110 56c7-7 16-8 23-5-6 5-14 8-23 5z" fill="currentColor" fill-opacity=".12" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>
+          <path d="M110 54c-2-10 2-17 9-21-1 9-4 16-9 21z" fill="currentColor" fill-opacity=".12" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>
+          <circle cx="108" cy="60" r="1.8" fill="currentColor" stroke="none"/>
+          <circle cx="113" cy="62" r="1.6" fill="currentColor" stroke="none"/>
+          <!-- a shell on the sand -->
+          <path d="M28 100c3-4 9-4 12 0" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-opacity=".6"/>
+        </svg>
+        <span class="stitchhome__label">Stitch&rsquo;s home</span>
+      </button>
     </figure>
 
     <div class="metrics">
@@ -290,6 +313,19 @@
           if (event.key !== 'Enter' || event.target !== block) return;
           window.location.href = block.dataset.href;
         });
+      });
+    })();
+
+/* ---------- Stitch's home ----------
+       A hut to the right of the quote. Pressing it walks the pet over, which is
+       the only honest thing a drawing of a house can do. */
+    (function () {
+      var house = document.getElementById('stitchHome');
+      if (!house) return;
+      house.addEventListener('click', function () {
+        if (!window.DeskPet || !window.DeskPet.moveTo) return;
+        var box = house.getBoundingClientRect();
+        window.DeskPet.moveTo(box.left + box.width / 2 - 60, box.top + box.height - 90);
       });
     })();
 
@@ -1352,6 +1388,6 @@
 <script src="wallpaper-pick.js?v=132"></script>
 <script src="wallpaper-live.js?v=132"></script>
 <script src="fitness-plan.js?v=132"></script>
-<script src="pet.js?v=153"></script>
+<script src="pet.js?v=160"></script>
 </body>
 </html>
