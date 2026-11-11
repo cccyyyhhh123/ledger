@@ -11,7 +11,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="style.css?v=160">
+<link rel="stylesheet" href="style.css?v=161">
 <script src="theme.js?v=132"></script>
 </head>
 <body>
@@ -35,6 +35,40 @@
        controls; the creature itself lives in <span class="mono">pet.js</span> and every page loads it.</p>
   </header>
 
+  <section class="petlife" aria-label="How Stitch is">
+    <article class="panel petlife__card">
+      <div class="petlife__head">
+        <h2>How Stitch is</h2>
+        <span class="petlife__mood" id="petMood">content</span>
+      </div>
+
+      <p class="hint" id="petLine">Feed it, stroke it, or leave it alone for a while.</p>
+
+      <div class="petlife__meters">
+        <div class="petlife__meter">
+          <span class="petlife__label">Fullness</span>
+          <span class="petlife__track"><i id="petFoodBar" style="width:0%"></i></span>
+          <span class="petlife__value" id="petFoodVal">—</span>
+        </div>
+        <div class="petlife__meter">
+          <span class="petlife__label">Cheer</span>
+          <span class="petlife__track"><i id="petJoyBar" style="width:0%"></i></span>
+          <span class="petlife__value" id="petJoyVal">—</span>
+        </div>
+      </div>
+
+      <div class="petlife__actions">
+        <div class="petlife__feed">
+          <button class="btn petlife__btn" type="button" data-feed="fish">Snack <span>· fish</span></button>
+          <button class="btn petlife__btn" type="button" data-feed="berry">Snack <span>· berries</span></button>
+          <button class="btn petlife__btn" type="button" data-feed="cookie">Snack <span>· cookie</span></button>
+        </div>
+        <button class="btn petlife__btn" id="petStroke" type="button">Stroke it</button>
+      </div>
+
+      <p class="petlife__meta" id="petMeta">—</p>
+    </article>
+  </section>
   <section class="petctrl" aria-label="Pet controls">
     <div class="petctrl__row">
       <span class="petctrl__label">Tell it to</span>
@@ -77,10 +111,132 @@
   </section>
 </main>
 
-<script>window.__DESK_BUILD__ = 'v160';</script>
+<script>window.__DESK_BUILD__ = 'v161';</script>
 <script src="nav.js?v=144"></script>
 <script src="pet.js?v=160"></script>
 <script>
+/* ---------- how Stitch is ----------
+     Food and cheer are numbers in this browser, and they drift while the page is
+     closed. Nothing is sent anywhere; the point is that the pet has a state you
+     can change and read back. */
+  (function () {
+    var KEY = 'deskPetLife';
+    var HOUR = 3600 * 1000;
+
+    var el = {
+      mood: document.getElementById('petMood'),
+      line: document.getElementById('petLine'),
+      foodBar: document.getElementById('petFoodBar'),
+      foodVal: document.getElementById('petFoodVal'),
+      joyBar: document.getElementById('petJoyBar'),
+      joyVal: document.getElementById('petJoyVal'),
+      meta: document.getElementById('petMeta')
+    };
+    if (!el.mood) return;
+
+    function today() {
+      var d = new Date();
+      return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+    }
+
+    function load() {
+      var raw = null;
+      try { raw = JSON.parse(localStorage.getItem(KEY)); } catch (e) { raw = null; }
+      var now = Date.now();
+      var st = raw && typeof raw === 'object' ? raw : { food: 30, joy: 60, fed: 0, day: today(), at: now };
+      if (st.day !== today()) { st.day = today(); st.fed = 0; }
+
+      /* the pet gets hungry and a little bored while nobody is looking */
+      var hours = Math.max(0, Math.min(48, (now - (st.at || now)) / HOUR));
+      st.food = Math.min(100, st.food + hours * 5);
+      st.joy = Math.max(0, st.joy - hours * 1.5);
+      st.at = now;
+      return st;
+    }
+
+    function save(st) {
+      st.at = Date.now();
+      try { localStorage.setItem(KEY, JSON.stringify(st)); } catch (e) {}
+    }
+
+    var state = load();
+
+    function moodOf() {
+      var petState = window.DeskPet && window.DeskPet.state ? window.DeskPet.state() : 'idle';
+      if (petState === 'sleep') return 'sleepy';
+      if (state.food > 75) return 'hungry';
+      if (state.joy > 75) return 'happy';
+      if (state.joy < 25) return 'low';
+      return 'content';
+    }
+
+    var MOOD_LINE = {
+      hungry: 'It keeps looking at the food you are not giving it.',
+      happy: 'Full and pleased with itself.',
+      low: 'Quiet. A stroke would help.',
+      sleepy: 'Curled up. It will wake when you touch it.',
+      content: 'Fine, thanks. Not thrilled, not neglected.'
+    };
+
+    var SNACK = {
+      fish: { food: 22, joy: 6, line: 'Swallowed in one go. It would like another.' },
+      berry: { food: 12, joy: 12, line: 'It eats the berries one at a time, very seriously.' },
+      cookie: { food: 16, joy: 16, line: 'Crumbs everywhere. Worth it.' }
+    };
+
+    function ago(ms) {
+      if (!ms) return 'never';
+      var mins = Math.round((Date.now() - ms) / 60000);
+      if (mins < 1) return 'just now';
+      if (mins < 60) return mins + ' min ago';
+      var hours = Math.round(mins / 60);
+      return hours + ' h ago';
+    }
+
+    function paint(extra) {
+      var mood = moodOf();
+      el.mood.textContent = mood;
+      el.mood.dataset.mood = mood;
+      el.line.textContent = extra || MOOD_LINE[mood];
+
+      var food = Math.round(100 - state.food);   /* fullness, not hunger */
+      el.foodBar.style.width = Math.max(0, Math.min(100, food)) + '%';
+      el.foodVal.textContent = Math.round(food) + '%';
+      el.joyBar.style.width = Math.round(state.joy) + '%';
+      el.joyVal.textContent = Math.round(state.joy) + '%';
+      el.meta.textContent = 'Fed ' + state.fed + (state.fed === 1 ? ' time' : ' times') + ' today · last ' +
+        ago(state.lastFed) + ' · kept in this browser only';
+    }
+
+    function feed(kind) {
+      var snack = SNACK[kind] || SNACK.fish;
+      state.food = Math.max(0, state.food - snack.food);
+      state.joy = Math.min(100, state.joy + snack.joy);
+      state.fed += 1;
+      state.lastFed = Date.now();
+      save(state);
+      if (window.DeskPet && window.DeskPet.setState) window.DeskPet.setState('happy');
+      paint(snack.line);
+    }
+
+    function stroke() {
+      state.joy = Math.min(100, state.joy + 7);
+      save(state);
+      if (window.DeskPet && window.DeskPet.setState) window.DeskPet.setState('play');
+      paint('It leans into your hand and holds still for a second.');
+    }
+
+    Array.prototype.forEach.call(document.querySelectorAll('[data-feed]'), function (button) {
+      button.addEventListener('click', function () { feed(button.dataset.feed); });
+    });
+    var strokeBtn = document.getElementById('petStroke');
+    if (strokeBtn) strokeBtn.addEventListener('click', stroke);
+
+    paint();
+    save(state);
+    setInterval(function () { state = load(); paint(); save(state); }, 60000);
+  })();
+
   /* this page only wires its controls to the shared pet */
   window.addEventListener('load', function () {
     var pet = window.DeskPet;

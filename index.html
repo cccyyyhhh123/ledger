@@ -11,7 +11,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Bricolage+Grotesque:wght@700;800&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="style.css?v=160">
+<link rel="stylesheet" href="style.css?v=161">
 <!-- clock ink: kept here as well, so a cached style.css cannot leave the
      seconds a different colour from the hours -->
 <style>.anchor__sec { color: inherit !important; }</style>
@@ -317,15 +317,13 @@
     })();
 
 /* ---------- Stitch's home ----------
-       A hut to the right of the quote. Pressing it walks the pet over, which is
-       the only honest thing a drawing of a house can do. */
+       A hut to the right of the quote. Pressing it opens the pet page, where the
+       creature can be fed and read. */
     (function () {
       var house = document.getElementById('stitchHome');
       if (!house) return;
       house.addEventListener('click', function () {
-        if (!window.DeskPet || !window.DeskPet.moveTo) return;
-        var box = house.getBoundingClientRect();
-        window.DeskPet.moveTo(box.left + box.width / 2 - 60, box.top + box.height - 90);
+        window.location.href = 'pet.html';
       });
     })();
 
