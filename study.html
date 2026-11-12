@@ -189,7 +189,7 @@ continuous:  P(X = c) = 0             probability = area, not height</pre>
     <article class="scard unitcard" data-course="cpp" style="grid-column: span 12" hidden>
       <div class="scard__head">
         <h2>Programming III · unit progress</h2>
-        <span class="scard__meta">5 parts · 187 pages · PART I–II drilled 11/11</span>
+        <span class="scard__meta">5 parts · 187 pages · PART I–II concepts cleared 11/12</span>
       </div>
 
       <div style="display:flex; flex-wrap:wrap; gap:8px 18px; align-items:baseline; margin-bottom:10px">
@@ -231,17 +231,18 @@ continuous:  P(X = c) = 0             probability = area, not height</pre>
     <article class="scard unitcard" data-course="cpp" style="grid-column: span 12" aria-labelledby="cppLogH">
       <div class="scard__head">
         <h2 id="cppLogH">Programming III · what I learned today</h2>
-        <span class="scard__meta">session 11/11 · PART I–II drills</span>
+        <span class="scard__meta">PART I–II concepts cleared · synced 11/12</span>
       </div>
 
       <div style="display:flex; flex-wrap:wrap; gap:8px 18px; align-items:baseline">
         <p style="margin:0; font:600 clamp(1.5rem,3vw,2rem)/1 var(--sans); letter-spacing:-.02em">
-          7 <small style="color:var(--muted); font-size:.55em; font-weight:500">rules now solid</small>
+          11 <small style="color:var(--muted); font-size:.55em; font-weight:500">rules now solid</small>
         </p>
         <p class="small" style="margin:0; color:var(--muted)">
-          drill set A <strong style="color:var(--ink)">4 / 8</strong> ·
-          mock B part A <strong style="color:var(--ink)">4.5 / 10</strong> ·
-          integer drill <strong style="color:var(--ink)">3 / 4</strong> ·
+          part A <strong style="color:var(--good)">cleared</strong> ·
+          mock B part A <strong style="color:var(--ink)">4.5 / 10</strong> →
+          <strong style="color:var(--good)">solid on 卷 C</strong> ·
+          next → part B ·
           exam <strong style="color:var(--ink)">11/23 09:00 · b106</strong>
         </p>
       </div>
@@ -268,6 +269,18 @@ continuous:  P(X = c) = 0             probability = area, not height</pre>
         <li style="display:flex; gap:10px; align-items:baseline">
           <span style="flex:none; width:4.6rem; font:600 .72rem/1.6 var(--mono); color:var(--good)">RULE</span>
           <span><code>%</code> and <code>/</code> share a precedence level and run left to right — <code>10 % 3 + 10 / 3</code> = 1 + 3 = <strong>4</strong>.</span></li>
+        <li style="display:flex; gap:10px; align-items:baseline">
+          <span style="flex:none; width:4.6rem; font:600 .72rem/1.6 var(--mono); color:var(--good)">RULE</span>
+          <span>Truncation happens <em>before</em> the widening — <code>int x = 7/2; double y = x/2;</code> gives <strong>1</strong>, not 3.5.</span></li>
+        <li style="display:flex; gap:10px; align-items:baseline">
+          <span style="flex:none; width:4.6rem; font:600 .72rem/1.6 var(--mono); color:var(--good)">RULE</span>
+          <span><code>1 / 2 * 2.0</code> is <strong>0</strong> — the division is already integer, the later double changes nothing.</span></li>
+        <li style="display:flex; gap:10px; align-items:baseline">
+          <span style="flex:none; width:4.6rem; font:600 .72rem/1.6 var(--mono); color:var(--good)">RULE</span>
+          <span>Assigning to a double rescues nothing — <code>double d = 1 / 3;</code> stores <strong>0</strong>.</span></li>
+        <li style="display:flex; gap:10px; align-items:baseline">
+          <span style="flex:none; width:4.6rem; font:600 .72rem/1.6 var(--mono); color:var(--good)">RULE</span>
+          <span><code>&amp;&amp;</code> short-circuits: in <code>i != 0 &amp;&amp; 10 / i</code> the right side never runs when i is 0 — that is the guard, not luck.</span></li>
       </ol>
 
       <details>
@@ -279,20 +292,24 @@ continuous:  P(X = c) = 0             probability = area, not height</pre>
           <li><code>cin &gt;&gt; a &gt;&gt; b</code> on <code>3 4</code> — I wrote a = 4, b = 3; the order is left to right.</li>
           <li><code>v[0] = 1</code> on an empty vector — I said it throws; it is undefined behaviour.</li>
           <li><code>cout &lt;&lt; 7.0 / 2</code> — I wrote 3, it is 3.5.</li>
+          <li><code>int x = 7/2; double y = x/2;</code> — I expected 3.5, it is 1. Truncation happens twice, not once.</li>
+          <li><code>1 / 2 * 2.0</code> — I expected 1, it is 0.</li>
+          <li><code>double d = 1 / 3</code> — I expected 0.333, it is 0.</li>
         </ul>
       </details>
 
       <details>
-        <summary style="cursor:pointer; color:var(--ink-2)">Still shaky</summary>
+        <summary style="cursor:pointer; color:var(--ink-2)">Not yet drilled</summary>
         <ul class="small" style="margin:8px 0 0; padding-left:18px; color:var(--muted); display:grid; gap:4px">
-          <li>Floating literals: I still drop the decimals when the operands look like whole numbers.</li>
-          <li><code>char c = 'a'; c += 2;</code> — prints a character, not a number. Not drilled yet.</li>
+          <li>Part B — reading code: functions that return vs write back, running totals built up in a loop. Nothing done on paper yet.</li>
+          <li>Part C — find the bug: the average-of-n loop (four separate faults) and the class whose <code>deposit()</code> happily accepts a negative amount.</li>
+          <li>Part D — writing programs: <code>maxOf</code> with the empty-vector guard, and <code>Account</code> with a withdraw rule. Not written yet.</li>
         </ul>
       </details>
 
       <p class="scard__hint" style="margin:0">
-        Next: part C (find and fix, 30 marks) and part D (write programs, 30 marks) — 60 of the 100 marks
-        sit there, and part A only buys 10.
+        Next: 卷 C part B (read the code, 30) → part C (find and fix, 30) → part D (write the programs, 30).
+        Part A is done and only bought 10 marks — 60 of the 100 sit in C and D.
       </p>
     </article>
 
