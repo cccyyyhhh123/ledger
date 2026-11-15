@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Cram · uY^Yu.</title>
+<meta name="description" content="The Web Technologies facts that can only be memorised: acronyms, sizes, syntax shapes, tag pairs, formats, naming rules, Git words, error names.">
+<link rel="icon" href="Images/favicon-32.png?v=132" sizes="32x32" type="image/png">
+<link rel="apple-touch-icon" href="Images/icon-180.png?v=132">
+<meta name="theme-color" content="#0b0b10">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css?v=165">
+<style>
+  /* ---- cram sheet: two columns, answers hideable ---- */
+  .cram__head { max-width: 62ch; }
+  .cram__note {
+    font-size: .85rem; color: var(--muted); margin: 0 0 22px; max-width: 62ch;
+    border-left: 2px solid var(--line); padding-left: 12px;
+  }
+
+  .cram__bar {
+    display: flex; flex-wrap: wrap; align-items: center; gap: 12px;
+    margin: 0 0 26px; padding: 12px 16px;
+    border: 1px solid var(--line); border-radius: 12px; background: var(--panel-2);
+  }
+  .cram__toggle { position: absolute; opacity: 0; pointer-events: none; }
+  .cram__btn {
+    cursor: pointer; font-size: .82rem; font-weight: 600; letter-spacing: .02em;
+    padding: 7px 14px; border-radius: 999px;
+    border: 1px solid var(--line); background: var(--card, transparent); color: var(--ink);
+    user-select: none;
+  }
+  .cram__btn::before { content: "◯ "; }
+  .cram__toggle:checked ~ .cram__bar .cram__btn::before { content: "● "; }
+  .cram__toggle:focus-visible ~ .cram__bar .cram__btn { outline: 2px solid var(--accent); outline-offset: 2px; }
+  .cram__hint { font-size: .78rem; color: var(--muted-2); margin: 0; }
+
+  .cram__sec { margin: 0 0 34px; }
+  .cram__sec > h2 {
+    font-size: .72rem; letter-spacing: .16em; text-transform: uppercase;
+    color: var(--muted-2); font-weight: 600; margin: 0 0 10px;
+    padding-bottom: 6px; border-bottom: 1px solid var(--line);
+  }
+  .cram__sec > h2 small { letter-spacing: 0; text-transform: none; font-weight: 500; }
+
+  .cram table { width: 100%; border-collapse: collapse; font-size: .9rem; }
+  .cram th, .cram td { text-align: left; padding: 7px 10px; border-bottom: 1px solid var(--line); vertical-align: top; }
+  .cram th { font-size: .74rem; letter-spacing: .1em; text-transform: uppercase; color: var(--muted-2); font-weight: 600; }
+  .cram td.q { width: 38%; color: var(--ink); font-weight: 500; }
+  .cram td.a { color: var(--muted); }
+  .cram td.a code, .cram td.q code {
+    font-family: var(--mono); font-size: .92em; padding: 1px 5px; border-radius: 4px;
+    background: var(--panel-2); color: var(--ink);
+  }
+  .cram td.a b, .cram td.a strong { color: var(--ink); }
+
+  /* the self-test: answers turn into bars of colour */
+  .cram__toggle:checked ~ .cram__body .a,
+  .cram__toggle:checked ~ .cram__body .a * {
+    color: transparent !important;
+    background-image: none !important;
+    border-color: transparent !important;
+  }
+  .cram__toggle:checked ~ .cram__body .a {
+    background: var(--line); border-radius: 4px;
+  }
+  .cram__toggle:checked ~ .cram__body .a:hover { background: transparent; }
+  .cram__toggle:checked ~ .cram__body .a:hover,
+  .cram__toggle:checked ~ .cram__body .a:hover * { color: var(--muted) !important; background: transparent; }
+
+  .cram__foot { font-size: .82rem; color: var(--muted); margin-top: 40px; padding-top: 18px; border-top: 1px solid var(--line); }
+  .cram__foot a { color: var(--ink); }
+
+  @media print {
+    .nav, .cram__bar, .cram__foot { display: none !important; }
+    body { background: #fff !important; color: #000 !important; }
+    .cram table { font-size: 10pt; }
+    .cram td.a, .cram td.q { color: #000 !important; }
+    .cram__sec { break-inside: avoid; }
+  }
+</style>
+<script src="theme.js?v=132"></script>
+</head>
+<body>
+
+<nav class="nav">
+  <a class="nav__brand" href="index.html" aria-label="uY^Yu — home">uY^Yu<span>.</span></a>
+  <div class="nav__links">
+    <a href="index.html">Home</a>
+    <a href="study.html" aria-current="page">Study</a>
+    <a href="fitness.html">Fitness</a>
+    <a href="music.html">Music</a>
+    <a href="ledger.html">Ledger</a>
+    <a href="contact.html">Contact</a>
+  </div>
+</nav>
+
+<main class="shell tool cram">
+
+  <header class="tool__head cram__head">
+    <h1>Cram</h1>
+    <p>Everything on the Web Technologies paper that can only be <em>memorised</em> — names, numbers, shapes,
+       rules. Tick the toggle to hide the answers and say them out loud; tap a bar to peek.</p>
+  </header>
+
+  <p class="cram__note">
+    The other half of the paper (reading code, finding errors) cannot be crammed — it has to be practised on
+    paper. This page is only the part where memorising actually works.
+  </p>
+
+  <input type="checkbox" id="cover" class="cram__toggle">
+  <div class="cram__bar">
+    <label for="cover" class="cram__btn">Cover the answers</label>
+    <p class="cram__hint">Use it on the bus: read the left column, say the right one, tap to check.</p>
+  </div>
+
+  <div class="cram__body">
+
+    <!-- 1 -->
+    <section class="cram__sec">
+      <h2>1 · Acronyms <small>— say the full name, not the letters</small></h2>
+      <table>
+        <tr><td class="q">HTML</td><td class="a"><b>H</b>yper<b>T</b>ext <b>M</b>arkup <b>L</b>anguage</td></tr>
+        <tr><td class="q">HTTP</td><td class="a"><b>H</b>yper<b>T</b>ext <b>T</b>ransfer <b>P</b>rotocol</td></tr>
+        <tr><td class="q">URL</td><td class="a"><b>U</b>niform <b>R</b>esource <b>L</b>ocator</td></tr>
+        <tr><td class="q">CSS</td><td class="a"><b>C</b>ascading <b>S</b>tyle <b>S</b>heets</td></tr>
+        <tr><td class="q">DNS</td><td class="a"><b>D</b>omain <b>N</b>ame <b>S</b>ystem</td></tr>
+        <tr><td class="q">JPEG / JPG</td><td class="a"><b>J</b>oint <b>P</b>hotographic <b>E</b>xperts <b>G</b>roup</td></tr>
+        <tr><td class="q">PNG</td><td class="a"><b>P</b>ortable <b>N</b>etwork <b>G</b>raphics</td></tr>
+        <tr><td class="q">SVG</td><td class="a"><b>S</b>calable <b>V</b>ector <b>G</b>raphics</td></tr>
+        <tr><td class="q">GIF</td><td class="a"><b>G</b>raphics <b>I</b>nterchange <b>F</b>ormat</td></tr>
+        <tr><td class="q">MP4</td><td class="a">MPEG-4 — Part 14</td></tr>
+        <tr><td class="q">WOFF2</td><td class="a"><b>W</b>eb <b>O</b>pen <b>F</b>ont <b>F</b>ormat, version 2</td></tr>
+        <tr><td class="q">OG image</td><td class="a"><b>O</b>pen <b>G</b>raph image</td></tr>
+        <tr><td class="q">WebP</td><td class="a">Google's image format — no acronym to expand</td></tr>
+      </table>
+    </section>
+
+    <!-- 2 -->
+    <section class="cram__sec">
+      <h2>2 · Numbers <small>— exact, no rounding</small></h2>
+      <table>
+        <tr><td class="q">favicon</td><td class="a"><b>32 × 32</b> px — tab, bookmarks, history</td></tr>
+        <tr><td class="q">apple-touch-icon (app icon)</td><td class="a"><b>180 × 180</b> px — home screen</td></tr>
+        <tr><td class="q">Open Graph image</td><td class="a"><b>1200 × 630</b> px — the share preview card</td></tr>
+        <tr><td class="q">200</td><td class="a">OK</td></tr>
+        <tr><td class="q">301</td><td class="a">Moved permanently — followed via the <code>Location</code> header</td></tr>
+        <tr><td class="q">404</td><td class="a">Not found — <b>the requester's fault (4xx)</b></td></tr>
+        <tr><td class="q">500</td><td class="a">Internal server error — <b>the server's fault (5xx)</b></td></tr>
+        <tr><td class="q">Berners-Lee, four inventions</td><td class="a">1989, CERN: HTML <i>write</i> · HTTP <i>send</i> · URL <i>address</i> · the browser <i>read</i> (his: WorldWideWeb)</td></tr>
+        <tr><td class="q">the written exam</td><td class="a">Fri <b>20 Nov 2026</b>, <b>14:00–15:30</b>, <b>90 min</b>, on paper, <b>25 %</b>, pass at <b>60</b></td></tr>
+      </table>
+    </section>
+
+    <!-- 3 -->
+    <section class="cram__sec">
+      <h2>3 · The shape of each language <small>— recognise a line at a glance</small></h2>
+      <table>
+        <tr><td class="q">HTML</td><td class="a"><code>&lt;tag&gt;…&lt;/tag&gt;</code> — angle brackets; words like <code>href</code> <code>src</code> <code>alt</code> <code>class</code> <code>id</code></td></tr>
+        <tr><td class="q">CSS</td><td class="a"><code>selector { property: value; }</code> — braces and semicolons; words like <code>color</code> <code>margin</code> <code>display</code> <code>font-size</code></td></tr>
+        <tr><td class="q">JavaScript</td><td class="a">statements with <code>let</code> <code>const</code> <code>function</code> <code>document</code> <code>=&gt;</code></td></tr>
+        <tr><td class="q">HTML comment</td><td class="a"><code>&lt;!-- … --&gt;</code> — HTML only</td></tr>
+        <tr><td class="q">CSS comment</td><td class="a"><code>/* … */</code> — works in CSS <b>and</b> JavaScript</td></tr>
+        <tr><td class="q">JavaScript comment</td><td class="a"><code>// …</code> — JavaScript only; <b>in CSS it breaks the next rule</b></td></tr>
+        <tr><td class="q">file endings</td><td class="a"><code>.html</code> <code>.css</code> <code>.js</code></td></tr>
+        <tr><td class="q">CSS inside a page</td><td class="a"><code>&lt;style&gt;…&lt;/style&gt;</code> or <code>style="…"</code></td></tr>
+        <tr><td class="q">JS inside a page</td><td class="a"><code>&lt;script&gt;…&lt;/script&gt;</code></td></tr>
+        <tr><td class="q">loading a file</td><td class="a"><code>&lt;link rel="stylesheet" href="style.css"&gt;</code> · <code>&lt;script src="nav.js"&gt;&lt;/script&gt;</code> — both lines are <b>HTML</b></td></tr>
+        <tr><td class="q">the rule for naming a line</td><td class="a">Name the language <b>of the line</b>, not of what sits inside its quotes: <code>document.querySelector('.quote')</code> is JavaScript</td></tr>
+      </table>
+    </section>
+
+    <!-- 4 -->
+    <section class="cram__sec">
+      <h2>4 · Tag pairs and roles <small>— one word each</small></h2>
+      <table>
+        <tr><td class="q"><code>&lt;ul&gt;</code></td><td class="a">unordered list — order does not matter</td></tr>
+        <tr><td class="q"><code>&lt;ol&gt;</code></td><td class="a">ordered list — <b>the order is the information</b> (steps)</td></tr>
+        <tr><td class="q"><code>&lt;dl&gt;</code> / <code>&lt;dt&gt;</code> / <code>&lt;dd&gt;</code></td><td class="a">description list / term / description — pairs, like a glossary</td></tr>
+        <tr><td class="q"><code>&lt;strong&gt;</code></td><td class="a">important — a screen reader can stress it</td></tr>
+        <tr><td class="q"><code>&lt;b&gt;</code></td><td class="a">just bold — no meaning</td></tr>
+        <tr><td class="q"><code>&lt;em&gt;</code></td><td class="a">emphasis — changes how it is said</td></tr>
+        <tr><td class="q"><code>&lt;i&gt;</code></td><td class="a">just italic — no meaning</td></tr>
+        <tr><td class="q"><code>&lt;head&gt;</code></td><td class="a">about the page — invisible, holds title, charset, viewport, favicon, stylesheet</td></tr>
+        <tr><td class="q"><code>&lt;header&gt;</code></td><td class="a">the top of the page — visible, inside <code>&lt;body&gt;</code></td></tr>
+        <tr><td class="q">the four parts of a page</td><td class="a"><code>header</code> · <code>nav</code> · <code>main</code> · <code>footer</code> — <b>only <code>main</code> changes page to page</b></td></tr>
+        <tr><td class="q"><code>&lt;section&gt;</code> / <code>&lt;article&gt;</code> / <code>&lt;aside&gt;</code></td><td class="a">a themed block / something that stands on its own / a sidebar</td></tr>
+        <tr><td class="q">hero</td><td class="a">the first screen of the home page</td></tr>
+        <tr><td class="q"><code>&lt;th&gt;</code> vs <code>&lt;td&gt;</code></td><td class="a">header cell / data cell — <code>th</code> is what a screen reader pairs each number with</td></tr>
+        <tr><td class="q"><code>&lt;label for="…"&gt;</code></td><td class="a">ties a written label to an input — click the word, the field focuses</td></tr>
+        <tr><td class="q"><code>alt</code></td><td class="a">what the picture shows, said to someone who cannot see it</td></tr>
+        <tr><td class="q"><code>&lt;html lang="en"&gt;</code></td><td class="a">the language of the page — decides pronunciation, translation offer, search language</td></tr>
+      </table>
+    </section>
+
+    <!-- 5 -->
+    <section class="cram__sec">
+      <h2>5 · Formats <small>— one job each</small></h2>
+      <table>
+        <tr><td class="q">a photograph</td><td class="a"><b>JPEG</b> or <b>WebP</b> (WebP is smaller)</td></tr>
+        <tr><td class="q">transparency</td><td class="a"><b>PNG</b> — JPEG has no transparency</td></tr>
+        <tr><td class="q">a logo or an icon</td><td class="a"><b>SVG</b> — vector: sharp at any size, recolourable with CSS</td></tr>
+        <tr><td class="q">video or animation</td><td class="a"><b>MP4</b> — <b>never GIF</b> (huge, 256 colours)</td></tr>
+        <tr><td class="q">a web font</td><td class="a"><b>WOFF2</b></td></tr>
+        <tr><td class="q">the browser cannot show</td><td class="a"><code>.heic</code> <code>.psd</code> <code>.tiff</code> <code>.docx</code> — convert first</td></tr>
+      </table>
+    </section>
+
+    <!-- 6 -->
+    <section class="cram__sec">
+      <h2>6 · Names and paths <small>— the three rules and the five mistakes</small></h2>
+      <table>
+        <tr><td class="q">naming rules</td><td class="a"><b>all lowercase</b> · spaces become <b>hyphens</b> · <code>index.html</code> is the front page of a folder</td></tr>
+        <tr><td class="q">separator</td><td class="a">forward slash <code>/</code> — never a backslash <code>\</code></td></tr>
+        <tr><td class="q">never write</td><td class="a">a path on your own disk: <code>C:\Users\…</code></td></tr>
+        <tr><td class="q">missing scheme</td><td class="a"><code>www.example.com/x.png</code> is read as a <b>folder inside your own site</b> — it needs <code>https://</code></td></tr>
+        <tr><td class="q">a space in a filename</td><td class="a">becomes <code>%20</code>; the validator rejects it</td></tr>
+        <tr><td class="q">capitals</td><td class="a">ignored on Windows and macOS · <b>a 404 on the Linux server</b></td></tr>
+        <tr><td class="q">relative paths</td><td class="a"><code>images/hero.webp</code> · <code>../images/hero.webp</code> (up one) · <code>#prices</code> (this page)</td></tr>
+        <tr><td class="q">other schemes</td><td class="a"><code>mailto:</code> email · <code>tel:</code> phone</td></tr>
+        <tr><td class="q">the four parts of an address</td><td class="a">scheme · host · path · query — plus the <b>fragment</b>, which <b>the server never sees</b></td></tr>
+      </table>
+    </section>
+
+    <!-- 7 -->
+    <section class="cram__sec">
+      <h2>7 · Git words <small>— seven nouns, three verbs</small></h2>
+      <table>
+        <tr><td class="q">repository</td><td class="a">the folder whose history Git records</td></tr>
+        <tr><td class="q">commit</td><td class="a">a snapshot with a message</td></tr>
+        <tr><td class="q">stage / index</td><td class="a">the changes chosen for the next commit</td></tr>
+        <tr><td class="q">remote / <code>origin</code></td><td class="a">the copy elsewhere / the default name for it</td></tr>
+        <tr><td class="q"><code>main</code></td><td class="a">the default branch name</td></tr>
+        <tr><td class="q">clone / pull / push</td><td class="a">copy the whole thing / bring changes down / send commits up</td></tr>
+        <tr><td class="q"><code>git status</code></td><td class="a">what is changed, staged, untracked</td></tr>
+        <tr><td class="q"><code>.gitignore</code></td><td class="a">the list of what must never be committed</td></tr>
+        <tr><td class="q">the order</td><td class="a"><code>add</code> (choose) → <code>commit</code> (record) → <code>push</code> (send) — <b>only push needs the internet</b></td></tr>
+        <tr><td class="q">Git vs GitHub</td><td class="a">a program on your machine, works offline · a website holding a copy. Git without GitHub: yes. The other way round: no.</td></tr>
+        <tr><td class="q">how many repositories</td><td class="a">one per project — never one around all of them</td></tr>
+      </table>
+    </section>
+
+    <!-- 8 -->
+    <section class="cram__sec">
+      <h2>8 · Names of errors <small>— the words to write in Part D</small></h2>
+      <table>
+        <tr><td class="q">HTML</td><td class="a"><b>unclosed tag</b> · <b>unclosed quote</b> · <b>wrong nesting</b> (crossed) · <b>missing <code>alt</code></b> · <b>broken path</b> · list item outside a list · heading level skipped · missing <code>viewport</code></td></tr>
+        <tr><td class="q">CSS</td><td class="a"><b>misspelled property</b> (<code>colour</code>) · <b>wrong comment syntax</b> (<code>&lt;!-- --&gt;</code> or <code>//</code>) · <b>selector matches nothing</b> (capital letter) · <b>missing <code>;</code></b> · <b>missing <code>}</code></b> · <b>value with a comma</b> (<code>1rem, 2rem</code>) · unit missing or spaced (<code>32 px</code>)</td></tr>
+        <tr><td class="q">the symptom rule</td><td class="a">CSS never reports an error — a broken declaration is simply <b>silently dropped</b>. That is why you check line by line.</td></tr>
+        <tr><td class="q">which layer</td><td class="a">tags visible or text misplaced → HTML · everything unstyled → the <code>&lt;link&gt;</code> · one rule ignored → that rule · nothing happens on click → JavaScript, open the Console · nav and footer gone → opened with <code>file://</code> · image missing → the path</td></tr>
+      </table>
+    </section>
+
+    <!-- 9 -->
+    <section class="cram__sec">
+      <h2>9 · The one-sentence answers <small>— say each without stopping</small></h2>
+      <table>
+        <tr><td class="q">client / server</td><td class="a">The browser asks, the server answers; it remembers nothing between requests.</td></tr>
+        <tr><td class="q">DNS</td><td class="a">Turns a name into an IP address, so a request can be sent at all.</td></tr>
+        <tr><td class="q">why standards</td><td class="a">One page works in every browser, because they agree to read the same code.</td></tr>
+        <tr><td class="q">why separate the three</td><td class="a">One CSS file restyles every page · a screen reader reads HTML and ignores paint · you know which file to open · CSS is cached once.</td></tr>
+        <tr><td class="q">progressive enhancement</td><td class="a">It works, then it looks right, then it feels good.</td></tr>
+        <tr><td class="q">the four stages of a page load</td><td class="a">DNS → connect → request and response → parse, then ask again for CSS and images.</td></tr>
+        <tr><td class="q">why <code>index.html</code></td><td class="a">A server hands the front page of a folder without being told which file.</td></tr>
+      </table>
+    </section>
+
+    <p class="cram__foot">
+      Only these can be memorised. The rest of the paper — reading code (30) and finding errors (30) — is
+      practised on <a href="study.html">Study</a>, with the papers in <code>study\web-mock-02.html</code>.
+      Not on the exam at all: writing code · reading JavaScript line by line · <b>specificity and inheritance</b> · Vue.
+    </p>
+  </div>
+</main>
+
+<script src="nav.js?v=144"></script>
+<script>window.__DESK_BUILD__ = 'v165';</script>
+</body>
+</html>
