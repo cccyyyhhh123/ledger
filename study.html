@@ -156,7 +156,7 @@
       </ol>
 
       <details>
-        <summary style="cursor:pointer; color:var(--ink-2)">Next 7 days</summary>
+        <summary style="cursor:pointer; color:var(--ink-2)">Next 7 days (as of 11/10 — superseded by the 11/14 card below)</summary>
         <ul class="small" style="margin:8px 0 0; padding-left:18px; color:var(--muted); display:grid; gap:4px">
           <li>11/11 — unit 2 plots + unit 3 (bias &amp; confounding)</li>
           <li>11/12 — unit 6 joint variables, covariance</li>
@@ -184,6 +184,171 @@ continuous:  P(X = c) = 0             probability = area, not height</pre>
       </p>
     </article>
 
+
+    <!-- Math III — what the 11/13–14 sessions actually did (tutoring log, not unit ticks) -->
+    <article class="scard unitcard" data-course="stats" style="grid-column: span 12" aria-labelledby="mathLogH">
+      <div class="scard__head">
+        <h2 id="mathLogH">Math III · what the 11/13–14 sessions did</h2>
+        <span class="scard__meta">synced 2026-11-14</span>
+      </div>
+
+      <div style="display:flex; flex-wrap:wrap; gap:8px 18px; align-items:baseline">
+        <p style="margin:0; font:600 clamp(1.5rem,3vw,2rem)/1 var(--sans); letter-spacing:-.02em">
+          3 <small style="color:var(--muted); font-size:.55em; font-weight:500">/ 9 units</small>
+        </p>
+        <p class="small" style="margin:0; color:var(--muted)">
+          units did not move · the method did ·
+          exam <strong style="color:var(--ink)">11/24 14:00 · b110</strong>
+        </p>
+      </div>
+
+      <ol style="list-style:none; margin:2px 0 10px; padding:0; display:grid; gap:7px; font-size:.9rem">
+        <li style="display:flex; gap:10px; align-items:baseline">
+          <span style="flex:none; width:4.6rem; font:600 .72rem/1.6 var(--mono); color:var(--good)">RULE</span>
+          <span>Continuous density now has a five-step entry point: mark the support, set total area = 1, integrate only over the support, P(X = c) = 0, then sanity-check. Worked on <code>f(x) = cx</code> over (0, 2): c = 1/2, P(0.5 &lt; X &lt; 1.5) = 0.5.</span></li>
+        <li style="display:flex; gap:10px; align-items:baseline">
+          <span style="flex:none; width:4.6rem; font:600 .72rem/1.6 var(--mono); color:var(--warn)">DECK</span>
+          <span>Unit 6–7 paper written — 45 marks shaped like Exam section D (35 marks): joint table, marginals and independence, Cov and ρ, continuous joint density with a double integral, max(X, Y). File: <code>math-study\unit6-7-joint.html</code></span></li>
+        <li style="display:flex; gap:10px; align-items:baseline">
+          <span style="flex:none; width:4.6rem; font:600 .72rem/1.6 var(--mono); color:var(--bad)">DEAD</span>
+          <span>The first paper was off-plan and is dropped: it tested regression (in no exam section) and hypothesis tests (unit 9, 11/15–17).</span></li>
+        <li style="display:flex; gap:10px; align-items:baseline">
+          <span style="flex:none; width:4.6rem; font:600 .72rem/1.6 var(--mono); color:var(--muted-2)">TODO</span>
+          <span>The paper has not been sat. Four one-line normalisations are still unanswered — k = 1/9, 2, 1/3, 1/4.</span></li>
+      </ol>
+
+      <details>
+        <summary style="cursor:pointer; color:var(--ink-2)">Plan, 11/14 → 11/24</summary>
+        <ul class="small" style="margin:8px 0 0; padding-left:18px; color:var(--muted); display:grid; gap:4px">
+          <li>11/14 — unit 8: sampling distribution, standard error, CLT</li>
+          <li>11/15–11/17 — unit 9: confidence intervals, then hypothesis tests, then the error book</li>
+          <li>11/18–11/21 — unit 6 + 7 problem sets from the D-section paper; re-do every wrong answer once</li>
+          <li>11/22 — full 120-minute mock · 11/24 14:00 · b110</li>
+        </ul>
+      </details>
+    </article>
+
+    <!-- Programming III — the paper and the two templates, 11/14 -->
+    <article class="scard unitcard" data-course="cpp" style="grid-column: span 12" aria-labelledby="cppLog2H">
+      <div class="scard__head">
+        <h2 id="cppLog2H">Programming III · paper 01 and the two templates</h2>
+        <span class="scard__meta">synced 11/14</span>
+      </div>
+
+      <div style="display:flex; flex-wrap:wrap; gap:8px 18px; align-items:baseline">
+        <p style="margin:0; font:600 clamp(1.5rem,3vw,2rem)/1 var(--sans); letter-spacing:-.02em">
+          100 <small style="color:var(--muted); font-size:.55em; font-weight:500">marks written</small>
+        </p>
+        <p class="small" style="margin:0; color:var(--muted)">
+          11 rules still solid · mock B <strong style="color:var(--ink)">4.5 / 10</strong> unchanged ·
+          C and D not attempted ·
+          exam <strong style="color:var(--ink)">11/23 09:00 · b106</strong>
+        </p>
+      </div>
+
+      <ol style="list-style:none; margin:2px 0 10px; padding:0; display:grid; gap:7px; font-size:.9rem">
+        <li style="display:flex; gap:10px; align-items:baseline">
+          <span style="flex:none; width:4.6rem; font:600 .72rem/1.6 var(--mono); color:var(--warn)">PAPER</span>
+          <span>Mock 01 — 120 minutes, A 10 / B 30 / C 30 / D 30, same shape as 卷 C. Every 11/12 mistake is planted: truncation, <code>%</code>, <code>char</code> arithmetic, loop counts, value vs reference, <code>[]</code> without a bounds check, <code>||</code> semantics, constructor/destructor order, the empty vector. File: <code>study\cpp-mock-final-01.html</code></span></li>
+        <li style="display:flex; gap:10px; align-items:baseline">
+          <span style="flex:none; width:4.6rem; font:600 .72rem/1.6 var(--mono); color:var(--good)">TEMPLATE</span>
+          <span>A3–A5 now have English sentences to memorise: value vs reference (copy / caller / write back), RAII (owner / destructor / stack unwinding / reverse order), trailing <code>const</code> (<code>this</code> is a pointer to const, so it is callable on a const object).</span></li>
+        <li style="display:flex; gap:10px; align-items:baseline">
+          <span style="flex:none; width:4.6rem; font:600 .72rem/1.6 var(--mono); color:var(--good)">CHECKLIST</span>
+          <span>Part C scan list, in order: bounds, integer division, empty input, sign, illegal values, condition semantics. The question to ask of every parameter — what if it is 0, empty, negative, or huge?</span></li>
+        <li style="display:flex; gap:10px; align-items:baseline">
+          <span style="flex:none; width:4.6rem; font:600 .72rem/1.6 var(--mono); color:var(--muted-2)">WORKED</span>
+          <span>C3 walked through: <code>c == 'a' || 'e'</code> is always true because <code>'e'</code> is a nonzero int, so the function returns <code>s.size()</code> — every character counted as a vowel.</span></li>
+        <li style="display:flex; gap:10px; align-items:baseline">
+          <span style="flex:none; width:4.6rem; font:600 .72rem/1.6 var(--mono); color:var(--muted-2)">TODO</span>
+          <span>A3–A5 are not memorised yet. No Part C item has been attempted unaided. D's <code>maxOf</code> and <code>Account</code> are still unwritten on paper.</span></li>
+      </ol>
+
+      <details>
+        <summary style="cursor:pointer; color:var(--ink-2)">Waiting on four answers</summary>
+        <ul class="small" style="margin:8px 0 0; padding-left:18px; color:var(--muted); display:grid; gap:4px">
+          <li><code>for (int i = 0; i &lt;= v.size(); ++i) sum += v[i];</code> — which checklist line?</li>
+          <li><code>double avg = sum / n;</code> with both <code>int</code> — which line?</li>
+          <li><code>if (amount &gt; balance) return false; balance -= amount;</code> with a negative amount — which line?</li>
+          <li><code>int last = v[v.size() - 1];</code> on an empty <code>v</code> — which line?</li>
+        </ul>
+      </details>
+    </article>
+
+    <!-- Web — the 48 memorisable marks, from the course site (2026-11-14) -->
+    <article class="scard unitcard" data-course="web" style="grid-column: span 12" aria-labelledby="web48H">
+      <div class="scard__head">
+        <h2 id="web48H">Web · the 48 marks you can memorise</h2>
+        <span class="scard__meta">synced 2026-11-14 · from webtech.landrock.io</span>
+      </div>
+
+      <div style="display:flex; flex-wrap:wrap; gap:8px 18px; align-items:baseline">
+        <p style="margin:0; font:600 clamp(1.5rem,3vw,2rem)/1 var(--sans); letter-spacing:-.02em">
+          48 <small style="color:var(--muted); font-size:.55em; font-weight:500">/ 100 marks</small>
+        </p>
+        <p class="small" style="margin:0; color:var(--muted)">
+          A 15 + B 15 + E 10 + D3 8 ·
+          no code to write · exam <strong style="color:var(--ink)">11/20 14:00 · 90 min</strong>
+        </p>
+      </div>
+
+      <p class="scard__hint" style="margin:10px 0 6px">
+        Everything below is a fact to say out loud, not to work out. Tick the box when you can say it
+        without looking. Anything still empty the night before is what you revise.
+      </p>
+
+      <h3 class="small" style="margin:14px 0 4px; color:var(--ink)">A · How the web works — 15</h3>
+      <table class="small" style="width:100%; border-collapse:collapse">
+        <tr><td style="width:1.6rem">☐</td><td><b>Four inventions</b>, 1989, Berners-Lee, CERN — HTML (HyperText Markup Language) <i>write</i> · HTTP (HyperText Transfer Protocol) <i>send</i> · URL (Uniform Resource Locator) <i>address</i> · the browser <i>read</i> (his was WorldWideWeb)</td></tr>
+        <tr><td>☐</td><td><b>Parts of an address:</b> <code>scheme</code> · <code>host</code> (the domain inside it is who owns it) · <code>port</code> · <code>path</code> · <code>query</code> · <code>fragment</code> — <b>the fragment never reaches the server</b></td></tr>
+        <tr><td>☐</td><td><b>Status codes:</b> 2xx OK · 301 moved permanently (+ <code>Location</code>) · <b>404 not found = the requester's mistake</b> · <b>500 server error = the server's mistake</b></td></tr>
+        <tr><td>☐</td><td><b>DNS:</b> turns a name into an IP address — the phone book, before any request can be sent</td></tr>
+        <tr><td>☐</td><td><b>The chain:</b> DNS → connect → HTTP request → response with a status code → browser parses HTML → asks again for CSS and images</td></tr>
+        <tr><td>☐</td><td><b>Why standards:</b> one page works in every browser, because they all agree to read the same code</td></tr>
+        <tr><td>☐</td><td><b>Client and server:</b> the browser asks, the server answers — and knows nothing between requests</td></tr>
+      </table>
+
+      <h3 class="small" style="margin:16px 0 4px; color:var(--ink)">B · HTML, CSS or JavaScript — 15</h3>
+      <table class="small" style="width:100%; border-collapse:collapse">
+        <tr><td style="width:1.6rem">☐</td><td><b>Three jobs:</b> HTML = structure (walls, rooms) · CSS = presentation (paint, furniture) · JS = behaviour (plumbing, electricity). A page with no CSS is still a page.</td></tr>
+        <tr><td>☐</td><td><b>Shapes:</b> <code>&lt;tag&gt;…&lt;/tag&gt;</code> · <code>selector { property: value; }</code> · statements with <code>let</code> <code>const</code> <code>function</code> <code>document</code> <code>=&gt;</code></td></tr>
+        <tr><td>☐</td><td><b>Typical words:</b> HTML <code>href src alt class id</code> · CSS <code>color margin display font-size</code> · JS <code>let const document fetch</code></td></tr>
+        <tr><td>☐</td><td><b>Comments:</b> <code>&lt;!-- --&gt;</code> HTML only · <code>/* */</code> CSS <b>and</b> JS · <code>//</code> JS only — in CSS it is not a comment and it breaks the next rule</td></tr>
+        <tr><td>☐</td><td><b>Files:</b> <code>.html</code> <code>.css</code> <code>.js</code></td></tr>
+        <tr><td>☐</td><td><b>Inside a page:</b> <code>&lt;style&gt;</code> and <code>style="…"</code> carry CSS · <code>&lt;script&gt;</code> carries JS · <code>&lt;link rel="stylesheet"&gt;</code> and <code>&lt;script src&gt;</code> pull files in — and each of those lines is still HTML</td></tr>
+        <tr><td>☐</td><td><b>Name the language of the line, not of what sits inside its quotes</b> — <code>document.querySelector('.quote')</code> is JavaScript</td></tr>
+        <tr><td>☐</td><td><b>Why separate:</b> one CSS file styles every page · a screen reader reads HTML and ignores paint · you know which file to open · CSS is cached once</td></tr>
+        <tr><td>☐</td><td><b>Progressive enhancement:</b> it works → it looks right → it feels good</td></tr>
+        <tr><td>☐</td><td><b>When it breaks:</b> tags showing or text misplaced = HTML · everything unstyled = the <code>&lt;link&gt;</code> · one rule ignored = that CSS rule · button does nothing = JS, open the Console · nav and footer missing = opened with <code>file://</code>, <code>fetch</code> needs a server · image missing = the path, a 404 · <code>���</code> = the charset line · tiny page on a phone = the viewport line</td></tr>
+      </table>
+
+      <h3 class="small" style="margin:16px 0 4px; color:var(--ink)">C · Paths and names — 8 (D3)</h3>
+      <table class="small" style="width:100%; border-collapse:collapse">
+        <tr><td style="width:1.6rem">☐</td><td><b>Three rules:</b> all lowercase · forward slashes <code>/</code> never <code>\</code> · never a path on your own disk</td></tr>
+        <tr><td>☐</td><td><b>Case matters on the server, not on your laptop</b> — <code>Images/</code> for a folder called <code>images</code> is a 404</td></tr>
+        <tr><td>☐</td><td><b>No spaces in names</b> — a space becomes <code>%20</code>; use <code>-</code>. <code>index.html</code> is the front page of a folder</td></tr>
+        <tr><td>☐</td><td><b>Missing <code>https://</code>:</b> the browser looks for a folder called <code>www.example.com</code> inside your own site</td></tr>
+        <tr><td>☐</td><td><b>Relative vs absolute:</b> <code>images/hero.webp</code> · <code>../images/hero.webp</code> · <code>about.html#prices</code> · <code>https://…</code> · <code>mailto:</code> · <code>tel:</code></td></tr>
+      </table>
+
+      <h3 class="small" style="margin:16px 0 4px; color:var(--ink)">D · Your project and its tools — 10 (E)</h3>
+      <table class="small" style="width:100%; border-collapse:collapse">
+        <tr><td style="width:1.6rem">☐</td><td><b>favicon 32 × 32</b> — the tab, bookmarks, history</td></tr>
+        <tr><td>☐</td><td><b>app icon 180 × 180</b> — the phone's home screen when the site is saved</td></tr>
+        <tr><td>☐</td><td><b>Open Graph image 1200 × 630</b> — the preview card when a link is shared; it needs the full <code>https://</code> address</td></tr>
+        <tr><td>☐</td><td><b>Formats:</b> photo = JPEG or WebP · transparency = PNG · logo or icon = SVG · video = MP4, <b>not GIF</b> · font = WOFF2</td></tr>
+        <tr><td>☐</td><td><b>A browser cannot show:</b> <code>.heic</code> <code>.psd</code> <code>.tiff</code> <code>.docx</code> — convert first</td></tr>
+        <tr><td>☐</td><td><b>Git vs GitHub:</b> a program on your machine that records history offline, versus a website that keeps a copy online. Git without GitHub, yes; the other way round, no.</td></tr>
+        <tr><td>☐</td><td><b>add → commit → push:</b> choose · record · send. <b>Only push needs the internet.</b></td></tr>
+        <tr><td>☐</td><td><b>The page's four parts:</b> header · nav · main · footer — only <code>&lt;main&gt;</code> changes page to page. Also: hero = the first screen of the home page · section · article · cards in a grid · aside · responsive = one page on a phone and on a laptop</td></tr>
+      </table>
+
+      <p class="scard__hint" style="margin:12px 0 0">
+        Not on the exam, so stop revising it: writing code · reading JavaScript line by line ·
+        <b>specificity and inheritance</b> · Vue and frameworks. The remaining 52 marks are
+        reading code (C, 30) and finding errors (D, 30 minus the 8 above).
+      </p>
+    </article>
 
     <!-- the other courses: their unit breakdown is not recorded yet -->
     <article class="scard unitcard" data-course="cpp" style="grid-column: span 12" hidden>
